@@ -1,0 +1,57 @@
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NodaTime;
+
+namespace Foxnouns.Backend.Database;
+
+public readonly struct Snowflake(ulong value)
+{
+    public const long Epoch = 1_640_995_200_000; // 2022-01-01 at 00:00:00 UTC
+    public readonly ulong Value = value;
+
+    /// <summary>
+    /// The time this snowflake was created.
+    /// </summary>
+    public Instant Time => Instant.FromUnixTimeMilliseconds(Timestamp);
+
+    /// <summary>
+    /// The Unix timestamp embedded in this snowflake, in milliseconds.
+    /// </summary>
+    public long Timestamp => (long)((Value >> 22) + Epoch);
+
+    /// <summary>
+    /// The process ID embedded in this snowflake.
+    /// </summary>
+    public byte ProcessId => (byte)((Value & 0x3E0000) >> 17);
+
+    /// <summary>
+    /// The thread ID embedded in this snowflake.
+    /// </summary>
+    public byte ThreadId => (byte)((Value & 0x1F000) >> 12);
+
+    /// <summary>
+    /// The increment embedded in this snowflake.
+    /// </summary>
+    public short Increment => (short)(Value & 0xFFF);
+
+    public static bool operator <(Snowflake arg1, Snowflake arg2) => arg1.Value < arg2.Value;
+    public static bool operator >(Snowflake arg1, Snowflake arg2) => arg1.Value > arg2.Value;
+    public static bool operator ==(Snowflake arg1, Snowflake arg2) => arg1.Value == arg2.Value;
+    public static bool operator !=(Snowflake arg1, Snowflake arg2) => arg1.Value != arg2.Value;
+
+    public static implicit operator ulong(Snowflake s) => s.Value;
+    public static implicit operator long(Snowflake s) => (long)s.Value;
+    public static implicit operator Snowflake(ulong n) => new(n);
+    public static implicit operator Snowflake(long n) => new((ulong)n);
+
+    public override bool Equals(object? obj) => obj is Snowflake other && Value == other.Value;
+    public override int GetHashCode() => Value.GetHashCode();
+
+    /// <summary>
+    /// An Entity Framework ValueConverter for Snowflakes to longs.
+    /// </summary>
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class ValueConverter() : ValueConverter<Snowflake, long>(
+        convertToProviderExpression: x => x,
+        convertFromProviderExpression: x => x
+    );
+}
