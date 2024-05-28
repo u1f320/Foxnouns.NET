@@ -8,6 +8,7 @@ public class User : BaseModel
     public string? MemberTitle { get; set; }
     public string? Avatar { get; set; }
     public string[] Links { get; set; } = [];
+    public bool ListHidden { get; set; }
 
     public List<FieldEntry> Names { get; set; } = [];
     public List<Pronoun> Pronouns { get; set; } = [];

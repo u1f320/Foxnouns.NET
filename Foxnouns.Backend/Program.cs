@@ -3,13 +3,14 @@ using Foxnouns.Backend.Database;
 using Serilog;
 using Foxnouns.Backend.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.AddConfiguration();
 
-builder.AddSerilog(config.LogEventLevel);
+builder.AddSerilog();
 
 builder.Services
     .AddControllers()
@@ -24,6 +25,15 @@ builder.Services
             new ApiError.BadRequest("Bad request", actionContext.ModelState).ToJson()
         );
     });
+
+// Set the default converter to snake case as we use it in a couple places.
+JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+{
+    ContractResolver = new DefaultContractResolver
+    {
+        NamingStrategy = new SnakeCaseNamingStrategy()
+    }
+};
 
 builder.Services
     .AddDbContext<DatabaseContext>()

@@ -13,16 +13,14 @@ public static class DatabaseQueryExtensions
         if (Snowflake.TryParse(userRef, out var snowflake))
         {
             user = await context.Users
-                .Include(u => u.Members)
                 .FirstOrDefaultAsync(u => u.Id == snowflake);
             if (user != null) return user;
         }
 
         user = await context.Users
-            .Include(u => u.Members)
             .FirstOrDefaultAsync(u => u.Username == userRef);
         if (user != null) return user;
-        throw new FoxnounsError.UnknownEntityError(typeof(User));
+        throw new ApiError.NotFound("No user with that ID or username found.", code: ErrorCode.UserNotFound);
     }
 
     public static async Task<Application> GetFrontendApplicationAsync(this DatabaseContext context)

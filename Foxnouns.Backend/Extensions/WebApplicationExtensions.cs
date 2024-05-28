@@ -1,5 +1,6 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Middleware;
+using Foxnouns.Backend.Services;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using Serilog;
@@ -12,13 +13,13 @@ public static class WebApplicationExtensions
     /// <summary>
     /// Adds Serilog to this service collection. This method also initializes Serilog, so it should be called as early as possible, before any log calls.
     /// </summary>
-    public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder, LogEventLevel level)
+    public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder)
     {
         var config = builder.Configuration.Get<Config>() ?? new();
 
         var logCfg = new LoggerConfiguration()
             .Enrich.FromLogContext()
-            .MinimumLevel.Is(level)
+            .MinimumLevel.Is(config.LogEventLevel)
             // ASP.NET's built in request logs are extremely verbose, so we use Serilog's instead.
             // Serilog doesn't disable the built-in logs, so we do it here.
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -62,7 +63,9 @@ public static class WebApplicationExtensions
 
     public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
         .AddSingleton<IClock>(SystemClock.Instance)
-        .AddSnowflakeGenerator();
+        .AddSnowflakeGenerator()
+        .AddScoped<UserRendererService>()
+        .AddScoped<MemberRendererService>();
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
         .AddScoped<ErrorHandlerMiddleware>()

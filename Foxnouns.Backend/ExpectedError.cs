@@ -15,9 +15,11 @@ public class FoxnounsError(string message, Exception? inner = null) : Exception(
         : DatabaseError($"Entity of type {entityType.Name} not found", inner);
 }
 
-public class ApiError(string message, HttpStatusCode? statusCode = null) : FoxnounsError(message)
+public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCode? errorCode = null)
+    : FoxnounsError(message)
 {
     public readonly HttpStatusCode StatusCode = statusCode ?? HttpStatusCode.InternalServerError;
+    public readonly ErrorCode ErrorCode = errorCode ?? ErrorCode.InternalServerError;
 
     public class Unauthorized(string message) : ApiError(message, statusCode: HttpStatusCode.Unauthorized);
 
@@ -30,8 +32,6 @@ public class ApiError(string message, HttpStatusCode? statusCode = null) : Foxno
     public class BadRequest(string message, ModelStateDictionary? modelState = null)
         : ApiError(message, statusCode: HttpStatusCode.BadRequest)
     {
-        public readonly ModelStateDictionary? Errors = modelState;
-
         public JObject ToJson()
         {
             var o = new JObject
@@ -39,10 +39,10 @@ public class ApiError(string message, HttpStatusCode? statusCode = null) : Foxno
                 { "status", (int)HttpStatusCode.BadRequest },
                 { "code", ErrorCode.BadRequest.ToString() }
             };
-            if (Errors == null) return o;
+            if (modelState == null) return o;
 
             var a = new JArray();
-            foreach (var error in Errors.Where(e => e.Value is { Errors.Count: > 0 }))
+            foreach (var error in modelState.Where(e => e.Value is { Errors.Count: > 0 }))
             {
                 var errorObj = new JObject
                 {
@@ -61,7 +61,18 @@ public class ApiError(string message, HttpStatusCode? statusCode = null) : Foxno
         }
     }
 
-    public class NotFound(string message) : ApiError(message, statusCode: HttpStatusCode.NotFound);
+    public class NotFound(string message, ErrorCode? code = null)
+        : ApiError(message, statusCode: HttpStatusCode.NotFound, errorCode: code);
 
     public class AuthenticationError(string message) : ApiError(message, statusCode: HttpStatusCode.BadRequest);
+}
+
+public enum ErrorCode
+{
+    InternalServerError,
+    Forbidden,
+    BadRequest,
+    AuthenticationError,
+    GenericApiError,
+    UserNotFound,
 }

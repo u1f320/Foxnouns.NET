@@ -242,6 +242,10 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text[]")
                         .HasColumnName("links");
 
+                    b.Property<bool>("ListHidden")
+                        .HasColumnType("boolean")
+                        .HasColumnName("list_hidden");
+
                     b.Property<string>("MemberTitle")
                         .HasColumnType("text")
                         .HasColumnName("member_title");

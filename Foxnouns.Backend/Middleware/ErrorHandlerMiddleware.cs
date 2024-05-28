@@ -45,7 +45,7 @@ public class ErrorHandlerMiddleware(ILogger baseLogger) : IMiddleware
                 await ctx.Response.WriteAsync(JsonConvert.SerializeObject(new HttpApiError
                 {
                     Status = (int)ae.StatusCode,
-                    Code = ErrorCode.GenericApiError,
+                    Code = ae.ErrorCode,
                     Message = ae.Message,
                 }));
                 return;
@@ -76,18 +76,12 @@ public class ErrorHandlerMiddleware(ILogger baseLogger) : IMiddleware
 public record HttpApiError
 {
     public required int Status { get; init; }
+
     [JsonConverter(typeof(StringEnumConverter))]
     public required ErrorCode Code { get; init; }
+
     public required string Message { get; init; }
+
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string[]? Scopes { get; init; }
-}
-
-public enum ErrorCode
-{
-    InternalServerError,
-    Forbidden,
-    BadRequest,
-    AuthenticationError,
-    GenericApiError,
 }
