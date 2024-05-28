@@ -22,6 +22,43 @@ namespace Foxnouns.Backend.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Application", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("client_id");
+
+                    b.Property<string>("ClientSecret")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("client_secret");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string[]>("RedirectUris")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("redirect_uris");
+
+                    b.Property<string[]>("Scopes")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("scopes");
+
+                    b.HasKey("Id")
+                        .HasName("pk_applications");
+
+                    b.ToTable("applications", (string)null);
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.AuthMethod", b =>
                 {
                     b.Property<long>("Id")
@@ -144,9 +181,18 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
+                    b.Property<long>("ApplicationId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("application_id");
+
                     b.Property<Instant>("ExpiresAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("expires_at");
+
+                    b.Property<byte[]>("Hash")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("hash");
 
                     b.Property<bool>("ManuallyExpired")
                         .HasColumnType("boolean")
@@ -163,6 +209,9 @@ namespace Foxnouns.Backend.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_tokens");
+
+                    b.HasIndex("ApplicationId")
+                        .HasDatabaseName("ix_tokens_application_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_tokens_user_id");
@@ -315,12 +364,21 @@ namespace Foxnouns.Backend.Database.Migrations
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Token", b =>
                 {
+                    b.HasOne("Foxnouns.Backend.Database.Models.Application", "Application")
+                        .WithMany()
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tokens_applications_application_id");
+
                     b.HasOne("Foxnouns.Backend.Database.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_tokens_users_user_id");
+
+                    b.Navigation("Application");
 
                     b.Navigation("User");
                 });

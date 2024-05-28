@@ -15,6 +15,7 @@ public class DatabaseContext : DbContext
     public DbSet<AuthMethod> AuthMethods { get; set; }
     public DbSet<FediverseApplication> FediverseApplications { get; set; }
     public DbSet<Token> Tokens { get; set; }
+    public DbSet<Application> Applications { get; set; }
 
     public DatabaseContext(Config config)
     {

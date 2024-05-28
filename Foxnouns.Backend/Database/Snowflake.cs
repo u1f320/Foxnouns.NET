@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 
@@ -42,6 +43,14 @@ public readonly struct Snowflake(ulong value)
     public static implicit operator long(Snowflake s) => (long)s.Value;
     public static implicit operator Snowflake(ulong n) => new(n);
     public static implicit operator Snowflake(long n) => new((ulong)n);
+
+    public static bool TryParse(string input, [NotNullWhen(true)] out Snowflake? snowflake)
+    {
+        snowflake = null;
+        if (!ulong.TryParse(input, out var res)) return false;
+        snowflake = new Snowflake(res);
+        return true;
+    }
 
     public override bool Equals(object? obj) => obj is Snowflake other && Value == other.Value;
     public override int GetHashCode() => Value.GetHashCode();

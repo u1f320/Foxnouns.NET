@@ -1,10 +1,13 @@
+using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Middleware;
+using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using Serilog;
 using Serilog.Events;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Foxnouns.Backend.Extensions;
 
-public static class ServiceCollectionExtensions
+public static class WebApplicationExtensions
 {
     /// <summary>
     /// Adds Serilog to this service collection. This method also initializes Serilog, so it should be called as early as possible, before any log calls.
@@ -22,7 +25,7 @@ public static class ServiceCollectionExtensions
             .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
-            .WriteTo.Console(theme: AnsiConsoleTheme.Code);
+            .WriteTo.Console();
 
         if (config.SeqLogUrl != null)
         {
@@ -39,7 +42,6 @@ public static class ServiceCollectionExtensions
 
     public static Config AddConfiguration(this WebApplicationBuilder builder)
     {
-
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddConfiguration();
 
@@ -56,5 +58,57 @@ public static class ServiceCollectionExtensions
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddIniFile(file, optional: false, reloadOnChange: true)
             .AddEnvironmentVariables();
+    }
+
+    public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
+        .AddSingleton<IClock>(SystemClock.Instance)
+        .AddSnowflakeGenerator();
+
+    public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
+        .AddScoped<ErrorHandlerMiddleware>()
+        .AddScoped<AuthenticationMiddleware>()
+        .AddScoped<AuthorizationMiddleware>();
+
+    public static IApplicationBuilder UseCustomMiddleware(this IApplicationBuilder app) => app
+        .UseMiddleware<ErrorHandlerMiddleware>()
+        .UseMiddleware<AuthenticationMiddleware>()
+        .UseMiddleware<AuthorizationMiddleware>();
+
+    public static async Task Initialize(this WebApplication app, string[] args)
+    {
+        await BuildInfo.ReadBuildInfo();
+
+        await using var scope = app.Services.CreateAsyncScope();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger>().ForContext<WebApplication>();
+        var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+
+        logger.Information("Starting Foxnouns.NET {Version} ({Hash})", BuildInfo.Version, BuildInfo.Hash);
+
+        var pendingMigrations = (await db.Database.GetPendingMigrationsAsync()).ToList();
+        if (args.Contains("--migrate") || args.Contains("--migrate-and-start"))
+        {
+            if (pendingMigrations.Count == 0)
+            {
+                logger.Information("Migrations requested but no migrations are required");
+            }
+            else
+            {
+                logger.Information("Migrating database to the latest version");
+                await db.Database.MigrateAsync();
+                logger.Information("Successfully migrated database");
+            }
+
+            if (!args.Contains("--migrate-and-start")) Environment.Exit(0);
+        }
+        else if (pendingMigrations.Count > 0)
+        {
+            logger.Fatal(
+                "There are {Count} pending migrations, run server with --migrate or --migrate-and-start to run migrations.",
+                pendingMigrations.Count);
+            Environment.Exit(1);
+        }
+        
+        logger.Information("Initializing frontend OAuth application");
+        _ = await db.GetFrontendApplicationAsync();
     }
 }
