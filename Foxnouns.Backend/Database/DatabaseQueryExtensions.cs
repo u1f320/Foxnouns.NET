@@ -23,6 +23,48 @@ public static class DatabaseQueryExtensions
         throw new ApiError.NotFound("No user with that ID or username found.", code: ErrorCode.UserNotFound);
     }
 
+    public static async Task<User> ResolveUserAsync(this DatabaseContext context, Snowflake id)
+    {
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
+        if (user != null) return user;
+        throw new ApiError.NotFound("No user with that ID found.", code: ErrorCode.UserNotFound);
+    }
+
+    public static async Task<Member> ResolveMemberAsync(this DatabaseContext context, Snowflake id)
+    {
+        var member = await context.Members
+            .Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (member != null) return member;
+        throw new ApiError.NotFound("No member with that ID found.", code: ErrorCode.MemberNotFound);
+    }
+
+    public static async Task<Member> ResolveMemberAsync(this DatabaseContext context, string userRef, string memberRef)
+    {
+        var user = await context.ResolveUserAsync(userRef);
+        return await context.ResolveMemberAsync(user.Id, memberRef);
+    }
+
+    public static async Task<Member> ResolveMemberAsync(this DatabaseContext context, Snowflake userId,
+        string memberRef)
+    {
+        Member? member;
+        if (Snowflake.TryParse(memberRef, out var snowflake))
+        {
+            member = await context.Members
+                .Include(m => m.User)
+                .FirstOrDefaultAsync(m => m.Id == snowflake && m.UserId == userId);
+            if (member != null) return member;
+        }
+
+        member = await context.Members
+            .Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.Name == memberRef && m.UserId == userId);
+        if (member != null) return member;
+        throw new ApiError.NotFound("No member with that ID or name found.", code: ErrorCode.MemberNotFound);
+    }
+
     public static async Task<Application> GetFrontendApplicationAsync(this DatabaseContext context)
     {
         var app = await context.Applications.FirstOrDefaultAsync(a => a.Id == new Snowflake(0));

@@ -16,13 +16,13 @@ public static class OauthUtils
     /// <summary>
     /// All scopes endpoints can be secured by. This does *not* include the catch-all token scopes.
     /// </summary>
-    public static readonly string[] Scopes = ["identify", ..UserScopes, ..MemberScopes];
+    public static readonly string[] Scopes = ["identify", .. UserScopes, .. MemberScopes];
 
     /// <summary>
     /// All scopes that can be granted to applications and tokens. Includes the catch-all token scopes,
     /// except for "*" which is only granted to the frontend.
     /// </summary>
-    public static readonly string[] ApplicationScopes = [..Scopes, "user", "member"];
+    public static readonly string[] ApplicationScopes = [.. Scopes, "user", "member"];
 
     public static string[] ExpandScopes(this string[] scopes)
     {

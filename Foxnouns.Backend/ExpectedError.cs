@@ -75,4 +75,5 @@ public enum ErrorCode
     AuthenticationError,
     GenericApiError,
     UserNotFound,
+    MemberNotFound,
 }

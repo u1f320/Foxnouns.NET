@@ -8,7 +8,7 @@ public class AuthMethod : BaseModel
 
     public Snowflake UserId { get; init; }
     public User User { get; init; } = null!;
-    
+
     public Snowflake? FediverseApplicationId { get; init; }
     public FediverseApplication? FediverseApplication { get; init; }
 }

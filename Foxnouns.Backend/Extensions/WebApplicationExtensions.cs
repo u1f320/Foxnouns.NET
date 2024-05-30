@@ -110,7 +110,7 @@ public static class WebApplicationExtensions
                 pendingMigrations.Count);
             Environment.Exit(1);
         }
-        
+
         logger.Information("Initializing frontend OAuth application");
         _ = await db.GetFrontendApplicationAsync();
     }

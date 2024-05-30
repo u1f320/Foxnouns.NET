@@ -13,14 +13,15 @@ public class UsersController(DatabaseContext db, UserRendererService userRendere
     public async Task<IActionResult> GetUser(string userRef)
     {
         var user = await db.ResolveUserAsync(userRef);
-        return Ok(await userRendererService.RenderUserAsync(user));
+        return Ok(await userRendererService.RenderUserAsync(user, selfUser: User));
     }
 
     [HttpGet("@me")]
     [Authorize("identify")]
-    public Task<IActionResult> GetMe()
+    public async Task<IActionResult> GetMe()
     {
-        throw new NotImplementedException();
+        var user = await db.ResolveUserAsync(User!.Id);
+        return Ok(await userRendererService.RenderUserAsync(user, selfUser: User));
     }
 
     [HttpPatch("@me")]

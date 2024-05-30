@@ -131,7 +131,7 @@ namespace Foxnouns.Backend.Database.Migrations
                 name: "ix_auth_methods_user_id",
                 table: "auth_methods",
                 column: "user_id");
-            
+
             // EF Core doesn't support creating indexes on arbitrary expressions, so we have to create it manually.
             // Due to historical reasons (I made a mistake while writing the initial migration for the Go version)
             // only members have case-insensitive names.
