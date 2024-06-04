@@ -2,6 +2,7 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Npgsql;
 
 namespace Foxnouns.Backend.Database;
@@ -32,6 +33,7 @@ public class DatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder
+            .ConfigureWarnings(c => c.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
             .UseNpgsql(_dataSource, o => o.UseNodaTime())
             .UseSnakeCaseNamingConvention();
 

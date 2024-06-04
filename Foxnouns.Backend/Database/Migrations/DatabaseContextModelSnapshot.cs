@@ -250,6 +250,10 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("member_title");
 
+                    b.Property<string>("Password")
+                        .HasColumnType("text")
+                        .HasColumnName("password");
+
                     b.Property<int>("Role")
                         .HasColumnType("integer")
                         .HasColumnName("role");

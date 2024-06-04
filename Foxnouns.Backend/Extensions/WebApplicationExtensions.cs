@@ -65,7 +65,8 @@ public static class WebApplicationExtensions
         .AddSingleton<IClock>(SystemClock.Instance)
         .AddSnowflakeGenerator()
         .AddScoped<UserRendererService>()
-        .AddScoped<MemberRendererService>();
+        .AddScoped<MemberRendererService>()
+        .AddScoped<AuthService>();
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
         .AddScoped<ErrorHandlerMiddleware>()

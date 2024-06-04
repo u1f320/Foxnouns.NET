@@ -13,15 +13,15 @@ public class UsersController(DatabaseContext db, UserRendererService userRendere
     public async Task<IActionResult> GetUser(string userRef)
     {
         var user = await db.ResolveUserAsync(userRef);
-        return Ok(await userRendererService.RenderUserAsync(user, selfUser: User));
+        return Ok(await userRendererService.RenderUserAsync(user, selfUser: CurrentUser));
     }
 
     [HttpGet("@me")]
     [Authorize("identify")]
     public async Task<IActionResult> GetMe()
     {
-        var user = await db.ResolveUserAsync(User!.Id);
-        return Ok(await userRendererService.RenderUserAsync(user, selfUser: User));
+        var user = await db.ResolveUserAsync(CurrentUser!.Id);
+        return Ok(await userRendererService.RenderUserAsync(user, selfUser: CurrentUser));
     }
 
     [HttpPatch("@me")]

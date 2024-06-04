@@ -15,6 +15,7 @@ public class User : BaseModel
     public List<Field> Fields { get; set; } = [];
 
     public UserRole Role { get; set; } = UserRole.User;
+    public string? Password { get; set; } // Password may be null if the user doesn't authenticate with an email address
 
     public List<Member> Members { get; } = [];
     public List<AuthMethod> AuthMethods { get; } = [];

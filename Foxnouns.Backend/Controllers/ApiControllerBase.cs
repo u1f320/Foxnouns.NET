@@ -8,6 +8,6 @@ namespace Foxnouns.Backend.Controllers;
 [Authenticate]
 public class ApiControllerBase : ControllerBase
 {
-    internal Token? Token => HttpContext.GetToken();
-    internal new User? User => HttpContext.GetUser();
+    internal Token? CurrentToken => HttpContext.GetToken();
+    internal User? CurrentUser => HttpContext.GetUser();
 }

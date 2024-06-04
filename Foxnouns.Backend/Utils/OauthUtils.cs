@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Foxnouns.Backend.Database.Models;
 
 namespace Foxnouns.Backend.Utils;
 
@@ -16,13 +17,13 @@ public static class OauthUtils
     /// <summary>
     /// All scopes endpoints can be secured by. This does *not* include the catch-all token scopes.
     /// </summary>
-    public static readonly string[] Scopes = ["identify", .. UserScopes, .. MemberScopes];
+    public static readonly string[] Scopes = ["identify", ..UserScopes, ..MemberScopes];
 
     /// <summary>
     /// All scopes that can be granted to applications and tokens. Includes the catch-all token scopes,
     /// except for "*" which is only granted to the frontend.
     /// </summary>
-    public static readonly string[] ApplicationScopes = [.. Scopes, "user", "member"];
+    public static readonly string[] ApplicationScopes = [..Scopes, "user", "member"];
 
     public static string[] ExpandScopes(this string[] scopes)
     {
@@ -32,6 +33,21 @@ public static class OauthUtils
         if (scopes.Contains("member")) expandedScopes.AddRange(MemberScopes);
 
         return expandedScopes.ToArray();
+    }
+
+    private static string[] ExpandAppScopes(this string[] scopes)
+    {
+        var expandedScopes = scopes.ExpandScopes().ToList();
+        if (scopes.Contains("user")) expandedScopes.Add("user");
+        if (scopes.Contains("member")) expandedScopes.Add("member");
+        return expandedScopes.ToArray();
+    }
+
+    public static bool ValidateScopes(Application application, string[] scopes)
+    {
+        var expandedScopes = scopes.ExpandScopes();
+        var appScopes = application.Scopes.ExpandAppScopes();
+        return !expandedScopes.Except(appScopes).Any();
     }
 
     public static bool ValidateRedirectUri(string uri)

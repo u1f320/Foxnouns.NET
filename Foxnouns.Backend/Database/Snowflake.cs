@@ -1,9 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Newtonsoft.Json;
 using NodaTime;
 
 namespace Foxnouns.Backend.Database;
 
+[JsonConverter(typeof(JsonConverter))]
 public readonly struct Snowflake(ulong value)
 {
     public const long Epoch = 1_640_995_200_000; // 2022-01-01 at 00:00:00 UTC
@@ -63,4 +65,19 @@ public readonly struct Snowflake(ulong value)
         convertToProviderExpression: x => x,
         convertFromProviderExpression: x => x
     );
+
+    private class JsonConverter : JsonConverter<Snowflake>
+    {
+        public override void WriteJson(JsonWriter writer, Snowflake value, JsonSerializer serializer)
+        {
+            writer.WriteValue(value.Value.ToString());
+        }
+
+        public override Snowflake ReadJson(JsonReader reader, Type objectType, Snowflake existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
+        {
+            return ulong.Parse((string)reader.Value!);
+        }
+    }
 }

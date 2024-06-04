@@ -15,7 +15,7 @@ public class Application : BaseModel
         string[] redirectUrls)
     {
         var clientId = RandomNumberGenerator.GetHexString(32, true);
-        var clientSecret = OauthUtils.RandomToken(48);
+        var clientSecret = OauthUtils.RandomToken();
 
         if (scopes.Except(OauthUtils.ApplicationScopes).Any())
         {
