@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
+// Read version information from .version in the repository root
+await BuildInfo.ReadBuildInfo();
+
 var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.AddConfiguration();

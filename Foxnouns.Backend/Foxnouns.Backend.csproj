@@ -29,4 +29,8 @@
         <Exec Command="../build_info.sh" IgnoreExitCode="false">
         </Exec>
     </Target>
+
+    <ItemGroup>
+        <EmbeddedResource Include="..\.version" LogicalName="version"/>
+    </ItemGroup>
 </Project>
