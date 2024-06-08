@@ -28,5 +28,5 @@ public class DebugController(DatabaseContext db, AuthService authSvc, IClock clo
 
     public record CreateUserRequest(string Username, string Password, string Email);
 
-    public record AuthResponse(Snowflake Id, string Username, string Token);
+    private record AuthResponse(Snowflake Id, string Username, string Token);
 }
