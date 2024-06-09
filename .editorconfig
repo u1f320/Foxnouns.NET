@@ -1,2 +1,5 @@
 [*.cs]
+# We use PostgresSQL which doesn't recommend more specific string types
 resharper_entity_framework_model_validation_unlimited_string_length_highlighting = none
+# This is raised for every single property of records returned by endpoints
+resharper_not_accessed_positional_property_local_highlighting = none

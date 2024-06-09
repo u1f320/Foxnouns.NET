@@ -14,8 +14,13 @@ public class MetaController(DatabaseContext db) : ApiControllerBase
         var userCount = await db.Users.CountAsync();
         var memberCount = await db.Members.CountAsync();
 
-        return Ok(new MetaResponse(userCount, memberCount, BuildInfo.Version, BuildInfo.Hash));
+        return Ok(new MetaResponse(
+            BuildInfo.Version, BuildInfo.Hash, memberCount,
+            new UserInfo(userCount, 0, 0, 0))
+        );
     }
 
-    private record MetaResponse(int Users, int Members, string Version, string Hash);
+    private record MetaResponse(string Version, string Hash, int Members, UserInfo Users);
+
+    private record UserInfo(int Total, int ActiveMonth, int ActiveWeek, int ActiveDay);
 }
