@@ -1,57 +1,70 @@
 <script lang="ts">
-	import {
-		Navbar,
-		NavbarBrand,
-		NavbarToggler,
-		Collapse,
-		Nav,
-		Dropdown,
-		DropdownToggle,
-		DropdownMenu,
-		DropdownItem,
-		NavItem,
-	} from "@sveltestrap/sveltestrap";
+	import { IconSun, IconMoon } from "@tabler/icons-svelte";
+	import { onMount } from "svelte";
+	import Dropdown from "./Dropdown.svelte";
+	import DropdownItem from "./DropdownItem.svelte";
 	import Logo from "./Logo.svelte";
 	import type { User } from "$lib/api/user";
+	import { themeStore } from "$lib/store";
 
 	export let user: User | undefined;
+	let navIsOpen = false;
 
-	let showMenu = true;
-	const toggleMenu = () => {
-		showMenu = !showMenu;
+	onMount(() => {
+		let theme = localStorage.getItem("pronounscc-theme");
+		if (!theme)
+			theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+		themeStore.set(theme);
+	});
+
+	const toggleTheme = () => {
+		themeStore.set($themeStore === "dark" ? "light" : "dark");
+		document.documentElement.setAttribute("data-theme", $themeStore);
+		localStorage.setItem("pronounscc-theme", $themeStore);
 	};
-	let userMenuOpen = false;
 </script>
 
-<Navbar>
-	<NavbarBrand href="/" aria-label="pronouns.cc landing page">
-		<Logo />
-	</NavbarBrand>
-	<NavbarToggler on:click={toggleMenu} aria-label="Toggle menu" />
-	<Collapse isOpen={showMenu} navbar expand="lg">
-		<Nav class="ms-auto" navbar>
+<nav class="navbar is-transparent" aria-label="Main navigation">
+	<div class="navbar-brand">
+		<a href="/" class="navbar-item">
+			<Logo />
+		</a>
+		<button
+			class={"navbar-burger" + (navIsOpen ? " is-active" : "")}
+			aria-label="menu"
+			aria-expanded="false"
+			on:click={() => (navIsOpen = !navIsOpen)}
+		>
+			<span aria-hidden="true"></span>
+			<span aria-hidden="true"></span>
+			<span aria-hidden="true"></span>
+			<span aria-hidden="true"></span>
+		</button>
+	</div>
+	<div class={"navbar-menu" + (navIsOpen ? " is-active" : "")}>
+		<div class="navbar-end">
 			{#if user}
-				<NavItem>
-					<Dropdown nav isOpen={userMenuOpen} toggle={() => (userMenuOpen = !userMenuOpen)}>
-						<DropdownToggle nav caret>@{user.username}</DropdownToggle>
-						<DropdownMenu>
-							<DropdownItem href="/@{user.username}">View profile</DropdownItem>
-							<DropdownItem href="/settings">Settings</DropdownItem>
-							<DropdownItem divider />
-							<DropdownItem href="/logout">Log out</DropdownItem>
-						</DropdownMenu>
-					</Dropdown>
-				</NavItem>
+				<Dropdown>
+					<span slot="label">@{user.username}</span>
+					<DropdownItem href="/@{user.username}">View profile</DropdownItem>
+					<DropdownItem href="/settings">Settings</DropdownItem>
+					<DropdownItem divider />
+					<DropdownItem href="/logout">Log out</DropdownItem>
+				</Dropdown>
 			{:else}
-				<NavItem>
-					<Dropdown nav isOpen={userMenuOpen} toggle={() => (userMenuOpen = !userMenuOpen)}>
-						<DropdownToggle nav caret>Not logged in</DropdownToggle>
-						<DropdownMenu>
-							<DropdownItem href="/login">Log in</DropdownItem>
-						</DropdownMenu>
-					</Dropdown>
-				</NavItem>
+				<Dropdown>
+					<span slot="label">Not logged in</span>
+					<DropdownItem href="/login">Log in</DropdownItem>
+					<DropdownItem href="/register">Sign up</DropdownItem>
+				</Dropdown>
 			{/if}
-		</Nav>
-	</Collapse>
-</Navbar>
+			<button class="navbar-item" on:click={() => toggleTheme()}>
+				{#if $themeStore === "dark"}
+					<IconSun size={20} />&nbsp;Light theme
+				{:else}
+					<IconMoon size={20} />&nbsp;Dark theme
+				{/if}
+			</button>
+		</div>
+	</div>
+</nav>

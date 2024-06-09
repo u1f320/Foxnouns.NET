@@ -6,10 +6,10 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script>
 			let theme = localStorage.getItem("pronounscc-theme");
-			if (!theme || theme === "auto")
+			if (!theme)
 				theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
-			document.documentElement.setAttribute("data-bs-theme", theme);
+			document.documentElement.setAttribute("data-theme", theme);
 		</script>
 		%sveltekit.head%
 	</head>

@@ -15,5 +15,5 @@
 </p>
 
 <p>
-    stats: {data.meta.users.total} users, {data.meta.members} members
+    <strong>stats:</strong> {data.meta.users.total} users, {data.meta.members} members
 </p>

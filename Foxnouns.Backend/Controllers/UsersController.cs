@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
