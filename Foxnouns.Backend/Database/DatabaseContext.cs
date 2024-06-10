@@ -17,6 +17,7 @@ public class DatabaseContext : DbContext
     public DbSet<FediverseApplication> FediverseApplications { get; set; }
     public DbSet<Token> Tokens { get; set; }
     public DbSet<Application> Applications { get; set; }
+    public DbSet<TemporaryKey> TemporaryKeys { get; set; }
 
     public DatabaseContext(Config config)
     {
@@ -47,6 +48,7 @@ public class DatabaseContext : DbContext
     {
         modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
         modelBuilder.Entity<Member>().HasIndex(m => new { m.UserId, m.Name }).IsUnique();
+        modelBuilder.Entity<TemporaryKey>().HasIndex(k => k.Key).IsUnique();
 
         modelBuilder.Entity<User>()
             .OwnsOne(u => u.Fields, f => f.ToJson())

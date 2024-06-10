@@ -1,7 +1,9 @@
 using System.Security.Cryptography;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 
 namespace Foxnouns.Backend.Database;
 
@@ -83,5 +85,34 @@ public static class DatabaseQueryExtensions
         context.Add(app);
         await context.SaveChangesAsync();
         return app;
+    }
+
+    public static Task SetKeyAsync(this DatabaseContext context, string key, string value, Duration expireAfter) =>
+        context.SetKeyAsync(key, value, SystemClock.Instance.GetCurrentInstant() + expireAfter);
+
+    public static async Task SetKeyAsync(this DatabaseContext context, string key, string value, Instant expires)
+    {
+        context.TemporaryKeys.Add(new TemporaryKey
+        {
+            Expires = expires,
+            Key = key,
+            Value = value,
+        });
+        await context.SaveChangesAsync();
+    }
+
+    public static async Task<string?> GetKeyAsync(this DatabaseContext context, string key,
+        bool delete = false)
+    {
+        var value = await context.TemporaryKeys.FirstOrDefaultAsync(k => k.Key == key);
+        if (value == null) return null;
+
+        if (delete)
+        {
+            await context.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync();
+            await context.SaveChangesAsync();   
+        }
+
+        return value.Value;
     }
 }
