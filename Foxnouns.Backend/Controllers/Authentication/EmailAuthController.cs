@@ -6,17 +6,30 @@ using NodaTime;
 namespace Foxnouns.Backend.Controllers.Authentication;
 
 [Route("/api/v2/auth/email")]
-public class EmailAuthController(DatabaseContext db, AuthService authSvc, UserRendererService userRendererSvc, IClock clock, ILogger logger) : ApiControllerBase
+public class EmailAuthController(
+    DatabaseContext db,
+    AuthService authSvc,
+    UserRendererService userRendererSvc,
+    IClock clock,
+    ILogger logger) : ApiControllerBase
 {
     [HttpPost("login")]
+    [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> LoginAsync([FromBody] LoginRequest req)
     {
-        var user = await authSvc.AuthenticateUserAsync(req.Email, req.Password);
+        var (user, authenticationResult) = await authSvc.AuthenticateUserAsync(req.Email, req.Password);
+        if (authenticationResult == AuthService.EmailAuthenticationResult.MfaRequired)
+            throw new NotImplementedException("MFA is not implemented yet");
+
         var frontendApp = await db.GetFrontendApplicationAsync();
-        
+
+        logger.Debug("Logging user {Id} in with email and password", user.Id);
+
         var (tokenStr, token) =
             authSvc.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
         db.Add(token);
+
+        logger.Debug("Generated token {TokenId} for {UserId}", user.Id, token.Id);
 
         await db.SaveChangesAsync();
 

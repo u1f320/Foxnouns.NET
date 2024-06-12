@@ -48,4 +48,10 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
         await SetKeyAsync($"oauth_state:{state}", "", Duration.FromMinutes(10));
         return state;
     }
+
+    public async Task ValidateAuthStateAsync(string state)
+    {
+        var val = await GetKeyAsync($"oauth_state:{state}", delete: true);
+        if (val == null) throw new ApiError.BadRequest("Invalid OAuth state");
+    }
 }

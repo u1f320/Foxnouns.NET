@@ -20,6 +20,9 @@ public class MetaController(DatabaseContext db) : ApiControllerBase
         );
     }
 
+    [HttpGet("coffee")]
+    public IActionResult BrewCoffee() => Problem("Sorry, I'm a teapot!", statusCode: StatusCodes.Status418ImATeapot);
+
     private record MetaResponse(string Version, string Hash, int Members, UserInfo Users);
 
     private record UserInfo(int Total, int ActiveMonth, int ActiveWeek, int ActiveDay);

@@ -15,6 +15,8 @@ public class Config
 
     public DatabaseConfig Database { get; init; } = new();
     public DiscordAuthConfig DiscordAuth { get; init; } = new();
+    public GoogleAuthConfig GoogleAuth { get; init; } = new();
+    public TumblrAuthConfig TumblrAuth { get; init; } = new();
 
     public class DatabaseConfig
     {
@@ -25,6 +27,24 @@ public class Config
 
     public class DiscordAuthConfig
     {
+        public bool Enabled => ClientId != null && ClientSecret != null;
+
+        public string? ClientId { get; init; }
+        public string? ClientSecret { get; init; }
+    }
+
+    public class GoogleAuthConfig
+    {
+        public bool Enabled => ClientId != null && ClientSecret != null;
+
+        public string? ClientId { get; init; }
+        public string? ClientSecret { get; init; }
+    }
+
+    public class TumblrAuthConfig
+    {
+        public bool Enabled => ClientId != null && ClientSecret != null;
+
         public string? ClientId { get; init; }
         public string? ClientSecret { get; init; }
     }

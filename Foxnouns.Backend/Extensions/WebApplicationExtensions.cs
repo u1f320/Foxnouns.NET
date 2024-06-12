@@ -67,7 +67,8 @@ public static class WebApplicationExtensions
         .AddScoped<UserRendererService>()
         .AddScoped<MemberRendererService>()
         .AddScoped<AuthService>()
-        .AddScoped<KeyCacheService>();
+        .AddScoped<KeyCacheService>()
+        .AddScoped<RemoteAuthService>();
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
         .AddScoped<ErrorHandlerMiddleware>()

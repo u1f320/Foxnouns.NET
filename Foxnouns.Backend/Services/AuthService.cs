@@ -22,7 +22,11 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
         {
             Id = snowflakeGenerator.GenerateSnowflake(),
             Username = username,
-            AuthMethods = { new AuthMethod { Id = snowflakeGenerator.GenerateSnowflake(), AuthType = AuthType.Email, RemoteId = email } }
+            AuthMethods =
+            {
+                new AuthMethod
+                    { Id = snowflakeGenerator.GenerateSnowflake(), AuthType = AuthType.Email, RemoteId = email }
+            }
         };
 
         db.Add(user);
@@ -31,11 +35,21 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
         return user;
     }
 
-    public async Task<User> AuthenticateUserAsync(string email, string password)
+    /// <summary>
+    /// Authenticates a user with email and password.
+    /// </summary>
+    /// <param name="email">The user's email address</param>
+    /// <param name="password">The user's password, in plain text</param>
+    /// <returns>A tuple of the authenticated user and whether multi-factor authentication is required</returns>
+    /// <exception cref="ApiError.NotFound">Thrown if the email address is not associated with any user
+    /// or if the password is incorrect</exception>
+    public async Task<(User, EmailAuthenticationResult)> AuthenticateUserAsync(string email, string password)
     {
-        var user = await db.Users.FirstOrDefaultAsync(u => u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email));
-        if (user == null) throw new ApiError.NotFound("No user with that email address found, or password is incorrect");
-        
+        var user = await db.Users.FirstOrDefaultAsync(u =>
+            u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email));
+        if (user == null)
+            throw new ApiError.NotFound("No user with that email address found, or password is incorrect");
+
         var pwResult = await Task.Run(() => _passwordHasher.VerifyHashedPassword(user, user.Password!, password));
         if (pwResult == PasswordVerificationResult.Failed)
             throw new ApiError.NotFound("No user with that email address found, or password is incorrect");
@@ -45,7 +59,36 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
             await db.SaveChangesAsync();
         }
 
-        return user;
+        return (user, EmailAuthenticationResult.AuthSuccessful);
+    }
+
+    public enum EmailAuthenticationResult
+    {
+        AuthSuccessful,
+        MfaRequired,
+    }
+
+    /// <summary>
+    /// Authenticates a user with a remote authentication provider.
+    /// </summary>
+    /// <param name="authType">The remote authentication provider type</param>
+    /// <param name="remoteId">The remote user ID</param>
+    /// <param name="instance">The Fediverse instance, if authType is Fediverse.
+    /// Will throw an exception if passed with another authType.</param>
+    /// <returns>A user object, or null if the remote account isn't linked to any user.</returns>
+    /// <exception cref="FoxnounsError">Thrown if <c>instance</c> is passed when not required,
+    /// or not passed when required</exception>
+    public async Task<User?> AuthenticateUserAsync(AuthType authType, string remoteId,
+        FediverseApplication? instance = null)
+    {
+        if (authType == AuthType.Fediverse && instance == null)
+            throw new FoxnounsError("Fediverse authentication requires an instance.");
+        if (authType != AuthType.Fediverse && instance != null)
+            throw new FoxnounsError("Non-Fediverse authentication does not require an instance.");
+
+        return await db.Users.FirstOrDefaultAsync(u =>
+            u.AuthMethods.Any(a =>
+                a.AuthType == authType && a.RemoteId == remoteId && a.FediverseApplication == instance));
     }
 
     public (string, Token) GenerateToken(User user, Application application, string[] scopes, Instant expires)
