@@ -10,7 +10,7 @@ public class DebugController(DatabaseContext db, AuthService authSvc, IClock clo
 {
     [HttpPost("users")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResponse))]
-    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest req)
+    public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserRequest req)
     {
         logger.Debug("Creating user with username {Username} and email {Email}", req.Username, req.Email);
 

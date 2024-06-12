@@ -66,7 +66,8 @@ public static class WebApplicationExtensions
         .AddSnowflakeGenerator()
         .AddScoped<UserRendererService>()
         .AddScoped<MemberRendererService>()
-        .AddScoped<AuthService>();
+        .AddScoped<AuthService>()
+        .AddScoped<KeyCacheService>();
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
         .AddScoped<ErrorHandlerMiddleware>()

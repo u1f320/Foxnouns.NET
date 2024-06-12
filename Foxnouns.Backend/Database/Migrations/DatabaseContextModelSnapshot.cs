@@ -175,6 +175,39 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("members", (string)null);
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.TemporaryKey", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<Instant>("Expires")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_temporary_keys");
+
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_temporary_keys_key");
+
+                    b.ToTable("temporary_keys", (string)null);
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Token", b =>
                 {
                     b.Property<long>("Id")

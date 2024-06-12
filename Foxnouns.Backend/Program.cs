@@ -2,9 +2,11 @@ using Foxnouns.Backend;
 using Foxnouns.Backend.Database;
 using Serilog;
 using Foxnouns.Backend.Extensions;
+using Foxnouns.Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using NodaTime;
 
 // Read version information from .version in the repository root
 await BuildInfo.ReadBuildInfo();
@@ -60,6 +62,23 @@ app.MapControllers();
 app.Urls.Clear();
 app.Urls.Add(config.Address);
 
-app.Run();
+// Fire off the periodic tasks loop in the background
+_ = new Timer(_ =>
+{
+    var __ = RunPeriodicTasksAsync();
+}, null, TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(1));
 
+app.Run();
 Log.CloseAndFlush();
+
+return;
+
+async Task RunPeriodicTasksAsync()
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
+    logger.Debug("Running periodic tasks");
+
+    var keyCacheSvc = scope.ServiceProvider.GetRequiredService<KeyCacheService>();
+    await keyCacheSvc.DeleteExpiredKeysAsync();
+}

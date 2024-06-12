@@ -7,7 +7,7 @@ namespace Foxnouns.Backend.Services;
 
 public class UserRendererService(DatabaseContext db, MemberRendererService memberRendererService)
 {
-    public async Task<object> RenderUserAsync(User user, User? selfUser = null, bool renderMembers = true)
+    public async Task<UserResponse> RenderUserAsync(User user, User? selfUser = null, bool renderMembers = true)
     {
         renderMembers = renderMembers && (!user.ListHidden || selfUser?.Id == user.Id);
 

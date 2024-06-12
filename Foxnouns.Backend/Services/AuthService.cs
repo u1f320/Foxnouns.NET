@@ -3,6 +3,7 @@ using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
 namespace Foxnouns.Backend.Services;
@@ -26,6 +27,23 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
 
         db.Add(user);
         user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password));
+
+        return user;
+    }
+
+    public async Task<User> AuthenticateUserAsync(string email, string password)
+    {
+        var user = await db.Users.FirstOrDefaultAsync(u => u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email));
+        if (user == null) throw new ApiError.NotFound("No user with that email address found, or password is incorrect");
+        
+        var pwResult = await Task.Run(() => _passwordHasher.VerifyHashedPassword(user, user.Password!, password));
+        if (pwResult == PasswordVerificationResult.Failed)
+            throw new ApiError.NotFound("No user with that email address found, or password is incorrect");
+        if (pwResult == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password));
+            await db.SaveChangesAsync();
+        }
 
         return user;
     }
