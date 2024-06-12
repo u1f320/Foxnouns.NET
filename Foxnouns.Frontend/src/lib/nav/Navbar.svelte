@@ -24,7 +24,7 @@
 	};
 </script>
 
-<nav class="navbar is-transparent" aria-label="Main navigation">
+<nav class="navbar" aria-label="Main navigation">
 	<div class="navbar-brand">
 		<a href="/" class="navbar-item">
 			<Logo />
@@ -49,14 +49,10 @@
 					<DropdownItem href="/@{user.username}">View profile</DropdownItem>
 					<DropdownItem href="/settings">Settings</DropdownItem>
 					<DropdownItem divider />
-					<DropdownItem href="/logout">Log out</DropdownItem>
+					<DropdownItem href="/auth/logout">Log out</DropdownItem>
 				</Dropdown>
 			{:else}
-				<Dropdown>
-					<span slot="label">Not logged in</span>
-					<DropdownItem href="/login">Log in</DropdownItem>
-					<DropdownItem href="/register">Sign up</DropdownItem>
-				</Dropdown>
+				<a href="/auth/login" class="navbar-item">Log in or sign up</a>
 			{/if}
 			<button class="navbar-item" on:click={() => toggleTheme()}>
 				{#if $themeStore === "dark"}

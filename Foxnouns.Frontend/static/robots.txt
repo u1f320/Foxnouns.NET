@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /@*
+Disallow: /auth
+Disallow: /settings
+Disallow: /edit
