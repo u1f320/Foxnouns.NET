@@ -1,7 +1,10 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
 namespace Foxnouns.Backend.Controllers.Authentication;
@@ -18,6 +21,10 @@ public class DiscordAuthController(
     UserRendererService userRendererSvc) : ApiControllerBase
 {
     [HttpPost("callback")]
+    // TODO: duplicating attribute doesn't work, find another way to mark both as possible response
+    // leaving it here for documentation purposes
+    [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<AuthController.CallbackResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CallbackAsync([FromBody] AuthController.CallbackRequest req)
     {
         CheckRequirements();
@@ -30,7 +37,29 @@ public class DiscordAuthController(
         logger.Debug("Discord user {Username} ({Id}) authenticated with no local account", remoteUser.Username,
             remoteUser.Id);
 
-        throw new NotImplementedException();
+        var ticket = OauthUtils.RandomToken();
+        await keyCacheSvc.SetKeyAsync($"discord:{ticket}", remoteUser, Duration.FromMinutes(20));
+
+        return Ok(new AuthController.CallbackResponse(false, ticket, remoteUser.Username));
+    }
+
+    [HttpPost("register")]
+    [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> RegisterAsync([FromBody] AuthController.OauthRegisterRequest req)
+    {
+        var remoteUser = await keyCacheSvc.GetKeyAsync<RemoteAuthService.RemoteUser>($"discord:{req.Ticket}");
+        if (remoteUser == null) throw new ApiError.BadRequest("Invalid ticket");
+        if (await db.AuthMethods.AnyAsync(a => a.AuthType == AuthType.Discord && a.RemoteId == remoteUser.Id))
+        {
+            logger.Error("Discord user {Id} has valid ticket but is already linked to an existing account",
+                remoteUser.Id);
+            throw new FoxnounsError("Discord ticket was issued for user with existing link");
+        }
+
+        var user = await authSvc.CreateUserWithRemoteAuthAsync(req.Username, AuthType.Discord, remoteUser.Id,
+            remoteUser.Username);
+
+        return Ok(await GenerateUserTokenAsync(user));
     }
 
     private async Task<AuthController.AuthResponse> GenerateUserTokenAsync(User user)

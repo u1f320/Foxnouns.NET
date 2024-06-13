@@ -1,4 +1,5 @@
 using System.Web;
+using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Microsoft.AspNetCore.Mvc;
 using NodaTime;
@@ -34,11 +35,19 @@ public class AuthController(Config config, KeyCacheService keyCacheSvc, ILogger 
         string? Tumblr
     );
 
-    internal record AuthResponse(
+    public record AuthResponse(
         UserRendererService.UserResponse User,
         string Token,
         Instant ExpiresAt
     );
+
+    public record CallbackResponse(
+        bool HasAccount, // If true, user has an account, but it's deleted
+        string Ticket,
+        string? RemoteUsername
+    );
+
+    public record OauthRegisterRequest(string Ticket, string Username);
 
     public record CallbackRequest(string Code, string State);
 }

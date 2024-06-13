@@ -34,6 +34,37 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
 
         return user;
     }
+    
+    /// <summary>
+    /// Creates a new user with the given username and remote authentication method.
+    /// To create a user with email authentication, use <see cref="CreateUserWithPasswordAsync" />
+    /// This method does <i>not</i> save the resulting user, the caller must still call <see cref="M:Microsoft.EntityFrameworkCore.DbContext.SaveChanges" />.
+    /// </summary>
+    public async Task<User> CreateUserWithRemoteAuthAsync(string username, AuthType authType, string remoteId,
+        string remoteUsername, FediverseApplication? instance = null)
+    {
+        AssertValidAuthType(authType, instance);
+        
+        if (await db.Users.AnyAsync(u => u.Username == username))
+            throw new ApiError.BadRequest("Username is already taken");
+
+        var user = new User
+        {
+            Id = snowflakeGenerator.GenerateSnowflake(),
+            Username = username,
+            AuthMethods =
+            {
+                new AuthMethod
+                {
+                    Id = snowflakeGenerator.GenerateSnowflake(), AuthType = authType, RemoteId = remoteId,
+                    RemoteUsername = remoteUsername, FediverseApplication = instance
+                }
+            }
+        };
+
+        db.Add(user);
+        return user;
+    }
 
     /// <summary>
     /// Authenticates a user with email and password.
@@ -81,10 +112,7 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
     public async Task<User?> AuthenticateUserAsync(AuthType authType, string remoteId,
         FediverseApplication? instance = null)
     {
-        if (authType == AuthType.Fediverse && instance == null)
-            throw new FoxnounsError("Fediverse authentication requires an instance.");
-        if (authType != AuthType.Fediverse && instance != null)
-            throw new FoxnounsError("Non-Fediverse authentication does not require an instance.");
+        AssertValidAuthType(authType, instance);
 
         return await db.Users.FirstOrDefaultAsync(u =>
             u.AuthMethods.Any(a =>
@@ -114,5 +142,13 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
         var hash = SHA512.HashData(Convert.FromBase64String(token));
 
         return (token, hash);
+    }
+
+    private static void AssertValidAuthType(AuthType authType, FediverseApplication? instance)
+    {
+        if (authType == AuthType.Fediverse && instance == null)
+            throw new FoxnounsError("Fediverse authentication requires an instance.");
+        if (authType != AuthType.Fediverse && instance != null)
+            throw new FoxnounsError("Non-Fediverse authentication does not require an instance.");
     }
 }

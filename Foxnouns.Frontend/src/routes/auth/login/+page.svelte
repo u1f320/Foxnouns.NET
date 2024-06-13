@@ -9,7 +9,7 @@
 		<div class="grid">
 			<div class="cell">
 				<p class="title">Log in with email address</p>
-				<form action="?/login">
+				<form method="POST" action="?/login">
 					<div class="field">
 						<label for="email" class="label">Email address</label>
 						<div class="control">
