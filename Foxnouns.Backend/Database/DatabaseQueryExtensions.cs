@@ -76,7 +76,7 @@ public static class DatabaseQueryExtensions
         {
             Id = new Snowflake(0),
             ClientId = RandomNumberGenerator.GetHexString(32, true),
-            ClientSecret = OauthUtils.RandomToken(48),
+            ClientSecret = AuthUtils.RandomToken(48),
             Name = "pronouns.cc",
             Scopes = ["*"],
             RedirectUris = [],

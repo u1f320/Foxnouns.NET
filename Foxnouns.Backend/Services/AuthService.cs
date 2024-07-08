@@ -34,7 +34,7 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
 
         return user;
     }
-    
+
     /// <summary>
     /// Creates a new user with the given username and remote authentication method.
     /// To create a user with email authentication, use <see cref="CreateUserWithPasswordAsync" />
@@ -44,7 +44,7 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
         string remoteUsername, FediverseApplication? instance = null)
     {
         AssertValidAuthType(authType, instance);
-        
+
         if (await db.Users.AnyAsync(u => u.Username == username))
             throw new ApiError.BadRequest("Username is already taken");
 
@@ -121,7 +121,7 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
 
     public (string, Token) GenerateToken(User user, Application application, string[] scopes, Instant expires)
     {
-        if (!OauthUtils.ValidateScopes(application, scopes))
+        if (!AuthUtils.ValidateScopes(application, scopes))
             throw new ApiError.BadRequest("Invalid scopes requested for this token");
 
         var (token, hash) = GenerateToken();
@@ -138,7 +138,7 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
 
     private static (string, byte[]) GenerateToken()
     {
-        var token = OauthUtils.RandomToken(48);
+        var token = AuthUtils.RandomToken(48);
         var hash = SHA512.HashData(Convert.FromBase64String(token));
 
         return (token, hash);

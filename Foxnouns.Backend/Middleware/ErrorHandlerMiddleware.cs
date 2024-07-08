@@ -4,7 +4,7 @@ using Newtonsoft.Json.Converters;
 
 namespace Foxnouns.Backend.Middleware;
 
-public class ErrorHandlerMiddleware(ILogger baseLogger) : IMiddleware
+public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext ctx, RequestDelegate next)
     {
@@ -22,6 +22,18 @@ public class ErrorHandlerMiddleware(ILogger baseLogger) : IMiddleware
             {
                 logger.Error(e, "Error in {ClassName} ({Path}) after response started being sent", typeName,
                     ctx.Request.Path);
+
+                sentry.CaptureException(e, scope =>
+                {
+                    var user = ctx.GetUser();
+                    if (user != null)
+                        scope.User = new SentryUser
+                        {
+                            Id = user.Id.ToString(),
+                            Username = user.Username
+                        };
+                });
+
                 return;
             }
 
@@ -59,6 +71,17 @@ public class ErrorHandlerMiddleware(ILogger baseLogger) : IMiddleware
             {
                 logger.Error(e, "Exception in {ClassName} ({Path})", typeName, ctx.Request.Path);
             }
+            
+            var errorId = sentry.CaptureException(e, scope =>
+            {
+                var user = ctx.GetUser();
+                if (user != null)
+                    scope.User = new SentryUser
+                    {
+                        Id = user.Id.ToString(),
+                        Username = user.Username
+                    };
+            });
 
             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             ctx.Response.Headers.RequestId = ctx.TraceIdentifier;
@@ -67,6 +90,7 @@ public class ErrorHandlerMiddleware(ILogger baseLogger) : IMiddleware
             {
                 Status = (int)HttpStatusCode.InternalServerError,
                 Code = ErrorCode.InternalServerError,
+                ErrorId = errorId.ToString(),
                 Message = "Internal server error",
             }));
         }
@@ -79,6 +103,7 @@ public record HttpApiError
 
     [JsonConverter(typeof(StringEnumConverter))]
     public required ErrorCode Code { get; init; }
+    public string? ErrorId { get; init; }
 
     public required string Message { get; init; }
 

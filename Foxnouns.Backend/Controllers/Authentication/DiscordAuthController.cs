@@ -37,7 +37,7 @@ public class DiscordAuthController(
         logger.Debug("Discord user {Username} ({Id}) authenticated with no local account", remoteUser.Username,
             remoteUser.Id);
 
-        var ticket = OauthUtils.RandomToken();
+        var ticket = AuthUtils.RandomToken();
         await keyCacheSvc.SetKeyAsync($"discord:{ticket}", remoteUser, Duration.FromMinutes(20));
 
         return Ok(new AuthController.CallbackResponse(false, ticket, remoteUser.Username));

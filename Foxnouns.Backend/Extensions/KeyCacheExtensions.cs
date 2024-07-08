@@ -8,7 +8,7 @@ public static class KeyCacheExtensions
 {
     public static async Task<string> GenerateAuthStateAsync(this KeyCacheService keyCacheSvc)
     {
-        var state = OauthUtils.RandomToken();
+        var state = AuthUtils.RandomToken();
         await keyCacheSvc.SetKeyAsync($"oauth_state:{state}", "", Duration.FromMinutes(10));
         return state;
     }

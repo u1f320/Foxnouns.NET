@@ -19,8 +19,6 @@ export const load = async ({ fetch, url, cookies, parent }) => {
 		},
 	);
 
-	console.log(JSON.stringify(resp));
-
 	if ("token" in resp) {
 		const authResp = resp as AuthResponse;
 		cookies.set("pronounscc-token", authResp.token, { path: "/" });
@@ -41,8 +39,6 @@ export const actions = {
 		const data = await req.formData();
 		const username = data.get("username");
 		const ticket = data.get("ticket");
-
-		console.log(JSON.stringify({ username, ticket }));
 
 		const resp = await request<AuthResponse>(fetch, "POST", "/auth/discord/register", {
 			body: { username, ticket },

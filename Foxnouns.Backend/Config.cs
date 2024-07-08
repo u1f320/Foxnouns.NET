@@ -10,19 +10,42 @@ public class Config
 
     public string Address => $"http://{Host}:{Port}";
 
-    public string? SeqLogUrl { get; init; }
-    public LogEventLevel LogEventLevel { get; init; } = LogEventLevel.Debug;
-
+    public LoggingConfig Logging { get; init; } = new();
     public DatabaseConfig Database { get; init; } = new();
+    public JobsConfig Jobs { get; init; } = new();
+    public StorageConfig Storage { get; init; } = new();
     public DiscordAuthConfig DiscordAuth { get; init; } = new();
     public GoogleAuthConfig GoogleAuth { get; init; } = new();
     public TumblrAuthConfig TumblrAuth { get; init; } = new();
+
+    public class LoggingConfig
+    {
+        public LogEventLevel LogEventLevel { get; init; } = LogEventLevel.Debug;
+        public string? SeqLogUrl { get; init; }
+        public string? SentryUrl { get; init; }
+        public bool SentryTracing { get; init; } = false;
+        public double SentryTracesSampleRate { get; init; } = 0.0;
+    }
 
     public class DatabaseConfig
     {
         public string Url { get; init; } = string.Empty;
         public int? Timeout { get; init; }
         public int? MaxPoolSize { get; init; }
+    }
+
+    public class JobsConfig
+    {
+        public string Redis { get; init; } = string.Empty;
+        public int Workers { get; init; } = 5;
+    }
+
+    public class StorageConfig
+    {
+        public string Endpoint { get; init; } = string.Empty;
+        public string AccessKey { get; init; } = string.Empty;
+        public string SecretKey { get; init; } = string.Empty;
+        public string Bucket { get; init; } = string.Empty;
     }
 
     public class DiscordAuthConfig

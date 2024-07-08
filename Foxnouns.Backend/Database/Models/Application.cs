@@ -15,14 +15,14 @@ public class Application : BaseModel
         string[] redirectUrls)
     {
         var clientId = RandomNumberGenerator.GetHexString(32, true);
-        var clientSecret = OauthUtils.RandomToken();
+        var clientSecret = AuthUtils.RandomToken();
 
-        if (scopes.Except(OauthUtils.ApplicationScopes).Any())
+        if (scopes.Except(AuthUtils.ApplicationScopes).Any())
         {
             throw new ArgumentException("Invalid scopes passed to Application.Create", nameof(scopes));
         }
 
-        if (redirectUrls.Any(s => !OauthUtils.ValidateRedirectUri(s)))
+        if (redirectUrls.Any(s => !AuthUtils.ValidateRedirectUri(s)))
         {
             throw new ArgumentException("Invalid redirect URLs passed to Application.Create", nameof(redirectUrls));
         }

@@ -3,7 +3,7 @@ using Foxnouns.Backend.Database.Models;
 
 namespace Foxnouns.Backend.Utils;
 
-public static class OauthUtils
+public static class AuthUtils
 {
     public const string ClientCredentials = "client_credentials";
     public const string AuthorizationCode = "authorization_code";
@@ -63,7 +63,6 @@ public static class OauthUtils
         }
     }
 
-
     public static bool TryFromBase64String(string b64, out byte[] bytes)
     {
         try
@@ -71,8 +70,9 @@ public static class OauthUtils
             bytes = Convert.FromBase64String(b64);
             return true;
         }
-        catch
+        catch (Exception e)
         {
+            Console.WriteLine($"Error converting string: {e}");
             bytes = [];
             return false;
         }
@@ -80,4 +80,6 @@ public static class OauthUtils
 
     public static string RandomToken(int bytes = 48) =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(bytes)).Trim('=');
+
+    public const int MaxAuthMethodsPerType = 3; // Maximum of 3 Discord accounts, 3 emails, etc
 }

@@ -2,10 +2,16 @@ using Foxnouns.Backend;
 using Foxnouns.Backend.Database;
 using Serilog;
 using Foxnouns.Backend.Extensions;
+using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
+using Hangfire;
+using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc;
+using Minio;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Sentry.Extensibility;
+using Sentry.Hangfire;
 
 // Read version information from .version in the repository root
 await BuildInfo.ReadBuildInfo();
@@ -15,6 +21,13 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.AddConfiguration();
 
 builder.AddSerilog();
+
+builder.WebHost.UseSentry(opts =>
+{
+    opts.Dsn = config.Logging.SentryUrl;
+    opts.TracesSampleRate = config.Logging.SentryTracesSampleRate;
+    opts.MaxRequestBodySize = RequestSize.Small;
+});
 
 builder.Services
     .AddControllers()
@@ -44,7 +57,17 @@ builder.Services
     .AddCustomServices()
     .AddCustomMiddleware()
     .AddEndpointsApiExplorer()
-    .AddSwaggerGen();
+    .AddSwaggerGen()
+    .AddMinio(c =>
+        c.WithEndpoint(config.Storage.Endpoint)
+            .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
+            .Build());
+
+builder.Services.AddHangfire(c => c.UseSentry().UseRedisStorage(config.Jobs.Redis, new RedisStorageOptions
+    {
+        Prefix = "foxnouns_"
+    }))
+    .AddHangfireServer(options => { options.WorkerCount = config.Jobs.Workers; });
 
 var app = builder.Build();
 
@@ -52,11 +75,20 @@ await app.Initialize(args);
 
 app.UseSerilogRequestLogging();
 app.UseRouting();
+// Not all environments will want tracing (from experience, it's expensive to use in production, even with a low sample rate),
+// so it's locked behind a config option.
+if (config.Logging.SentryTracing) app.UseSentryTracing();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors();
 app.UseCustomMiddleware();
 app.MapControllers();
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    AppPath = null,
+    AsyncAuthorization = [new HangfireDashboardAuthorizationFilter(app.Services)]
+});
 
 app.Urls.Clear();
 app.Urls.Add(config.Address);

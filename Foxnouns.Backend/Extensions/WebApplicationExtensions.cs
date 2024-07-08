@@ -1,4 +1,5 @@
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ public static class WebApplicationExtensions
 
         var logCfg = new LoggerConfiguration()
             .Enrich.FromLogContext()
-            .MinimumLevel.Is(config.LogEventLevel)
+            .MinimumLevel.Is(config.Logging.LogEventLevel)
             // ASP.NET's built in request logs are extremely verbose, so we use Serilog's instead.
             // Serilog doesn't disable the built-in logs, so we do it here.
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -28,9 +29,9 @@ public static class WebApplicationExtensions
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
             .WriteTo.Console();
 
-        if (config.SeqLogUrl != null)
+        if (config.Logging.SeqLogUrl != null)
         {
-            logCfg.WriteTo.Seq(config.SeqLogUrl, restrictedToMinimumLevel: LogEventLevel.Verbose);
+            logCfg.WriteTo.Seq(config.Logging.SeqLogUrl, restrictedToMinimumLevel: LogEventLevel.Verbose);
         }
 
         Log.Logger = logCfg.CreateLogger();
@@ -68,7 +69,9 @@ public static class WebApplicationExtensions
         .AddScoped<MemberRendererService>()
         .AddScoped<AuthService>()
         .AddScoped<KeyCacheService>()
-        .AddScoped<RemoteAuthService>();
+        .AddScoped<RemoteAuthService>()
+        // Background job classes
+        .AddTransient<AvatarUpdateJob>();
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
         .AddScoped<ErrorHandlerMiddleware>()

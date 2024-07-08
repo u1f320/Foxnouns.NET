@@ -56,6 +56,7 @@ public readonly struct Snowflake(ulong value)
 
     public override bool Equals(object? obj) => obj is Snowflake other && Value == other.Value;
     public override int GetHashCode() => Value.GetHashCode();
+    public override string ToString() => Value.ToString();
 
     /// <summary>
     /// An Entity Framework ValueConverter for Snowflakes to longs.
