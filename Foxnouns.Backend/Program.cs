@@ -4,6 +4,7 @@ using Serilog;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Utils;
 using Hangfire;
 using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc;
@@ -22,24 +23,34 @@ var config = builder.AddConfiguration();
 
 builder.AddSerilog();
 
-builder.WebHost.UseSentry(opts =>
-{
-    opts.Dsn = config.Logging.SentryUrl;
-    opts.TracesSampleRate = config.Logging.SentryTracesSampleRate;
-    opts.MaxRequestBodySize = RequestSize.Small;
-});
+builder.WebHost
+    .UseSentry(opts =>
+    {
+        opts.Dsn = config.Logging.SentryUrl;
+        opts.TracesSampleRate = config.Logging.SentryTracesSampleRate;
+        opts.MaxRequestBodySize = RequestSize.Small;
+    })
+    .ConfigureKestrel(opts =>
+    {
+        // Requests are limited to a maximum of 2 MB.
+        // No valid request body will ever come close to this limit,
+        // but the limit is slightly higher to prevent valid requests from being rejected.
+        opts.Limits.MaxRequestBodySize = 2 * 1024 * 1024;
+    });
 
 builder.Services
     .AddControllers()
     .AddNewtonsoftJson(options =>
-        options.SerializerSettings.ContractResolver = new DefaultContractResolver
+    {
+        options.SerializerSettings.ContractResolver = new PatchRequestContractResolver
         {
             NamingStrategy = new SnakeCaseNamingStrategy()
-        })
+        };
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
         options.InvalidModelStateResponseFactory = actionContext => new BadRequestObjectResult(
-            new ApiError.BadRequest("Bad request", actionContext.ModelState).ToJson()
+            new ApiError.AspBadRequest("Bad request", actionContext.ModelState).ToJson()
         );
     });
 
@@ -64,9 +75,9 @@ builder.Services
             .Build());
 
 builder.Services.AddHangfire(c => c.UseSentry().UseRedisStorage(config.Jobs.Redis, new RedisStorageOptions
-    {
-        Prefix = "foxnouns_"
-    }))
+{
+    Prefix = "foxnouns_"
+}))
     .AddHangfireServer(options => { options.WorkerCount = config.Jobs.Workers; });
 
 var app = builder.Build();

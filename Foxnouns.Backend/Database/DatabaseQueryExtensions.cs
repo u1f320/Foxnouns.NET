@@ -110,7 +110,7 @@ public static class DatabaseQueryExtensions
         if (delete)
         {
             await context.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync();
-            await context.SaveChangesAsync();   
+            await context.SaveChangesAsync();
         }
 
         return value.Value;

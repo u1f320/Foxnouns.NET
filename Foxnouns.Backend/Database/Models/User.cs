@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Foxnouns.Backend.Database.Models;
 
 public class User : BaseModel

@@ -12,7 +12,7 @@ using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace Foxnouns.Backend.Jobs;
 
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global", Justification = "Hangfire jobs need to be public")]
 public class AvatarUpdateJob(DatabaseContext db, IMinioClient minio, Config config, ILogger logger)
 {
     private readonly string[] _validContentTypes = ["image/png", "image/webp", "image/jpeg"];
@@ -61,7 +61,7 @@ public class AvatarUpdateJob(DatabaseContext db, IMinioClient minio, Config conf
                     .WithBucket(config.Storage.Bucket)
                     .WithObject(UserAvatarPath(id, prevHash))
                 );
-            
+
             logger.Information("Updated avatar for user {UserId}", id);
         }
         catch (ArgumentException ae)
@@ -94,14 +94,69 @@ public class AvatarUpdateJob(DatabaseContext db, IMinioClient minio, Config conf
         await db.SaveChangesAsync();
     }
 
-    public Task UpdateMemberAvatar(Snowflake id, string newAvatar)
+    public async Task UpdateMemberAvatar(Snowflake id, string newAvatar)
     {
-        throw new NotImplementedException();
+        var member = await db.Members.FindAsync(id);
+        if (member == null)
+        {
+            logger.Warning("Update avatar job queued for {MemberId} but no member with that ID exists", id);
+            return;
+        }
+
+        try
+        {
+            var image = await ConvertAvatar(newAvatar);
+            var hash = Convert.ToHexString(await SHA256.HashDataAsync(image)).ToLower();
+            image.Seek(0, SeekOrigin.Begin);
+            var prevHash = member.Avatar;
+
+            await minio.PutObjectAsync(new PutObjectArgs()
+                .WithBucket(config.Storage.Bucket)
+                .WithObject(MemberAvatarPath(id, hash))
+                .WithObjectSize(image.Length)
+                .WithStreamData(image)
+                .WithContentType("image/webp")
+            );
+
+            member.Avatar = hash;
+            await db.SaveChangesAsync();
+
+            if (prevHash != null && prevHash != hash)
+                await minio.RemoveObjectAsync(new RemoveObjectArgs()
+                    .WithBucket(config.Storage.Bucket)
+                    .WithObject(MemberAvatarPath(id, prevHash))
+                );
+
+            logger.Information("Updated avatar for member {MemberId}", id);
+        }
+        catch (ArgumentException ae)
+        {
+            logger.Warning("Invalid data URI for new avatar for member {MemberId}: {Reason}", id, ae.Message);
+        }
     }
 
-    public Task ClearMemberAvatar(Snowflake id)
+    public async Task ClearMemberAvatar(Snowflake id)
     {
-        throw new NotImplementedException();
+        var member = await db.Members.FindAsync(id);
+        if (member == null)
+        {
+            logger.Warning("Clear avatar job queued for {MemberId} but no member with that ID exists", id);
+            return;
+        }
+
+        if (member.Avatar == null)
+        {
+            logger.Warning("Clear avatar job queued for {MemberId} with null avatar", id);
+            return;
+        }
+
+        await minio.RemoveObjectAsync(new RemoveObjectArgs()
+            .WithBucket(config.Storage.Bucket)
+            .WithObject(MemberAvatarPath(member.Id, member.Avatar))
+        );
+
+        member.Avatar = null;
+        await db.SaveChangesAsync();
     }
 
     private async Task<Stream> ConvertAvatar(string uri)

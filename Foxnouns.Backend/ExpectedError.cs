@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Net;
 using Foxnouns.Backend.Middleware;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -21,7 +22,8 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
     public readonly HttpStatusCode StatusCode = statusCode ?? HttpStatusCode.InternalServerError;
     public readonly ErrorCode ErrorCode = errorCode ?? ErrorCode.InternalServerError;
 
-    public class Unauthorized(string message) : ApiError(message, statusCode: HttpStatusCode.Unauthorized);
+    public class Unauthorized(string message) : ApiError(message, statusCode: HttpStatusCode.Unauthorized,
+        errorCode: ErrorCode.AuthenticationError);
 
     public class Forbidden(string message, IEnumerable<string>? scopes = null)
         : ApiError(message, statusCode: HttpStatusCode.Forbidden)
@@ -29,7 +31,45 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
         public readonly string[] Scopes = scopes?.ToArray() ?? [];
     }
 
-    public class BadRequest(string message, ModelStateDictionary? modelState = null)
+    public class BadRequest(string message, IReadOnlyDictionary<string, string>? errors = null)
+        : ApiError(message, statusCode: HttpStatusCode.BadRequest)
+    {
+        public BadRequest(string message, string field) : this(message,
+            new Dictionary<string, string> { { field, message } })
+        {
+        }
+
+        public JObject ToJson()
+        {
+            var o = new JObject
+            {
+                { "status", (int)HttpStatusCode.BadRequest },
+                { "message", Message },
+                { "code", ErrorCode.BadRequest.ToString() }
+            };
+            if (errors == null) return o;
+
+            var a = new JArray();
+            foreach (var error in errors)
+            {
+                var errorObj = new JObject
+                {
+                    { "key", error.Key },
+                    { "errors", new JArray(new JObject { { "message", error.Value } }) }
+                };
+                a.Add(errorObj);
+            }
+
+            o.Add("errors", a);
+            return o;
+        }
+    }
+
+    /// <summary>
+    /// A special version of BadRequest that ASP.NET generates when it encounters an invalid request.
+    /// Any other methods should use <see cref="ApiError.BadRequest" /> instead.
+    /// </summary>
+    public class AspBadRequest(string message, ModelStateDictionary? modelState = null)
         : ApiError(message, statusCode: HttpStatusCode.BadRequest)
     {
         public JObject ToJson()
@@ -37,6 +77,7 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
             var o = new JObject
             {
                 { "status", (int)HttpStatusCode.BadRequest },
+                { "message", Message },
                 { "code", ErrorCode.BadRequest.ToString() }
             };
             if (modelState == null) return o;
@@ -52,7 +93,6 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
                         new JArray(error.Value!.Errors.Select(e => new JObject { { "message", e.ErrorMessage } }))
                     }
                 };
-
                 a.Add(errorObj);
             }
 

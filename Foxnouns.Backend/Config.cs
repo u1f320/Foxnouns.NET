@@ -6,7 +6,8 @@ public class Config
 {
     public string Host { get; init; } = "localhost";
     public int Port { get; init; } = 3000;
-    public string BaseUrl { get; init; } = null!;
+    public string BaseUrl { get; set; } = null!;
+    public string MediaBaseUrl { get; set; } = null!;
 
     public string Address => $"http://{Host}:{Port}";
 

@@ -10,20 +10,20 @@ public static class AuthUtils
     private static readonly string[] ForbiddenSchemes = ["javascript", "file", "data", "mailto", "tel"];
 
     public static readonly string[] UserScopes =
-        ["user.read_hidden", "user.read_privileged", "user.update"];
+        ["user.read_privileged", "user.update"];
 
     public static readonly string[] MemberScopes = ["member.read", "member.update", "member.create"];
 
     /// <summary>
     /// All scopes endpoints can be secured by. This does *not* include the catch-all token scopes.
     /// </summary>
-    public static readonly string[] Scopes = ["identify", ..UserScopes, ..MemberScopes];
+    public static readonly string[] Scopes = ["identify", .. UserScopes, .. MemberScopes];
 
     /// <summary>
     /// All scopes that can be granted to applications and tokens. Includes the catch-all token scopes,
     /// except for "*" which is only granted to the frontend.
     /// </summary>
-    public static readonly string[] ApplicationScopes = [..Scopes, "user", "member"];
+    public static readonly string[] ApplicationScopes = [.. Scopes, "user", "member"];
 
     public static string[] ExpandScopes(this string[] scopes)
     {
@@ -34,6 +34,9 @@ public static class AuthUtils
 
         return expandedScopes.ToArray();
     }
+
+    public static bool HasScope(this Token? token, string scope) =>
+        token?.Scopes.ExpandScopes().Contains(scope) == true;
 
     private static string[] ExpandAppScopes(this string[] scopes)
     {

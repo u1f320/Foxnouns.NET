@@ -1,4 +1,5 @@
 using System.Net;
+using Foxnouns.Backend.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -54,6 +55,12 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
                     return;
                 }
 
+                if (ae is ApiError.BadRequest br)
+                {
+                    await ctx.Response.WriteAsync(br.ToJson().ToString());
+                    return;
+                }
+
                 await ctx.Response.WriteAsync(JsonConvert.SerializeObject(new HttpApiError
                 {
                     Status = (int)ae.StatusCode,
@@ -71,7 +78,7 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
             {
                 logger.Error(e, "Exception in {ClassName} ({Path})", typeName, ctx.Request.Path);
             }
-            
+
             var errorId = sentry.CaptureException(e, scope =>
             {
                 var user = ctx.GetUser();
@@ -101,8 +108,9 @@ public record HttpApiError
 {
     public required int Status { get; init; }
 
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
     public required ErrorCode Code { get; init; }
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string? ErrorId { get; init; }
 
     public required string Message { get; init; }

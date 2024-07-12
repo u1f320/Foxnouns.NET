@@ -48,7 +48,7 @@ public class DiscordAuthController(
     public async Task<IActionResult> RegisterAsync([FromBody] AuthController.OauthRegisterRequest req)
     {
         var remoteUser = await keyCacheSvc.GetKeyAsync<RemoteAuthService.RemoteUser>($"discord:{req.Ticket}");
-        if (remoteUser == null) throw new ApiError.BadRequest("Invalid ticket");
+        if (remoteUser == null) throw new ApiError.BadRequest("Invalid ticket", "ticket");
         if (await db.AuthMethods.AnyAsync(a => a.AuthType == AuthType.Discord && a.RemoteId == remoteUser.Id))
         {
             logger.Error("Discord user {Id} has valid ticket but is already linked to an existing account",
