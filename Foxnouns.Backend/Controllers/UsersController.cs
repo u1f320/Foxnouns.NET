@@ -16,16 +16,7 @@ public class UsersController(DatabaseContext db, UserRendererService userRendere
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserAsync(string userRef)
     {
-        var user = await db.ResolveUserAsync(userRef);
-        return await GetUserInnerAsync(user);
-    }
-
-    [HttpGet("@me")]
-    [Authorize("identify")]
-    [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMeAsync()
-    {
-        var user = await db.ResolveUserAsync(CurrentUser!.Id);
+        var user = await db.ResolveUserAsync(userRef, CurrentToken);
         return await GetUserInnerAsync(user);
     }
 

@@ -11,7 +11,7 @@ public class MetaController(DatabaseContext db, IClock clock) : ApiControllerBas
     private const string Repository = "https://codeberg.org/pronounscc/pronouns.cc";
 
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MetaResponse))]
+    [ProducesResponseType<MetaResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMeta()
     {
         var now = clock.GetCurrentInstant();

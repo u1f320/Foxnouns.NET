@@ -10,7 +10,7 @@ public static class AuthUtils
     private static readonly string[] ForbiddenSchemes = ["javascript", "file", "data", "mailto", "tel"];
 
     public static readonly string[] UserScopes =
-        ["user.read_privileged", "user.update"];
+        ["user.read_hidden", "user.read_privileged", "user.update"];
 
     public static readonly string[] MemberScopes = ["member.read", "member.update", "member.create"];
 
@@ -73,7 +73,7 @@ public static class AuthUtils
             bytes = Convert.FromBase64String(b64);
             return true;
         }
-        catch (Exception e)
+        catch
         {
             bytes = [];
             return false;

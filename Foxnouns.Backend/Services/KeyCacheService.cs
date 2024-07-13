@@ -10,7 +10,7 @@ namespace Foxnouns.Backend.Services;
 public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
 {
     public Task SetKeyAsync(string key, string value, Duration expireAfter) =>
-        db.SetKeyAsync(key, value, clock.GetCurrentInstant() + expireAfter);
+        SetKeyAsync(key, value, clock.GetCurrentInstant() + expireAfter);
 
     public async Task SetKeyAsync(string key, string value, Instant expires)
     {

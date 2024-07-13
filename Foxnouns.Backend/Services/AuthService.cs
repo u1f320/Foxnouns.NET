@@ -8,7 +8,7 @@ using NodaTime;
 
 namespace Foxnouns.Backend.Services;
 
-public class AuthService(ILogger logger, IClock clock, DatabaseContext db, ISnowflakeGenerator snowflakeGenerator)
+public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator snowflakeGenerator)
 {
     private readonly PasswordHasher<User> _passwordHasher = new();
 
@@ -140,7 +140,7 @@ public class AuthService(ILogger logger, IClock clock, DatabaseContext db, ISnow
 
     private static (string, byte[]) GenerateToken()
     {
-        var token = AuthUtils.RandomToken(48);
+        var token = AuthUtils.RandomToken();
         var hash = SHA512.HashData(Convert.FromBase64String(token));
 
         return (token, hash);

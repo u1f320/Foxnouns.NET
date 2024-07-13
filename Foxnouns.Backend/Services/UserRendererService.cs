@@ -16,6 +16,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
     {
         var isSelfUser = selfUser?.Id == user.Id;
         var tokenCanReadHiddenMembers = token.HasScope("member.read") && isSelfUser;
+        var tokenHidden = token.HasScope("user.read_hidden") && isSelfUser;
         var tokenPrivileged = token.HasScope("user.read_privileged") && isSelfUser;
 
         renderMembers = renderMembers &&
@@ -45,9 +46,13 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
                     a.RemoteUsername, a.FediverseApplication?.Domain
                 ))
                 : null,
-            tokenPrivileged ? user.LastActive : null
+            tokenHidden ? user.ListHidden : null,
+            tokenHidden ? user.LastActive : null
         );
     }
+
+    public PartialUser RenderPartialUser(User user) =>
+        new(user.Id, user.Username, user.DisplayName, AvatarUrlFor(user));
 
     private string? AvatarUrlFor(User user) =>
         user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
@@ -68,6 +73,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         IEnumerable<AuthenticationMethodResponse>? AuthMethods,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        bool? MemberListHidden,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         Instant? LastActive
     );
 
@@ -80,5 +87,12 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         string? RemoteUsername,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         string? FediverseInstance
+    );
+
+    public record PartialUser(
+        Snowflake Id,
+        string Username,
+        string? DisplayName,
+        string? AvatarUrl
     );
 }

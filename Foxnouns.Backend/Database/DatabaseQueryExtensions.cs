@@ -9,8 +9,11 @@ namespace Foxnouns.Backend.Database;
 
 public static class DatabaseQueryExtensions
 {
-    public static async Task<User> ResolveUserAsync(this DatabaseContext context, string userRef)
+    public static async Task<User> ResolveUserAsync(this DatabaseContext context, string userRef, Token? token)
     {
+        if (userRef == "@me" && token != null)
+            return await context.Users.FirstAsync(u => u.Id == token.UserId);
+
         User? user;
         if (Snowflake.TryParse(userRef, out var snowflake))
         {
@@ -46,9 +49,9 @@ public static class DatabaseQueryExtensions
         throw new ApiError.NotFound("No member with that ID found.", code: ErrorCode.MemberNotFound);
     }
 
-    public static async Task<Member> ResolveMemberAsync(this DatabaseContext context, string userRef, string memberRef)
+    public static async Task<Member> ResolveMemberAsync(this DatabaseContext context, string userRef, string memberRef, Token? token)
     {
-        var user = await context.ResolveUserAsync(userRef);
+        var user = await context.ResolveUserAsync(userRef, token);
         return await context.ResolveMemberAsync(user.Id, memberRef);
     }
 
@@ -91,34 +94,5 @@ public static class DatabaseQueryExtensions
         context.Add(app);
         await context.SaveChangesAsync();
         return app;
-    }
-
-    public static Task SetKeyAsync(this DatabaseContext context, string key, string value, Duration expireAfter) =>
-        context.SetKeyAsync(key, value, SystemClock.Instance.GetCurrentInstant() + expireAfter);
-
-    public static async Task SetKeyAsync(this DatabaseContext context, string key, string value, Instant expires)
-    {
-        context.TemporaryKeys.Add(new TemporaryKey
-        {
-            Expires = expires,
-            Key = key,
-            Value = value,
-        });
-        await context.SaveChangesAsync();
-    }
-
-    public static async Task<string?> GetKeyAsync(this DatabaseContext context, string key,
-        bool delete = false)
-    {
-        var value = await context.TemporaryKeys.FirstOrDefaultAsync(k => k.Key == key);
-        if (value == null) return null;
-
-        if (delete)
-        {
-            await context.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync();
-            await context.SaveChangesAsync();
-        }
-
-        return value.Value;
     }
 }
