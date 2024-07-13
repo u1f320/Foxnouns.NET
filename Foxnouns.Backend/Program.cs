@@ -21,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.AddConfiguration();
 
-builder.AddSerilog();
+builder.AddSerilog().AddMetrics();
 
 builder.WebHost
     .UseSentry(opts =>
@@ -75,9 +75,9 @@ builder.Services
             .Build());
 
 builder.Services.AddHangfire(c => c.UseSentry().UseRedisStorage(config.Jobs.Redis, new RedisStorageOptions
-{
-    Prefix = "foxnouns_"
-}))
+    {
+        Prefix = "foxnouns_"
+    }))
     .AddHangfireServer(options => { options.WorkerCount = config.Jobs.Workers; });
 
 var app = builder.Build();
@@ -103,6 +103,7 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 
 app.Urls.Clear();
 app.Urls.Add(config.Address);
+if (config.MetricsAddress != null) app.Urls.Add(config.MetricsAddress);
 
 // Fire off the periodic tasks loop in the background
 _ = new Timer(_ =>

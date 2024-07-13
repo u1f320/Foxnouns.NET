@@ -1,3 +1,6 @@
+using App.Metrics;
+using App.Metrics.AspNetCore;
+using App.Metrics.Formatters.Prometheus;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
@@ -6,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using Serilog;
 using Serilog.Events;
+using IClock = NodaTime.IClock;
 
 namespace Foxnouns.Backend.Extensions;
 
@@ -29,6 +33,7 @@ public static class WebApplicationExtensions
             .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+            .MinimumLevel.Override("Hangfire", LogEventLevel.Information)
             .WriteTo.Console();
 
         if (config.Logging.SeqLogUrl != null)
@@ -50,6 +55,36 @@ public static class WebApplicationExtensions
         var config = builder.Configuration.Get<Config>() ?? new();
         builder.Services.AddSingleton(config);
         return config;
+    }
+
+    public static WebApplicationBuilder AddMetrics(this WebApplicationBuilder builder)
+    {
+        var config = builder.Configuration.Get<Config>() ?? new();
+        var metrics = AppMetrics.CreateDefaultBuilder()
+            .OutputMetrics.AsPrometheusPlainText()
+            .Build();
+
+        builder.Services.AddSingleton(metrics);
+        builder.Services.AddSingleton<IMetrics>(metrics);
+
+        builder.WebHost
+            .ConfigureMetrics(metrics)
+            .UseMetrics(opts =>
+            {
+                opts.EndpointOptions = options =>
+                {
+                    // Metrics must listen on a separate port for security reasons. If no metrics port is set, disable the endpoint entirely.
+                    options.MetricsEndpointEnabled = config.Logging.MetricsPort != null;
+                    options.EnvironmentInfoEndpointEnabled = config.Logging.MetricsPort != null;
+                    options.MetricsTextEndpointEnabled = false;
+                    options.MetricsEndpointOutputFormatter = metrics.OutputMetricsFormatters
+                        .OfType<MetricsPrometheusTextOutputFormatter>().First();
+                };
+            })
+            .UseMetricsWebTracking()
+            .ConfigureAppMetricsHostingConfiguration(opts => { opts.AllEndpointsPort = config.Logging.MetricsPort; });
+
+        return builder;
     }
 
     public static IConfigurationBuilder AddConfiguration(this IConfigurationBuilder builder)
