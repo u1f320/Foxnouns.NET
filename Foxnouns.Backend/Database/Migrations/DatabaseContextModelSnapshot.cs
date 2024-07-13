@@ -267,9 +267,25 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("bio");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("deleted");
+
+                    b.Property<Instant?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<long?>("DeletedBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("deleted_by");
+
                     b.Property<string>("DisplayName")
                         .HasColumnType("text")
                         .HasColumnName("display_name");
+
+                    b.Property<Instant>("LastActive")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_active");
 
                     b.Property<string[]>("Links")
                         .IsRequired()
@@ -335,7 +351,7 @@ namespace Foxnouns.Backend.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_members_users_user_id");
 
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.Member.Fields#System.Collections.Generic.List<Foxnouns.Backend.Database.Models.Field>", "Fields", b1 =>
+                    b.OwnsOne("System.Collections.Generic.List<Foxnouns.Backend.Database.Models.Field>", "Fields", b1 =>
                         {
                             b1.Property<long>("MemberId")
                                 .HasColumnType("bigint");
@@ -345,7 +361,7 @@ namespace Foxnouns.Backend.Database.Migrations
 
                             b1.HasKey("MemberId");
 
-                            b1.ToTable("members", (string)null);
+                            b1.ToTable("members");
 
                             b1.ToJson("fields");
 
@@ -354,7 +370,7 @@ namespace Foxnouns.Backend.Database.Migrations
                                 .HasConstraintName("fk_members_members_id");
                         });
 
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.Member.Names#System.Collections.Generic.List<Foxnouns.Backend.Database.Models.FieldEntry>", "Names", b1 =>
+                    b.OwnsOne("System.Collections.Generic.List<Foxnouns.Backend.Database.Models.FieldEntry>", "Names", b1 =>
                         {
                             b1.Property<long>("MemberId")
                                 .HasColumnType("bigint");
@@ -364,7 +380,7 @@ namespace Foxnouns.Backend.Database.Migrations
 
                             b1.HasKey("MemberId");
 
-                            b1.ToTable("members", (string)null);
+                            b1.ToTable("members");
 
                             b1.ToJson("names");
 
@@ -373,7 +389,7 @@ namespace Foxnouns.Backend.Database.Migrations
                                 .HasConstraintName("fk_members_members_id");
                         });
 
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.Member.Pronouns#System.Collections.Generic.List<Foxnouns.Backend.Database.Models.Pronoun>", "Pronouns", b1 =>
+                    b.OwnsOne("System.Collections.Generic.List<Foxnouns.Backend.Database.Models.Pronoun>", "Pronouns", b1 =>
                         {
                             b1.Property<long>("MemberId")
                                 .HasColumnType("bigint");
@@ -383,7 +399,7 @@ namespace Foxnouns.Backend.Database.Migrations
 
                             b1.HasKey("MemberId");
 
-                            b1.ToTable("members", (string)null);
+                            b1.ToTable("members");
 
                             b1.ToJson("pronouns");
 
@@ -427,7 +443,7 @@ namespace Foxnouns.Backend.Database.Migrations
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.User", b =>
                 {
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Fields#Foxnouns.Backend.Database.Models.User.Fields#List", "Fields", b1 =>
+                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Fields#List", "Fields", b1 =>
                         {
                             b1.Property<long>("UserId")
                                 .HasColumnType("bigint");
@@ -438,7 +454,7 @@ namespace Foxnouns.Backend.Database.Migrations
                             b1.HasKey("UserId")
                                 .HasName("pk_users");
 
-                            b1.ToTable("users", (string)null);
+                            b1.ToTable("users");
 
                             b1.ToJson("fields");
 
@@ -447,7 +463,7 @@ namespace Foxnouns.Backend.Database.Migrations
                                 .HasConstraintName("fk_users_users_user_id");
                         });
 
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Names#Foxnouns.Backend.Database.Models.User.Names#List", "Names", b1 =>
+                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Names#List", "Names", b1 =>
                         {
                             b1.Property<long>("UserId")
                                 .HasColumnType("bigint");
@@ -458,7 +474,7 @@ namespace Foxnouns.Backend.Database.Migrations
                             b1.HasKey("UserId")
                                 .HasName("pk_users");
 
-                            b1.ToTable("users", (string)null);
+                            b1.ToTable("users");
 
                             b1.ToJson("names");
 
@@ -467,7 +483,7 @@ namespace Foxnouns.Backend.Database.Migrations
                                 .HasConstraintName("fk_users_users_user_id");
                         });
 
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Pronouns#Foxnouns.Backend.Database.Models.User.Pronouns#List", "Pronouns", b1 =>
+                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Pronouns#List", "Pronouns", b1 =>
                         {
                             b1.Property<long>("UserId")
                                 .HasColumnType("bigint");
@@ -478,7 +494,7 @@ namespace Foxnouns.Backend.Database.Migrations
                             b1.HasKey("UserId")
                                 .HasName("pk_users");
 
-                            b1.ToTable("users", (string)null);
+                            b1.ToTable("users");
 
                             b1.ToJson("pronouns");
 

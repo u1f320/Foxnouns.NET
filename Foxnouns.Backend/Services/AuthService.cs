@@ -8,7 +8,7 @@ using NodaTime;
 
 namespace Foxnouns.Backend.Services;
 
-public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator snowflakeGenerator)
+public class AuthService(ILogger logger, IClock clock, DatabaseContext db, ISnowflakeGenerator snowflakeGenerator)
 {
     private readonly PasswordHasher<User> _passwordHasher = new();
 
@@ -26,7 +26,8 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
             {
                 new AuthMethod
                     { Id = snowflakeGenerator.GenerateSnowflake(), AuthType = AuthType.Email, RemoteId = email }
-            }
+            },
+            LastActive = clock.GetCurrentInstant()
         };
 
         db.Add(user);
@@ -59,7 +60,8 @@ public class AuthService(ILogger logger, DatabaseContext db, ISnowflakeGenerator
                     Id = snowflakeGenerator.GenerateSnowflake(), AuthType = authType, RemoteId = remoteId,
                     RemoteUsername = remoteUsername, FediverseApplication = instance
                 }
-            }
+            },
+            LastActive = clock.GetCurrentInstant()
         };
 
         db.Add(user);

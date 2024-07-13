@@ -24,6 +24,8 @@ public static class WebApplicationExtensions
             // ASP.NET's built in request logs are extremely verbose, so we use Serilog's instead.
             // Serilog doesn't disable the built-in logs, so we do it here.
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command",
+                config.Logging.LogQueries ? LogEventLevel.Information : LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
@@ -34,10 +36,8 @@ public static class WebApplicationExtensions
             logCfg.WriteTo.Seq(config.Logging.SeqLogUrl, restrictedToMinimumLevel: LogEventLevel.Verbose);
         }
 
-        Log.Logger = logCfg.CreateLogger();
-
         // AddSerilog doesn't seem to add an ILogger to the service collection, so add that manually.
-        builder.Services.AddSerilog().AddSingleton(Log.Logger);
+        builder.Services.AddSerilog().AddSingleton(Log.Logger = logCfg.CreateLogger());
 
         return builder;
     }

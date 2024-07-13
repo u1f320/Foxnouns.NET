@@ -26,6 +26,7 @@ public class Config
         public string? SentryUrl { get; init; }
         public bool SentryTracing { get; init; } = false;
         public double SentryTracesSampleRate { get; init; } = 0.0;
+        public bool LogQueries { get; init; } = false;
     }
 
     public class DatabaseConfig

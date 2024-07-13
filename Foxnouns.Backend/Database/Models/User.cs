@@ -1,4 +1,5 @@
-using System.Text.RegularExpressions;
+using System.ComponentModel.DataAnnotations.Schema;
+using NodaTime;
 
 namespace Foxnouns.Backend.Database.Models;
 
@@ -21,6 +22,13 @@ public class User : BaseModel
 
     public List<Member> Members { get; } = [];
     public List<AuthMethod> AuthMethods { get; } = [];
+
+    public required Instant LastActive { get; set; }
+
+    public bool Deleted { get; set; }
+    public Instant? DeletedAt { get; set; }
+    public Snowflake? DeletedBy { get; set; }
+    [NotMapped] public bool? SelfDelete => Deleted ? DeletedBy != null : null;
 }
 
 public enum UserRole

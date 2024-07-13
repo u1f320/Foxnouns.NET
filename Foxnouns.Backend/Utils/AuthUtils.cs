@@ -75,7 +75,6 @@ public static class AuthUtils
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error converting string: {e}");
             bytes = [];
             return false;
         }

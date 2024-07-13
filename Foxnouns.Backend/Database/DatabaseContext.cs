@@ -10,6 +10,7 @@ namespace Foxnouns.Backend.Database;
 public class DatabaseContext : DbContext
 {
     private readonly NpgsqlDataSource _dataSource;
+    private readonly ILoggerFactory? _loggerFactory;
 
     public DbSet<User> Users { get; set; }
     public DbSet<Member> Members { get; set; }
@@ -19,7 +20,7 @@ public class DatabaseContext : DbContext
     public DbSet<Application> Applications { get; set; }
     public DbSet<TemporaryKey> TemporaryKeys { get; set; }
 
-    public DatabaseContext(Config config)
+    public DatabaseContext(Config config, ILoggerFactory? loggerFactory)
     {
         var connString = new NpgsqlConnectionStringBuilder(config.Database.Url)
         {
@@ -30,13 +31,15 @@ public class DatabaseContext : DbContext
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connString);
         dataSourceBuilder.UseNodaTime();
         _dataSource = dataSourceBuilder.Build();
+        _loggerFactory = loggerFactory;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder
             .ConfigureWarnings(c => c.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
             .UseNpgsql(_dataSource, o => o.UseNodaTime())
-            .UseSnakeCaseNamingConvention();
+            .UseSnakeCaseNamingConvention()
+            .UseLoggerFactory(_loggerFactory);
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -73,6 +76,6 @@ public class DesignTimeDatabaseContextFactory : IDesignTimeDbContextFactory<Data
             // Get the configuration as our config class
             .Get<Config>() ?? new();
 
-        return new DatabaseContext(config);
+        return new DatabaseContext(config, null);
     }
 }

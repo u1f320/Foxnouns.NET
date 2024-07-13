@@ -3,6 +3,7 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using NodaTime;
 
 namespace Foxnouns.Backend.Services;
 
@@ -14,12 +15,12 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         bool renderAuthMethods = false)
     {
         var isSelfUser = selfUser?.Id == user.Id;
-        var tokenCanReadHiddenMembers = token.HasScope("member.read");
-        var tokenCanReadAuth = token.HasScope("user.read_privileged");
+        var tokenCanReadHiddenMembers = token.HasScope("member.read") && isSelfUser;
+        var tokenPrivileged = token.HasScope("user.read_privileged") && isSelfUser;
 
         renderMembers = renderMembers &&
-                        (!user.ListHidden || (isSelfUser && tokenCanReadHiddenMembers));
-        renderAuthMethods = renderAuthMethods && isSelfUser && tokenCanReadAuth;
+                        (!user.ListHidden || tokenCanReadHiddenMembers);
+        renderAuthMethods = renderAuthMethods && tokenPrivileged;
 
         IEnumerable<Member> members =
             renderMembers ? await db.Members.Where(m => m.UserId == user.Id).ToListAsync() : [];
@@ -34,7 +35,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
             : [];
 
         return new UserResponse(
-            user.Id, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user), user.Links, user.Names,
+            user.Id, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user), user.Links,
+            user.Names,
             user.Pronouns, user.Fields,
             renderMembers ? members.Select(memberRendererService.RenderPartialMember) : null,
             renderAuthMethods
@@ -42,7 +44,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
                     a.Id, a.AuthType, a.RemoteId,
                     a.RemoteUsername, a.FediverseApplication?.Domain
                 ))
-                : null
+                : null,
+            tokenPrivileged ? user.LastActive : null
         );
     }
 
@@ -63,7 +66,9 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         IEnumerable<MemberRendererService.PartialMember>? Members,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        IEnumerable<AuthenticationMethodResponse>? AuthMethods
+        IEnumerable<AuthenticationMethodResponse>? AuthMethods,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        Instant? LastActive
     );
 
     public record AuthenticationMethodResponse(
