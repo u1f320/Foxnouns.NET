@@ -6,6 +6,7 @@ using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foxnouns.Backend.Controllers;
 
@@ -14,7 +15,8 @@ public class MembersController(
     ILogger logger,
     DatabaseContext db,
     MemberRendererService memberRendererService,
-    ISnowflakeGenerator snowflakeGenerator) : ApiControllerBase
+    ISnowflakeGenerator snowflakeGenerator,
+    AvatarUpdateJob avatarUpdate) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<MembersController>();
 
@@ -72,6 +74,25 @@ public class MembersController(
         if (req.Avatar != null) AvatarUpdateJob.QueueUpdateMemberAvatar(member.Id, req.Avatar);
 
         return Ok(memberRendererService.RenderMember(member, CurrentToken));
+    }
+
+    [HttpDelete("/api/v2/users/@me/members/{memberRef}")]
+    [Authorize("member.update")]
+    public async Task<IActionResult> DeleteMemberAsync(string memberRef)
+    {
+        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+        var deleteCount = await db.Members.Where(m => m.UserId == CurrentUser!.Id && m.Id == member.Id)
+            .ExecuteDeleteAsync();
+        if (deleteCount == 0)
+        {
+            _logger.Warning("Successfully resolved member {Id} but could not delete them", member.Id);
+            return NoContent();
+        }
+
+        await db.SaveChangesAsync();
+
+        if (member.Avatar != null) await avatarUpdate.DeleteMemberAvatar(member.Id, member.Avatar);
+        return NoContent();
     }
 
     public record CreateMemberRequest(string Name, string? DisplayName, string? Bio, string? Avatar, bool? Unlisted);

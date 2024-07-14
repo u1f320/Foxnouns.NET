@@ -5,6 +5,7 @@ using Foxnouns.Backend.Utils;
 using Hangfire;
 using Minio;
 using Minio.DataModel.Args;
+using Minio.Exceptions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
@@ -161,6 +162,29 @@ public class AvatarUpdateJob(DatabaseContext db, IMinioClient minio, Config conf
 
         member.Avatar = null;
         await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Deletes a member's avatar. This should only be used when a member is in the process of being deleted, otherwise,
+    /// <see cref="QueueUpdateMemberAvatar" /> with a <c>null</c> avatar should be used instead.
+    /// </summary>
+    public async Task DeleteMemberAvatar(Snowflake id, string hash) => await DeleteAvatar(MemberAvatarPath(id, hash));
+    /// <summary>
+    /// Deletes a user's avatar. This should only be used when a user is in the process of being deleted, otherwise,
+    /// <see cref="QueueUpdateUserAvatar" /> with a <c>null</c> avatar should be used instead.
+    /// </summary>
+    public async Task DeleteUserAvatar(Snowflake id, string hash) => await DeleteAvatar(UserAvatarPath(id, hash));
+
+    private async Task DeleteAvatar(string path)
+    {
+        logger.Debug("Deleting avatar at path {Path}", path);
+        try
+        {
+            await minio.RemoveObjectAsync(new RemoveObjectArgs().WithBucket(config.Storage.Bucket).WithObject(path));
+        }
+        catch (InvalidObjectNameException)
+        {
+        }
     }
 
     private async Task<Stream> ConvertAvatar(string uri)
