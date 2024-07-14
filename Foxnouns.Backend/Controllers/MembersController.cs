@@ -1,9 +1,11 @@
+using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Foxnouns.Backend.Controllers;
 
@@ -37,32 +39,40 @@ public class MembersController(
     [Authorize("member.create")]
     public async Task<IActionResult> CreateMemberAsync([FromBody] CreateMemberRequest req)
     {
-        await using var tx = await db.Database.BeginTransactionAsync();
-
-        // "Translation of the 'string.Equals' overload with a 'StringComparison' parameter is not supported."
-        // Member names are case-insensitive, so we need to compare the lowercase forms of both.
-#pragma warning disable CA1862
-        if (await db.Members.AnyAsync(m => m.UserId == CurrentUser!.Id && m.Name.ToLower() == req.Name.ToLower()))
-#pragma warning restore CA1862
-        {
-            throw new ApiError.BadRequest("A member with that name already exists", "name", req.Name);
-        }
+        ValidationUtils.Validate([
+            ("name", ValidationUtils.ValidateMemberName(req.Name)),
+            ("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)),
+            ("bio", ValidationUtils.ValidateBio(req.Bio)),
+            ("avatar", ValidationUtils.ValidateAvatar(req.Avatar))
+        ]);
 
         var member = new Member
         {
             Id = snowflakeGenerator.GenerateSnowflake(),
+            User = CurrentUser!,
             Name = req.Name,
-            User = CurrentUser!
+            DisplayName = req.DisplayName,
+            Bio = req.Bio,
+            Unlisted = req.Unlisted ?? false
         };
         db.Add(member);
 
         _logger.Debug("Creating member {MemberName} ({Id}) for {UserId}", member.Name, member.Id, CurrentUser!.Id);
 
-        await db.SaveChangesAsync();
-        await tx.CommitAsync();
+        try
+        {
+            await db.SaveChangesAsync();
+        }
+        catch (UniqueConstraintException)
+        {
+            _logger.Debug("Could not create member {Id} due to name conflict", member.Id);
+            throw new ApiError.BadRequest("A member with that name already exists", "name", req.Name);
+        }
+
+        if (req.Avatar != null) AvatarUpdateJob.QueueUpdateMemberAvatar(member.Id, req.Avatar);
 
         return Ok(memberRendererService.RenderMember(member, CurrentToken));
     }
 
-    public record CreateMemberRequest(string Name);
+    public record CreateMemberRequest(string Name, string? DisplayName, string? Bio, string? Avatar, bool? Unlisted);
 }

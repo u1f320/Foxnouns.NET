@@ -1,3 +1,4 @@
+using EntityFramework.Exceptions.PostgreSQL;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -36,10 +37,13 @@ public class DatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder
-            .ConfigureWarnings(c => c.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
+            .ConfigureWarnings(c =>
+                c.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning)
+                    .Ignore(CoreEventId.SaveChangesFailed))
             .UseNpgsql(_dataSource, o => o.UseNodaTime())
             .UseSnakeCaseNamingConvention()
-            .UseLoggerFactory(_loggerFactory);
+            .UseLoggerFactory(_loggerFactory)
+            .UseExceptionProcessor();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

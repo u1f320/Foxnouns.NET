@@ -25,9 +25,13 @@ public class AvatarUpdateJob(DatabaseContext db, IMinioClient minio, Config conf
             BackgroundJob.Enqueue<AvatarUpdateJob>(job => job.ClearUserAvatar(id));
     }
 
-    public static void QueueUpdateMemberAvatar(Snowflake id, string? newAvatar) =>
-        BackgroundJob.Enqueue<AvatarUpdateJob>(job =>
-            newAvatar != null ? job.UpdateMemberAvatar(id, newAvatar) : job.ClearMemberAvatar(id));
+    public static void QueueUpdateMemberAvatar(Snowflake id, string? newAvatar)
+    {
+        if (newAvatar != null)
+            BackgroundJob.Enqueue<AvatarUpdateJob>(job => job.UpdateMemberAvatar(id, newAvatar));
+        else
+            BackgroundJob.Enqueue<AvatarUpdateJob>(job => job.ClearMemberAvatar(id));
+    }
 
     public async Task UpdateUserAvatar(Snowflake id, string newAvatar)
     {

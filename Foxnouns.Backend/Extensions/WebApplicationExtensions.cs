@@ -29,7 +29,7 @@ public static class WebApplicationExtensions
             // Serilog doesn't disable the built-in logs, so we do it here.
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command",
-                config.Logging.LogQueries ? LogEventLevel.Information : LogEventLevel.Warning)
+                config.Logging.LogQueries ? LogEventLevel.Information : LogEventLevel.Fatal)
             .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)

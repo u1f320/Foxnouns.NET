@@ -9,6 +9,9 @@ public static class ValidationUtils
 {
     private static readonly Regex UsernameRegex = new("^[\\w-.]{2,40}$", RegexOptions.IgnoreCase);
 
+    private static readonly Regex MemberRegex =
+        new("^[^@\\?!#/\\\\[\\]\"\\{\\}'$%&()+<=>^|~`,\\*]{1,100}$", RegexOptions.IgnoreCase);
+
     private static readonly string[] InvalidUsernames =
     [
         "..",
@@ -23,7 +26,16 @@ public static class ValidationUtils
         "pronouns.cc",
         "pronounscc"
     ];
-    
+
+    private static readonly string[] InvalidMemberNames =
+    [
+        // these break routing outright
+        ".",
+        "..",
+        // the user edit page lives at `/@{username}/edit`, so a member named "edit" would be inaccessible
+        "edit"
+    ];
+
     public static ValidationError? ValidateUsername(string username)
     {
         if (!UsernameRegex.IsMatch(username))
@@ -32,11 +44,31 @@ public static class ValidationUtils
                 < 2 => ValidationError.LengthError("Username is too short", 2, 40, username.Length),
                 > 40 => ValidationError.LengthError("Username is too long", 2, 40, username.Length),
                 _ => ValidationError.GenericValidationError(
-                    "Username is invalid, can only contain alphanumeric characters, dashes, underscores, and periods", username)
+                    "Username is invalid, can only contain alphanumeric characters, dashes, underscores, and periods",
+                    username)
             };
 
         if (InvalidUsernames.Any(u => string.Equals(u, username, StringComparison.InvariantCultureIgnoreCase)))
             return ValidationError.GenericValidationError("Username is not allowed", username);
+        return null;
+    }
+
+    public static ValidationError? ValidateMemberName(string memberName)
+    {
+        if (!UsernameRegex.IsMatch(memberName))
+            return memberName.Length switch
+            {
+                < 2 => ValidationError.LengthError("Name is too short", 1, 100, memberName.Length),
+                > 40 => ValidationError.LengthError("Name is too long", 1, 100, memberName.Length),
+                _ => ValidationError.GenericValidationError(
+                    "Member name cannot contain any of the following: " +
+                    " @, ?, !, #, /, \\, [, ], \", ', $, %, &, (, ), {, }, +, <, =, >, ^, |, ~, `, , " +
+                    "and cannot be one or two periods",
+                    memberName)
+            };
+
+        if (InvalidMemberNames.Any(u => string.Equals(u, memberName, StringComparison.InvariantCultureIgnoreCase)))
+            return ValidationError.GenericValidationError("Name is not allowed", memberName);
         return null;
     }
 
