@@ -38,30 +38,35 @@ public class UsersController(DatabaseContext db, UserRendererService userRendere
     {
         await using var tx = await db.Database.BeginTransactionAsync();
         var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id);
+        var errors = new List<(string, ValidationError?)>();
 
         if (req.Username != null && req.Username != user.Username)
         {
-            ValidationUtils.ValidateUsername(req.Username);
+            errors.Add(("username", ValidationUtils.ValidateUsername(req.Username)));
             user.Username = req.Username;
         }
 
         if (req.HasProperty(nameof(req.DisplayName)))
         {
-            ValidationUtils.ValidateDisplayName(req.DisplayName);
+            errors.Add(("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)));
             user.DisplayName = req.DisplayName;
         }
 
         if (req.HasProperty(nameof(req.Bio)))
         {
-            ValidationUtils.ValidateBio(req.Bio);
+            errors.Add(("bio", ValidationUtils.ValidateBio(req.Bio)));
             user.Bio = req.Bio;
         }
 
         if (req.HasProperty(nameof(req.Avatar)))
-        {
-            ValidationUtils.ValidateAvatar(req.Avatar);
+            errors.Add(("avatar", ValidationUtils.ValidateAvatar(req.Avatar)));
+
+        ValidationUtils.Validate(errors);
+        // This is fired off regardless of whether the transaction is committed
+        // (atomic operations are hard when combined with background jobs)
+        // so it's in a separate block to the validation above.
+        if (req.HasProperty(nameof(req.Avatar)))
             AvatarUpdateJob.QueueUpdateUserAvatar(CurrentUser!.Id, req.Avatar);
-        }
 
         await db.SaveChangesAsync();
         await tx.CommitAsync();

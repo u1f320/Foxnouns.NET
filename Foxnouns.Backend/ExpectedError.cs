@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Net;
 using Foxnouns.Backend.Middleware;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Foxnouns.Backend;
@@ -31,11 +32,12 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
         public readonly string[] Scopes = scopes?.ToArray() ?? [];
     }
 
-    public class BadRequest(string message, IReadOnlyDictionary<string, string>? errors = null)
+    public class BadRequest(string message, IReadOnlyDictionary<string, IEnumerable<ValidationError>>? errors = null)
         : ApiError(message, statusCode: HttpStatusCode.BadRequest)
     {
-        public BadRequest(string message, string field) : this(message,
-            new Dictionary<string, string> { { field, message } })
+        public BadRequest(string message, string field, object actualValue) : this("Error validating input",
+            new Dictionary<string, IEnumerable<ValidationError>>
+                { { field, [ValidationError.GenericValidationError(message, actualValue)] } })
         {
         }
 
@@ -55,7 +57,7 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
                 var errorObj = new JObject
                 {
                     { "key", error.Key },
-                    { "errors", new JArray(new JObject { { "message", error.Value } }) }
+                    { "errors", JArray.FromObject(error.Value) }
                 };
                 a.Add(errorObj);
             }
@@ -116,4 +118,55 @@ public enum ErrorCode
     GenericApiError,
     UserNotFound,
     MemberNotFound,
+}
+
+public class ValidationError
+{
+    public required string Message { get; init; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public int? MinLength { get; init; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public int? MaxLength { get; init; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public int? ActualLength { get; init; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public IEnumerable<object>? AllowedValues { get; init; }
+
+    [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    public object? ActualValue { get; init; }
+
+    public static ValidationError LengthError(string message, int minLength, int maxLength, int actualLength)
+    {
+        return new ValidationError
+        {
+            Message = message,
+            MinLength = minLength,
+            MaxLength = maxLength,
+            ActualLength = actualLength
+        };
+    }
+
+    public static ValidationError DisallowedValueError(string message, IEnumerable<object> allowedValues,
+        object actualValue)
+    {
+        return new ValidationError
+        {
+            Message = message,
+            AllowedValues = allowedValues,
+            ActualValue = actualValue
+        };
+    }
+
+    public static ValidationError GenericValidationError(string message, object? actualValue)
+    {
+        return new ValidationError
+        {
+            Message = message,
+            ActualValue = actualValue
+        };
+    }
 }

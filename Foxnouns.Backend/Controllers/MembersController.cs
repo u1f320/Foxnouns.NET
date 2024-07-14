@@ -45,7 +45,7 @@ public class MembersController(
         if (await db.Members.AnyAsync(m => m.UserId == CurrentUser!.Id && m.Name.ToLower() == req.Name.ToLower()))
 #pragma warning restore CA1862
         {
-            throw new ApiError.BadRequest("A member with that name already exists", "name");
+            throw new ApiError.BadRequest("A member with that name already exists", "name", req.Name);
         }
 
         var member = new Member

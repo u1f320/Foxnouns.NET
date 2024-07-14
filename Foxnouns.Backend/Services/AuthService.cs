@@ -47,7 +47,7 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
         AssertValidAuthType(authType, instance);
 
         if (await db.Users.AnyAsync(u => u.Username == username))
-            throw new ApiError.BadRequest("Username is already taken", "username");
+            throw new ApiError.BadRequest("Username is already taken", "username", username);
 
         var user = new User
         {
@@ -124,7 +124,7 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     public (string, Token) GenerateToken(User user, Application application, string[] scopes, Instant expires)
     {
         if (!AuthUtils.ValidateScopes(application, scopes))
-            throw new ApiError.BadRequest("Invalid scopes requested for this token", "scopes");
+            throw new ApiError.BadRequest("Invalid scopes requested for this token", "scopes", scopes);
 
         var (token, hash) = GenerateToken();
         return (token, new Token
