@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { page } from "$app/stores";
 	import neofox from "./neofox_confused_2048.png";
 </script>

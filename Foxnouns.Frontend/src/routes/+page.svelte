@@ -11,10 +11,10 @@
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
 
 <p>
-	are you logged in? {data.user !== undefined}
-	{#if data.user}
-		<br />hello, {data.user.username}!
-		<br />your ID: {data.user.id}
+	are you logged in? {data.currentUser !== undefined}
+	{#if data.currentUser}
+		<br />hello, {data.currentUser.username}!
+		<br />your ID: {data.currentUser.id}
 	{/if}
 </p>
 

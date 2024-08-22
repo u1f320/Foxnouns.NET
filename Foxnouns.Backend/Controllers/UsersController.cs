@@ -21,11 +21,6 @@ public class UsersController(
     public async Task<IActionResult> GetUserAsync(string userRef)
     {
         var user = await db.ResolveUserAsync(userRef, CurrentToken);
-        return await GetUserInnerAsync(user);
-    }
-
-    private async Task<IActionResult> GetUserInnerAsync(User user)
-    {
         return Ok(await userRendererService.RenderUserAsync(
             user,
             selfUser: CurrentUser,
