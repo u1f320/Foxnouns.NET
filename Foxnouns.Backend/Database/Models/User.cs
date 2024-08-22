@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Foxnouns.Backend.Utils;
+using Newtonsoft.Json;
 using NodaTime;
 
 namespace Foxnouns.Backend.Database.Models;
@@ -16,6 +18,7 @@ public class User : BaseModel
     public List<FieldEntry> Names { get; set; } = [];
     public List<Pronoun> Pronouns { get; set; } = [];
     public List<Field> Fields { get; set; } = [];
+    public Dictionary<Snowflake, CustomPreference> CustomPreferences { get; set; } = [];
 
     public UserRole Role { get; set; } = UserRole.User;
     public string? Password { get; set; } // Password may be null if the user doesn't authenticate with an email address
@@ -29,6 +32,18 @@ public class User : BaseModel
     public Instant? DeletedAt { get; set; }
     public Snowflake? DeletedBy { get; set; }
     [NotMapped] public bool? SelfDelete => Deleted ? DeletedBy != null : null;
+
+    public class CustomPreference
+    {
+        public required string Icon { get; set; }
+        public required string Tooltip { get; set; }
+        public bool Muted { get; set; }
+        public bool Favourite { get; set; }
+        
+        // This type is generally serialized directly, so the converter is applied here.
+        [JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
+        public PreferenceSize Size { get; set; }
+    }
 }
 
 public enum UserRole
@@ -36,4 +51,11 @@ public enum UserRole
     User,
     Moderator,
     Admin,
+}
+
+public enum PreferenceSize
+{
+    Large,
+    Normal,
+    Small,
 }

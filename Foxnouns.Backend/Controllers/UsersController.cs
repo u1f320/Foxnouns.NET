@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Jobs;
@@ -10,7 +11,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Foxnouns.Backend.Controllers;
 
 [Route("/api/v2/users")]
-public class UsersController(DatabaseContext db, UserRendererService userRendererService) : ApiControllerBase
+public class UsersController(
+    DatabaseContext db,
+    UserRendererService userRendererService,
+    ISnowflakeGenerator snowflakeGenerator) : ApiControllerBase
 {
     [HttpGet("{userRef}")]
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
@@ -72,6 +76,74 @@ public class UsersController(DatabaseContext db, UserRendererService userRendere
         await tx.CommitAsync();
         return Ok(await userRendererService.RenderUserAsync(user, CurrentUser, renderMembers: false,
             renderAuthMethods: false));
+    }
+
+    [HttpPatch("@me/custom-preferences")]
+    [Authorize("user.update")]
+    [ProducesResponseType<Dictionary<Snowflake, User.CustomPreference>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateCustomPreferencesAsync([FromBody] List<CustomPreferencesUpdateRequest> req)
+    {
+        ValidationUtils.Validate(ValidateCustomPreferences(req));
+
+        var user = await db.ResolveUserAsync(CurrentUser!.Id);
+        var preferences = user.CustomPreferences.Where(x => req.Any(r => r.Id == x.Key)).ToDictionary();
+
+        foreach (var r in req)
+        {
+            if (r.Id != null && preferences.ContainsKey(r.Id.Value))
+            {
+                preferences[r.Id.Value] = new User.CustomPreference
+                {
+                    Favourite = r.Favourite,
+                    Icon = r.Icon,
+                    Muted = r.Muted,
+                    Size = r.Size,
+                    Tooltip = r.Tooltip
+                };
+            }
+            else
+            {
+                preferences[snowflakeGenerator.GenerateSnowflake()] = new User.CustomPreference
+                {
+                    Favourite = r.Favourite,
+                    Icon = r.Icon,
+                    Muted = r.Muted,
+                    Size = r.Size,
+                    Tooltip = r.Tooltip
+                };
+            }
+        }
+
+        user.CustomPreferences = preferences;
+        await db.SaveChangesAsync();
+
+        return Ok(user.CustomPreferences);
+    }
+
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+    public class CustomPreferencesUpdateRequest
+    {
+        public Snowflake? Id { get; init; }
+        public required string Icon { get; set; }
+        public required string Tooltip { get; set; }
+        public PreferenceSize Size { get; set; }
+        public bool Muted { get; set; }
+        public bool Favourite { get; set; }
+    }
+
+    private static List<(string, ValidationError?)> ValidateCustomPreferences(
+        List<CustomPreferencesUpdateRequest> preferences)
+    {
+        var errors = new List<(string, ValidationError?)>();
+
+        if (preferences.Count > 25)
+            errors.Add(("custom_preferences",
+                ValidationError.LengthError("Too many custom preferences", 0, 25, preferences.Count)));
+        if (preferences.Count > 50) return errors;
+
+        // TODO: validate individual preferences
+
+        return errors;
     }
 
     public class UpdateUserRequest : PatchRequest

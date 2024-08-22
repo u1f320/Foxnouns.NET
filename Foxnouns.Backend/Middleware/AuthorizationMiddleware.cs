@@ -1,3 +1,4 @@
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
 
 namespace Foxnouns.Backend.Middleware;
@@ -21,6 +22,10 @@ public class AuthorizationMiddleware : IMiddleware
         if (attribute.Scopes.Length > 0 && attribute.Scopes.Except(token.Scopes.ExpandScopes()).Any())
             throw new ApiError.Forbidden("This endpoint requires ungranted scopes.",
                 attribute.Scopes.Except(token.Scopes.ExpandScopes()));
+        if (attribute.RequireAdmin && token.User.Role != UserRole.Admin)
+            throw new ApiError.Forbidden("This endpoint can only be used by admins.");
+        if (attribute.RequireModerator && token.User.Role != UserRole.Admin && token.User.Role != UserRole.Moderator)
+            throw new ApiError.Forbidden("This endpoint can only be used by moderators.");
 
         await next(ctx);
     }

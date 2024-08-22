@@ -37,8 +37,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
 
         return new UserResponse(
             user.Id, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user), user.Links,
-            user.Names,
-            user.Pronouns, user.Fields,
+            user.Names, user.Pronouns, user.Fields, user.CustomPreferences,
             renderMembers ? members.Select(memberRendererService.RenderPartialMember) : null,
             renderAuthMethods
                 ? authMethods.Select(a => new AuthenticationMethodResponse(
@@ -68,6 +67,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         IEnumerable<FieldEntry> Names,
         IEnumerable<Pronoun> Pronouns,
         IEnumerable<Field> Fields,
+        Dictionary<Snowflake, User.CustomPreference> CustomPreferences,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         IEnumerable<MemberRendererService.PartialMember>? Members,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using EntityFramework.Exceptions.PostgreSQL;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
@@ -31,6 +32,7 @@ public class DatabaseContext : DbContext
 
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connString);
         dataSourceBuilder.UseNodaTime();
+        dataSourceBuilder.UseJsonNet();
         _dataSource = dataSourceBuilder.Build();
         _loggerFactory = loggerFactory;
     }
@@ -57,18 +59,18 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<Member>().HasIndex(m => new { m.UserId, m.Name }).IsUnique();
         modelBuilder.Entity<TemporaryKey>().HasIndex(k => k.Key).IsUnique();
 
-        modelBuilder.Entity<User>()
-            .OwnsOne(u => u.Fields, f => f.ToJson())
-            .OwnsOne(u => u.Names, n => n.ToJson())
-            .OwnsOne(u => u.Pronouns, p => p.ToJson());
+        modelBuilder.Entity<User>().Property(u => u.Fields).HasColumnType("jsonb");
+        modelBuilder.Entity<User>().Property(u => u.Names).HasColumnType("jsonb");
+        modelBuilder.Entity<User>().Property(u => u.Pronouns).HasColumnType("jsonb");
+        modelBuilder.Entity<User>().Property(u => u.CustomPreferences).HasColumnType("jsonb");
 
-        modelBuilder.Entity<Member>()
-            .OwnsOne(m => m.Fields, f => f.ToJson())
-            .OwnsOne(m => m.Names, n => n.ToJson())
-            .OwnsOne(m => m.Pronouns, p => p.ToJson());
+        modelBuilder.Entity<Member>().Property(m => m.Fields).HasColumnType("jsonb");
+        modelBuilder.Entity<Member>().Property(m => m.Names).HasColumnType("jsonb");
+        modelBuilder.Entity<Member>().Property(m => m.Pronouns).HasColumnType("jsonb");
     }
 }
 
+[SuppressMessage("ReSharper", "UnusedType.Global", Justification = "Used by EF Core's migration generator")]
 public class DesignTimeDatabaseContextFactory : IDesignTimeDbContextFactory<DatabaseContext>
 {
     public DatabaseContext CreateDbContext(string[] args)

@@ -45,7 +45,9 @@ public class MembersController(
             ("name", ValidationUtils.ValidateMemberName(req.Name)),
             ("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)),
             ("bio", ValidationUtils.ValidateBio(req.Bio)),
-            ("avatar", ValidationUtils.ValidateAvatar(req.Avatar))
+            ("avatar", ValidationUtils.ValidateAvatar(req.Avatar)),
+            ..ValidationUtils.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
+            ..ValidationUtils.ValidateFieldEntries(req.Names?.ToArray(), CurrentUser!.CustomPreferences, "names")
         ]);
 
         var member = new Member
@@ -55,6 +57,9 @@ public class MembersController(
             Name = req.Name,
             DisplayName = req.DisplayName,
             Bio = req.Bio,
+            Fields = req.Fields ?? [],
+            Names = req.Names ?? [],
+            Pronouns = req.Pronouns ?? [],
             Unlisted = req.Unlisted ?? false
         };
         db.Add(member);
@@ -95,5 +100,13 @@ public class MembersController(
         return NoContent();
     }
 
-    public record CreateMemberRequest(string Name, string? DisplayName, string? Bio, string? Avatar, bool? Unlisted);
+    public record CreateMemberRequest(
+        string Name,
+        string? DisplayName,
+        string? Bio,
+        string? Avatar,
+        bool? Unlisted,
+        List<FieldEntry>? Names,
+        List<Pronoun>? Pronouns,
+        List<Field>? Fields);
 }

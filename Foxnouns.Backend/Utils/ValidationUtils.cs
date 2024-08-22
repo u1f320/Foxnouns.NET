@@ -1,4 +1,6 @@
 using System.Text.RegularExpressions;
+using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Database.Models;
 
 namespace Foxnouns.Backend.Utils;
 
@@ -112,8 +114,93 @@ public static class ValidationUtils
         return avatar?.Length switch
         {
             0 => ValidationError.GenericValidationError("Avatar cannot be empty", null),
-            > 1_500_00 => ValidationError.GenericValidationError("Avatar is too large", null),
+            > 1_500_000 => ValidationError.GenericValidationError("Avatar is too large", null),
             _ => null
         };
+    }
+
+    private const int FieldLimit = 25;
+    private const int FieldNameLimit = 100;
+    private const int FieldEntryTextLimit = 100;
+    private const int FieldEntriesLimit = 100;
+
+    private static readonly string[] DefaultStatusOptions =
+    [
+        "favourite",
+        "okay",
+        "jokingly",
+        "friends_only",
+        "avoid"
+    ];
+
+    public static IEnumerable<(string, ValidationError?)> ValidateFields(List<Field>? fields,
+        IReadOnlyDictionary<Snowflake, User.CustomPreference> customPreferences)
+    {
+        if (fields == null) return [];
+
+        var errors = new List<(string, ValidationError?)>();
+        if (fields.Count > 25)
+            errors.Add(("fields", ValidationError.LengthError("Too many fields", 0, FieldLimit, fields.Count)));
+        // No overwhelming this function, thank you
+        if (fields.Count > 100) return errors;
+
+        foreach (var (field, index) in fields.Select((field, index) => (field, index)))
+        {
+            switch (field.Name.Length)
+            {
+                case > FieldNameLimit:
+                    errors.Add(($"fields.{index}.name",
+                        ValidationError.LengthError("Field name is too long", 1, FieldNameLimit, field.Name.Length)));
+                    break;
+                case < 1:
+                    errors.Add(($"fields.{index}.name",
+                        ValidationError.LengthError("Field name is too short", 1, FieldNameLimit, field.Name.Length)));
+                    break;
+            }
+
+            errors = errors.Concat(ValidateFieldEntries(field.Entries, customPreferences, $"fields.{index}")).ToList();
+        }
+
+        return errors;
+    }
+
+    public static IEnumerable<(string, ValidationError?)> ValidateFieldEntries(FieldEntry[]? entries,
+        IReadOnlyDictionary<Snowflake, User.CustomPreference> customPreferences, string errorPrefix = "fields")
+    {
+        if (entries == null || entries.Length == 0) return [];
+        var errors = new List<(string, ValidationError?)>();
+
+        if (entries.Length > FieldEntriesLimit)
+            errors.Add(($"{errorPrefix}.entries",
+                ValidationError.LengthError("Field has too many entries", 0, FieldEntriesLimit,
+                    entries.Length)));
+
+        // Same as above, no overwhelming this function with a ridiculous amount of entries
+        if (entries.Length > FieldEntriesLimit + 50) return errors;
+
+        foreach (var (entry, entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx)))
+        {
+            switch (entry.Value.Length)
+            {
+                case > FieldEntryTextLimit:
+                    errors.Add(($"{errorPrefix}.entries.{entryIdx}.value",
+                        ValidationError.LengthError("Field value is too long", 1, FieldEntryTextLimit,
+                            entry.Value.Length)));
+                    break;
+                case < 1:
+                    errors.Add(($"{errorPrefix}.entries.{entryIdx}.value",
+                        ValidationError.LengthError("Field value is too short", 1, FieldEntryTextLimit,
+                            entry.Value.Length)));
+                    break;
+            }
+
+            var customPreferenceIds = customPreferences?.Keys.Select(id => id.ToString()) ?? [];
+
+            if (!DefaultStatusOptions.Contains(entry.Status) && !customPreferenceIds.Contains(entry.Status))
+                errors.Add(($"{errorPrefix}.entries.{entryIdx}.status",
+                    ValidationError.GenericValidationError("Invalid status", entry.Status)));
+        }
+
+        return errors;
     }
 }

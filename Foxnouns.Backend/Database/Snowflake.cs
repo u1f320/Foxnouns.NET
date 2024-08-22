@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
 using NodaTime;
@@ -6,7 +8,8 @@ using NodaTime;
 namespace Foxnouns.Backend.Database;
 
 [JsonConverter(typeof(JsonConverter))]
-public readonly struct Snowflake(ulong value)
+[TypeConverter(typeof(TypeConverter))]
+public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
 {
     public const long Epoch = 1_640_995_200_000; // 2022-01-01 at 00:00:00 UTC
     public readonly ulong Value = value;
@@ -55,6 +58,12 @@ public readonly struct Snowflake(ulong value)
     }
 
     public override bool Equals(object? obj) => obj is Snowflake other && Value == other.Value;
+
+    public bool Equals(Snowflake other)
+    {
+        return Value == other.Value;
+    }
+
     public override int GetHashCode() => Value.GetHashCode();
     public override string ToString() => Value.ToString();
 
@@ -79,6 +88,20 @@ public readonly struct Snowflake(ulong value)
             JsonSerializer serializer)
         {
             return ulong.Parse((string)reader.Value!);
+        }
+    }
+
+    private class TypeConverter : System.ComponentModel.TypeConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) =>
+            sourceType == typeof(string);
+
+        public override bool CanConvertTo(ITypeDescriptorContext? context, [NotNullWhen(true)] Type? destinationType) =>
+            destinationType == typeof(Snowflake);
+
+        public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
+        {
+            return TryParse((string)value, out var snowflake) ? snowflake : null;
         }
     }
 }
