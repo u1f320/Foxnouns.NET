@@ -6,5 +6,5 @@
 	export let data: LayoutData;
 </script>
 
-<Navbar user={data.user} />
+<Navbar user={data.currentUser} />
 <slot />

@@ -9,5 +9,5 @@ export async function load({ fetch, locals }) {
 		user = await request<User>(fetch, "GET", "/users/@me");
 	} catch {}
 
-	return { meta, user, token: locals.token };
+	return { meta, currentUser: user, token: locals.token };
 }
