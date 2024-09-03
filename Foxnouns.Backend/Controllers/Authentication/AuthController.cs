@@ -19,7 +19,7 @@ public class AuthController(Config config, KeyCacheService keyCacheSvc, ILogger 
             config.TumblrAuth.Enabled);
         var state = HttpUtility.UrlEncode(await keyCacheSvc.GenerateAuthStateAsync());
         string? discord = null;
-        if (config.DiscordAuth.ClientId != null && config.DiscordAuth.ClientSecret != null)
+        if (config.DiscordAuth is { ClientId: not null, ClientSecret: not null })
             discord =
                 $"https://discord.com/oauth2/authorize?response_type=code" +
                 $"&client_id={config.DiscordAuth.ClientId}&scope=identify" +

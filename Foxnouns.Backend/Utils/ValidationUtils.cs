@@ -57,11 +57,11 @@ public static class ValidationUtils
 
     public static ValidationError? ValidateMemberName(string memberName)
     {
-        if (!UsernameRegex.IsMatch(memberName))
+        if (!MemberRegex.IsMatch(memberName))
             return memberName.Length switch
             {
-                < 2 => ValidationError.LengthError("Name is too short", 1, 100, memberName.Length),
-                > 40 => ValidationError.LengthError("Name is too long", 1, 100, memberName.Length),
+                < 1 => ValidationError.LengthError("Name is too short", 1, 100, memberName.Length),
+                > 100 => ValidationError.LengthError("Name is too long", 1, 100, memberName.Length),
                 _ => ValidationError.GenericValidationError(
                     "Member name cannot contain any of the following: " +
                     " @, ?, !, #, /, \\, [, ], \", ', $, %, &, (, ), {, }, +, <, =, >, ^, |, ~, `, , " +
@@ -119,10 +119,7 @@ public static class ValidationUtils
         };
     }
 
-    private const int FieldLimit = 25;
-    private const int FieldNameLimit = 100;
-    private const int FieldEntryTextLimit = 100;
-    private const int FieldEntriesLimit = 100;
+
 
     private static readonly string[] DefaultStatusOptions =
     [
@@ -140,7 +137,7 @@ public static class ValidationUtils
 
         var errors = new List<(string, ValidationError?)>();
         if (fields.Count > 25)
-            errors.Add(("fields", ValidationError.LengthError("Too many fields", 0, FieldLimit, fields.Count)));
+            errors.Add(("fields", ValidationError.LengthError("Too many fields", 0, Limits.FieldLimit, fields.Count)));
         // No overwhelming this function, thank you
         if (fields.Count > 100) return errors;
 
@@ -148,13 +145,13 @@ public static class ValidationUtils
         {
             switch (field.Name.Length)
             {
-                case > FieldNameLimit:
+                case > Limits.FieldNameLimit:
                     errors.Add(($"fields.{index}.name",
-                        ValidationError.LengthError("Field name is too long", 1, FieldNameLimit, field.Name.Length)));
+                        ValidationError.LengthError("Field name is too long", 1, Limits.FieldNameLimit, field.Name.Length)));
                     break;
                 case < 1:
                     errors.Add(($"fields.{index}.name",
-                        ValidationError.LengthError("Field name is too short", 1, FieldNameLimit, field.Name.Length)));
+                        ValidationError.LengthError("Field name is too short", 1, Limits.FieldNameLimit, field.Name.Length)));
                     break;
             }
 
@@ -170,26 +167,26 @@ public static class ValidationUtils
         if (entries == null || entries.Length == 0) return [];
         var errors = new List<(string, ValidationError?)>();
 
-        if (entries.Length > FieldEntriesLimit)
+        if (entries.Length > Limits.FieldEntriesLimit)
             errors.Add(($"{errorPrefix}.entries",
-                ValidationError.LengthError("Field has too many entries", 0, FieldEntriesLimit,
+                ValidationError.LengthError("Field has too many entries", 0, Limits.FieldEntriesLimit,
                     entries.Length)));
 
         // Same as above, no overwhelming this function with a ridiculous amount of entries
-        if (entries.Length > FieldEntriesLimit + 50) return errors;
+        if (entries.Length > Limits.FieldEntriesLimit + 50) return errors;
 
         foreach (var (entry, entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx)))
         {
             switch (entry.Value.Length)
             {
-                case > FieldEntryTextLimit:
+                case > Limits.FieldEntryTextLimit:
                     errors.Add(($"{errorPrefix}.entries.{entryIdx}.value",
-                        ValidationError.LengthError("Field value is too long", 1, FieldEntryTextLimit,
+                        ValidationError.LengthError("Field value is too long", 1, Limits.FieldEntryTextLimit,
                             entry.Value.Length)));
                     break;
                 case < 1:
                     errors.Add(($"{errorPrefix}.entries.{entryIdx}.value",
-                        ValidationError.LengthError("Field value is too short", 1, FieldEntryTextLimit,
+                        ValidationError.LengthError("Field value is too short", 1, Limits.FieldEntryTextLimit,
                             entry.Value.Length)));
                     break;
             }

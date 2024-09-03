@@ -14,7 +14,6 @@ public class Config
 
     public LoggingConfig Logging { get; init; } = new();
     public DatabaseConfig Database { get; init; } = new();
-    public JobsConfig Jobs { get; init; } = new();
     public StorageConfig Storage { get; init; } = new();
     public DiscordAuthConfig DiscordAuth { get; init; } = new();
     public GoogleAuthConfig GoogleAuth { get; init; } = new();
@@ -36,12 +35,6 @@ public class Config
         public string Url { get; init; } = string.Empty;
         public int? Timeout { get; init; }
         public int? MaxPoolSize { get; init; }
-    }
-
-    public class JobsConfig
-    {
-        public string Redis { get; init; } = string.Empty;
-        public int Workers { get; init; } = 5;
     }
 
     public class StorageConfig

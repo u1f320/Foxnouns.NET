@@ -2,3 +2,4 @@ bin/
 obj/
 .version
 config.ini
+*.DotSettings.user

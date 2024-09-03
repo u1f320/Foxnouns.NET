@@ -1,6 +1,8 @@
+using Coravel.Queuing.Interfaces;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
@@ -16,7 +18,8 @@ public class MembersController(
     DatabaseContext db,
     MemberRendererService memberRendererService,
     ISnowflakeGenerator snowflakeGenerator,
-    AvatarUpdateJob avatarUpdate) : ApiControllerBase
+    ObjectStorageService objectStorage,
+    IQueue queue) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<MembersController>();
 
@@ -76,7 +79,9 @@ public class MembersController(
             throw new ApiError.BadRequest("A member with that name already exists", "name", req.Name);
         }
 
-        if (req.Avatar != null) AvatarUpdateJob.QueueUpdateMemberAvatar(member.Id, req.Avatar);
+        if (req.Avatar != null)
+            queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
+                new AvatarUpdatePayload(member.Id, req.Avatar));
 
         return Ok(memberRendererService.RenderMember(member, CurrentToken));
     }
@@ -96,7 +101,7 @@ public class MembersController(
 
         await db.SaveChangesAsync();
 
-        if (member.Avatar != null) await avatarUpdate.DeleteMemberAvatar(member.Id, member.Avatar);
+        if (member.Avatar != null) await objectStorage.DeleteMemberAvatarAsync(member.Id, member.Avatar);
         return NoContent();
     }
 

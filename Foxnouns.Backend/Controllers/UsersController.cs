@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Jobs;
@@ -14,7 +15,8 @@ namespace Foxnouns.Backend.Controllers;
 public class UsersController(
     DatabaseContext db,
     UserRendererService userRendererService,
-    ISnowflakeGenerator snowflakeGenerator) : ApiControllerBase
+    ISnowflakeGenerator snowflakeGenerator,
+    IQueue queue) : ApiControllerBase
 {
     [HttpGet("{userRef}")]
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
@@ -70,7 +72,8 @@ public class UsersController(
         // (atomic operations are hard when combined with background jobs)
         // so it's in a separate block to the validation above.
         if (req.HasProperty(nameof(req.Avatar)))
-            AvatarUpdateJob.QueueUpdateUserAvatar(CurrentUser!.Id, req.Avatar);
+            queue.QueueInvocableWithPayload<UserAvatarUpdateInvocable, AvatarUpdatePayload>(
+                new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar));
 
         await db.SaveChangesAsync();
         await tx.CommitAsync();

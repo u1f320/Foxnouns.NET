@@ -1,18 +1,15 @@
+using Coravel;
 using Foxnouns.Backend;
 using Foxnouns.Backend.Database;
 using Serilog;
 using Foxnouns.Backend.Extensions;
-using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
-using Hangfire;
-using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc;
 using Minio;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Sentry.Extensibility;
-using Sentry.Hangfire;
 
 // Read version information from .version in the repository root
 await BuildInfo.ReadBuildInfo();
@@ -64,6 +61,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 };
 
 builder.Services
+    .AddQueue()
     .AddDbContext<DatabaseContext>()
     .AddCustomServices()
     .AddCustomMiddleware()
@@ -73,12 +71,6 @@ builder.Services
         c.WithEndpoint(config.Storage.Endpoint)
             .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
             .Build());
-
-builder.Services.AddHangfire(c => c.UseSentry().UseRedisStorage(config.Jobs.Redis, new RedisStorageOptions
-    {
-        Prefix = "foxnouns_"
-    }))
-    .AddHangfireServer(options => { options.WorkerCount = config.Jobs.Workers; });
 
 var app = builder.Build();
 
@@ -94,12 +86,6 @@ app.UseSwaggerUI();
 app.UseCors();
 app.UseCustomMiddleware();
 app.MapControllers();
-
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
-{
-    AppPath = null,
-    AsyncAuthorization = [new HangfireDashboardAuthorizationFilter(app.Services)]
-});
 
 app.Urls.Clear();
 app.Urls.Add(config.Address);

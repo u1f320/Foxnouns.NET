@@ -2,7 +2,6 @@ using System.Security.Cryptography;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
-using Hangfire.Dashboard;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
@@ -65,32 +64,3 @@ public static class HttpContextExtensions
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AuthenticateAttribute : Attribute;
-
-/// <summary>
-/// Authentication filter for the Hangfire dashboard. Uses the cookie created by the frontend
-/// (and otherwise only read <i>by</i> the frontend) to only allow admins to use it.
-/// </summary>
-public class HangfireDashboardAuthorizationFilter(IServiceProvider services) : IDashboardAsyncAuthorizationFilter
-{
-    public async Task<bool> AuthorizeAsync(DashboardContext context)
-    {
-        await using var scope = services.CreateAsyncScope();
-
-        await using var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-        var clock = scope.ServiceProvider.GetRequiredService<IClock>();
-
-        var httpContext = context.GetHttpContext();
-
-        if (!httpContext.Request.Cookies.TryGetValue("pronounscc-token", out var cookie)) return false;
-
-        if (!AuthUtils.TryFromBase64String(cookie!, out var rawToken)) return false;
-
-        var hash = SHA512.HashData(rawToken);
-        var oauthToken = await db.Tokens
-            .Include(t => t.Application)
-            .Include(t => t.User)
-            .FirstOrDefaultAsync(t => t.Hash == hash && t.ExpiresAt > clock.GetCurrentInstant() && !t.ManuallyExpired);
-
-        return oauthToken?.User.Role == UserRole.Admin;
-    }
-}

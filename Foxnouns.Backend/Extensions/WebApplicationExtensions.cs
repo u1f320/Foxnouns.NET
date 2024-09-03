@@ -1,6 +1,8 @@
 using App.Metrics;
 using App.Metrics.AspNetCore;
 using App.Metrics.Formatters.Prometheus;
+using Coravel;
+using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
@@ -93,6 +95,7 @@ public static class WebApplicationExtensions
 
         return builder
             .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appSettings.json", true)
             .AddIniFile(file, optional: false, reloadOnChange: true)
             .AddEnvironmentVariables();
     }
@@ -105,8 +108,10 @@ public static class WebApplicationExtensions
         .AddScoped<AuthService>()
         .AddScoped<KeyCacheService>()
         .AddScoped<RemoteAuthService>()
-        // Background job classes
-        .AddTransient<AvatarUpdateJob>();
+        .AddScoped<ObjectStorageService>()
+        // Transient jobs
+        .AddTransient<MemberAvatarUpdateInvocable>()
+        .AddTransient<UserAvatarUpdateInvocable>();
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
         .AddScoped<ErrorHandlerMiddleware>()
@@ -121,6 +126,8 @@ public static class WebApplicationExtensions
     public static async Task Initialize(this WebApplication app, string[] args)
     {
         await BuildInfo.ReadBuildInfo();
+
+        app.Services.ConfigureQueue().LogQueuedTaskProgress(app.Services.GetRequiredService<ILogger<IQueue>>());
 
         await using var scope = app.Services.CreateAsyncScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger>().ForContext<WebApplication>();
