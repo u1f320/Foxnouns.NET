@@ -37,9 +37,9 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
         return value.Value;
     }
 
-    public async Task DeleteExpiredKeysAsync()
+    public async Task DeleteExpiredKeysAsync(CancellationToken ct)
     {
-        var count = await db.TemporaryKeys.Where(k => k.Expires < clock.GetCurrentInstant()).ExecuteDeleteAsync();
+        var count = await db.TemporaryKeys.Where(k => k.Expires < clock.GetCurrentInstant()).ExecuteDeleteAsync(ct);
         if (count != 0) logger.Information("Removed {Count} expired keys from the database", count);
     }
 

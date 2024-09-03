@@ -5,6 +5,7 @@ using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Microsoft.EntityFrameworkCore;
+using Minio;
 using NodaTime;
 using Prometheus;
 using Serilog;
@@ -57,16 +58,6 @@ public static class WebApplicationExtensions
         return config;
     }
 
-    public static WebApplicationBuilder AddMetrics(this WebApplicationBuilder builder, Config config)
-    {
-        builder.Services.AddMetricServer(o => o.Port = config.Logging.MetricsPort)
-            .AddSingleton<MetricsCollectionService>();
-        if (!config.Logging.EnableMetrics)
-            builder.Services.AddHostedService<BackgroundMetricsCollectionService>();
-
-        return builder;
-    }
-
     public static IConfigurationBuilder AddConfiguration(this IConfigurationBuilder builder)
     {
         var file = Environment.GetEnvironmentVariable("FOXNOUNS_CONFIG_FILE") ?? "config.ini";
@@ -78,18 +69,40 @@ public static class WebApplicationExtensions
             .AddEnvironmentVariables();
     }
 
-    public static IServiceCollection AddCustomServices(this IServiceCollection services) => services
-        .AddSingleton<IClock>(SystemClock.Instance)
-        .AddSnowflakeGenerator()
-        .AddScoped<UserRendererService>()
-        .AddScoped<MemberRendererService>()
-        .AddScoped<AuthService>()
-        .AddScoped<KeyCacheService>()
-        .AddScoped<RemoteAuthService>()
-        .AddScoped<ObjectStorageService>()
-        // Transient jobs
-        .AddTransient<MemberAvatarUpdateInvocable>()
-        .AddTransient<UserAvatarUpdateInvocable>();
+    /// <summary>
+    /// Adds required services to the IServiceCollection.
+    /// This should only add services that are not ASP.NET-related (i.e. no middleware).
+    /// </summary>
+    public static IServiceCollection AddServices(this IServiceCollection services, Config config)
+    {
+        services
+            .AddQueue()
+            .AddDbContext<DatabaseContext>()
+            .AddMetricServer(o => o.Port = config.Logging.MetricsPort)
+            .AddMinio(c =>
+                c.WithEndpoint(config.Storage.Endpoint)
+                    .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
+                    .Build())
+            .AddSingleton<MetricsCollectionService>()
+            .AddSingleton<IClock>(SystemClock.Instance)
+            .AddSnowflakeGenerator()
+            .AddScoped<UserRendererService>()
+            .AddScoped<MemberRendererService>()
+            .AddScoped<AuthService>()
+            .AddScoped<KeyCacheService>()
+            .AddScoped<RemoteAuthService>()
+            .AddScoped<ObjectStorageService>()
+            // Background services
+            .AddHostedService<PeriodicTasksService>()
+            // Transient jobs
+            .AddTransient<MemberAvatarUpdateInvocable>()
+            .AddTransient<UserAvatarUpdateInvocable>();
+        
+        if (!config.Logging.EnableMetrics)
+            services.AddHostedService<BackgroundMetricsCollectionService>();
+
+        return services;
+    }
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
         .AddScoped<ErrorHandlerMiddleware>()

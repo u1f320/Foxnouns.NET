@@ -1,12 +1,9 @@
-using Coravel;
 using Foxnouns.Backend;
-using Foxnouns.Backend.Database;
 using Serilog;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
-using Minio;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Prometheus;
@@ -19,9 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.AddConfiguration();
 
-builder
-    .AddSerilog()
-    .AddMetrics(config);
+builder.AddSerilog();
 
 builder.WebHost
     .UseSentry(opts =>
@@ -64,16 +59,10 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 };
 
 builder.Services
-    .AddQueue()
-    .AddDbContext<DatabaseContext>()
-    .AddCustomServices()
+    .AddServices(config)
     .AddCustomMiddleware()
     .AddEndpointsApiExplorer()
-    .AddSwaggerGen()
-    .AddMinio(c =>
-        c.WithEndpoint(config.Storage.Endpoint)
-            .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
-            .Build());
+    .AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -97,23 +86,5 @@ app.Urls.Add(config.Address);
 Metrics.DefaultRegistry.AddBeforeCollectCallback(async ct =>
     await app.Services.GetRequiredService<MetricsCollectionService>().CollectMetricsAsync(ct));
 
-// Fire off the periodic tasks loop in the background
-_ = new Timer(_ =>
-{
-    var __ = RunPeriodicTasksAsync();
-}, null, TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(1));
-
 app.Run();
 Log.CloseAndFlush();
-
-return;
-
-async Task RunPeriodicTasksAsync()
-{
-    await using var scope = app.Services.CreateAsyncScope();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
-    logger.Debug("Running periodic tasks");
-
-    var keyCacheSvc = scope.ServiceProvider.GetRequiredService<KeyCacheService>();
-    await keyCacheSvc.DeleteExpiredKeysAsync();
-}
