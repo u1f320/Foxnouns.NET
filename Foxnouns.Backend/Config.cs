@@ -10,7 +10,7 @@ public class Config
     public string MediaBaseUrl { get; set; } = null!;
 
     public string Address => $"http://{Host}:{Port}";
-    public string? MetricsAddress => Logging.MetricsPort != null ? $"http://{Host}:{Logging.MetricsPort}" : null;
+    public string MetricsAddress => $"http://{Host}:{Logging.MetricsPort}";
 
     public LoggingConfig Logging { get; init; } = new();
     public DatabaseConfig Database { get; init; } = new();
@@ -27,7 +27,8 @@ public class Config
         public bool SentryTracing { get; init; } = false;
         public double SentryTracesSampleRate { get; init; } = 0.0;
         public bool LogQueries { get; init; } = false;
-        public int? MetricsPort { get; init; }
+        public bool EnableMetrics { get; init; } = false;
+        public ushort MetricsPort { get; init; } = 5001;
     }
 
     public class DatabaseConfig

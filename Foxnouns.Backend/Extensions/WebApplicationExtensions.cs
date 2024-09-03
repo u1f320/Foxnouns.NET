@@ -1,6 +1,3 @@
-using App.Metrics;
-using App.Metrics.AspNetCore;
-using App.Metrics.Formatters.Prometheus;
 using Coravel;
 using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
@@ -9,6 +6,7 @@ using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using Prometheus;
 using Serilog;
 using Serilog.Events;
 using IClock = NodaTime.IClock;
@@ -59,32 +57,12 @@ public static class WebApplicationExtensions
         return config;
     }
 
-    public static WebApplicationBuilder AddMetrics(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder AddMetrics(this WebApplicationBuilder builder, Config config)
     {
-        var config = builder.Configuration.Get<Config>() ?? new();
-        var metrics = AppMetrics.CreateDefaultBuilder()
-            .OutputMetrics.AsPrometheusPlainText()
-            .Build();
-
-        builder.Services.AddSingleton(metrics);
-        builder.Services.AddSingleton<IMetrics>(metrics);
-
-        builder.WebHost
-            .ConfigureMetrics(metrics)
-            .UseMetrics(opts =>
-            {
-                opts.EndpointOptions = options =>
-                {
-                    // Metrics must listen on a separate port for security reasons. If no metrics port is set, disable the endpoint entirely.
-                    options.MetricsEndpointEnabled = config.Logging.MetricsPort != null;
-                    options.EnvironmentInfoEndpointEnabled = config.Logging.MetricsPort != null;
-                    options.MetricsTextEndpointEnabled = false;
-                    options.MetricsEndpointOutputFormatter = metrics.OutputMetricsFormatters
-                        .OfType<MetricsPrometheusTextOutputFormatter>().First();
-                };
-            })
-            .UseMetricsWebTracking()
-            .ConfigureAppMetricsHostingConfiguration(opts => { opts.AllEndpointsPort = config.Logging.MetricsPort; });
+        builder.Services.AddMetricServer(o => o.Port = config.Logging.MetricsPort)
+            .AddSingleton<MetricsCollectionService>();
+        if (!config.Logging.EnableMetrics)
+            builder.Services.AddHostedService<BackgroundMetricsCollectionService>();
 
         return builder;
     }

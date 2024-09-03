@@ -1,30 +1,23 @@
-using Foxnouns.Backend.Database;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using NodaTime;
 
 namespace Foxnouns.Backend.Controllers;
 
 [Route("/api/v2/meta")]
-public class MetaController(DatabaseContext db, IClock clock) : ApiControllerBase
+public class MetaController : ApiControllerBase
 {
     private const string Repository = "https://codeberg.org/pronounscc/pronouns.cc";
 
     [HttpGet]
     [ProducesResponseType<MetaResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMeta()
+    public IActionResult GetMeta()
     {
-        var now = clock.GetCurrentInstant();
-        var users = await db.Users.Select(u => u.LastActive).ToListAsync();
-        var memberCount = await db.Members.CountAsync();
-
         return Ok(new MetaResponse(
-            Repository, BuildInfo.Version, BuildInfo.Hash, memberCount,
+            Repository, BuildInfo.Version, BuildInfo.Hash, (int)FoxnounsMetrics.MemberCount.Value,
             new UserInfo(
-                users.Count,
-                users.Count(i => i > now - Duration.FromDays(30)),
-                users.Count(i => i > now - Duration.FromDays(7)),
-                users.Count(i => i > now - Duration.FromDays(1))
+                (int)FoxnounsMetrics.UsersCount.Value,
+                (int)FoxnounsMetrics.UsersActiveMonthCount.Value,
+                (int)FoxnounsMetrics.UsersActiveWeekCount.Value,
+                (int)FoxnounsMetrics.UsersActiveDayCount.Value
             ))
         );
     }

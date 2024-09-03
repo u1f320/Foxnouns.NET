@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Minio;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Prometheus;
 using Sentry.Extensibility;
 
 // Read version information from .version in the repository root
@@ -18,7 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.AddConfiguration();
 
-builder.AddSerilog().AddMetrics();
+builder
+    .AddSerilog()
+    .AddMetrics(config);
 
 builder.WebHost
     .UseSentry(opts =>
@@ -89,7 +92,10 @@ app.MapControllers();
 
 app.Urls.Clear();
 app.Urls.Add(config.Address);
-if (config.MetricsAddress != null) app.Urls.Add(config.MetricsAddress);
+
+// Make sure metrics are updated whenever Prometheus scrapes them
+Metrics.DefaultRegistry.AddBeforeCollectCallback(async ct =>
+    await app.Services.GetRequiredService<MetricsCollectionService>().CollectMetricsAsync(ct));
 
 // Fire off the periodic tasks loop in the background
 _ = new Timer(_ =>
