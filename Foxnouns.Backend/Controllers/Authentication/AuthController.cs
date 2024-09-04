@@ -9,11 +9,13 @@ namespace Foxnouns.Backend.Controllers.Authentication;
 [Route("/api/v2/auth")]
 public class AuthController(Config config, KeyCacheService keyCacheSvc, ILogger logger) : ApiControllerBase
 {
+    private readonly ILogger _logger = logger.ForContext<AuthController>();
+
     [HttpPost("urls")]
     [ProducesResponseType<UrlsResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UrlsAsync()
     {
-        logger.Debug("Generating auth URLs for Discord: {Discord}, Google: {Google}, Tumblr: {Tumblr}",
+        _logger.Debug("Generating auth URLs for Discord: {Discord}, Google: {Google}, Tumblr: {Tumblr}",
             config.DiscordAuth.Enabled,
             config.GoogleAuth.Enabled,
             config.TumblrAuth.Enabled);

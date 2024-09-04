@@ -13,6 +13,8 @@ public class EmailAuthController(
     IClock clock,
     ILogger logger) : ApiControllerBase
 {
+    private readonly ILogger _logger = logger.ForContext<EmailAuthController>();
+
     [HttpPost("login")]
     [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> LoginAsync([FromBody] LoginRequest req)
@@ -23,13 +25,13 @@ public class EmailAuthController(
 
         var frontendApp = await db.GetFrontendApplicationAsync();
 
-        logger.Debug("Logging user {Id} in with email and password", user.Id);
+        _logger.Debug("Logging user {Id} in with email and password", user.Id);
 
         var (tokenStr, token) =
             authSvc.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
         db.Add(token);
 
-        logger.Debug("Generated token {TokenId} for {UserId}", user.Id, token.Id);
+        _logger.Debug("Generated token {TokenId} for {UserId}", token.Id, user.Id);
 
         await db.SaveChangesAsync();
 

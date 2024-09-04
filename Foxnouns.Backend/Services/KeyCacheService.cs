@@ -9,6 +9,8 @@ namespace Foxnouns.Backend.Services;
 
 public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
 {
+    private readonly ILogger _logger = logger.ForContext<KeyCacheService>();
+
     public Task SetKeyAsync(string key, string value, Duration expireAfter) =>
         SetKeyAsync(key, value, clock.GetCurrentInstant() + expireAfter);
 
@@ -40,7 +42,7 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
     public async Task DeleteExpiredKeysAsync(CancellationToken ct)
     {
         var count = await db.TemporaryKeys.Where(k => k.Expires < clock.GetCurrentInstant()).ExecuteDeleteAsync(ct);
-        if (count != 0) logger.Information("Removed {Count} expired keys from the database", count);
+        if (count != 0) _logger.Information("Removed {Count} expired keys from the database", count);
     }
 
     public Task SetKeyAsync<T>(string key, T obj, Duration expiresAt) where T : class =>

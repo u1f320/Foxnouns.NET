@@ -15,7 +15,7 @@ public static class FoxnounsMetrics
 
     public static readonly Gauge UsersActiveDayCount =
         Metrics.CreateGauge("foxnouns_user_count_active_day", "Number of users active in the last day");
-    
+
     public static readonly Gauge MemberCount =
         Metrics.CreateGauge("foxnouns_member_count", "Number of total members");
 

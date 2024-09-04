@@ -97,7 +97,7 @@ public static class WebApplicationExtensions
             // Transient jobs
             .AddTransient<MemberAvatarUpdateInvocable>()
             .AddTransient<UserAvatarUpdateInvocable>();
-        
+
         if (!config.Logging.EnableMetrics)
             services.AddHostedService<BackgroundMetricsCollectionService>();
 

@@ -20,6 +20,8 @@ public class DiscordAuthController(
     RemoteAuthService remoteAuthSvc,
     UserRendererService userRendererSvc) : ApiControllerBase
 {
+    private readonly ILogger _logger = logger.ForContext<DiscordAuthController>();
+
     [HttpPost("callback")]
     // TODO: duplicating attribute doesn't work, find another way to mark both as possible response
     // leaving it here for documentation purposes
@@ -34,7 +36,7 @@ public class DiscordAuthController(
         var user = await authSvc.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id);
         if (user != null) return Ok(await GenerateUserTokenAsync(user));
 
-        logger.Debug("Discord user {Username} ({Id}) authenticated with no local account", remoteUser.Username,
+        _logger.Debug("Discord user {Username} ({Id}) authenticated with no local account", remoteUser.Username,
             remoteUser.Id);
 
         var ticket = AuthUtils.RandomToken();
@@ -51,7 +53,7 @@ public class DiscordAuthController(
         if (remoteUser == null) throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);
         if (await db.AuthMethods.AnyAsync(a => a.AuthType == AuthType.Discord && a.RemoteId == remoteUser.Id))
         {
-            logger.Error("Discord user {Id} has valid ticket but is already linked to an existing account",
+            _logger.Error("Discord user {Id} has valid ticket but is already linked to an existing account",
                 remoteUser.Id);
             throw new FoxnounsError("Discord ticket was issued for user with existing link");
         }
@@ -65,13 +67,13 @@ public class DiscordAuthController(
     private async Task<AuthController.AuthResponse> GenerateUserTokenAsync(User user)
     {
         var frontendApp = await db.GetFrontendApplicationAsync();
-        logger.Debug("Logging user {Id} in with Discord", user.Id);
+        _logger.Debug("Logging user {Id} in with Discord", user.Id);
 
         var (tokenStr, token) =
             authSvc.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
         db.Add(token);
 
-        logger.Debug("Generated token {TokenId} for {UserId}", user.Id, token.Id);
+        _logger.Debug("Generated token {TokenId} for {UserId}", user.Id, token.Id);
 
         await db.SaveChangesAsync();
 

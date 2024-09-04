@@ -49,7 +49,8 @@ public static class DatabaseQueryExtensions
         throw new ApiError.NotFound("No member with that ID found.", code: ErrorCode.MemberNotFound);
     }
 
-    public static async Task<Member> ResolveMemberAsync(this DatabaseContext context, string userRef, string memberRef, Token? token)
+    public static async Task<Member> ResolveMemberAsync(this DatabaseContext context, string userRef, string memberRef,
+        Token? token)
     {
         var user = await context.ResolveUserAsync(userRef, token);
         return await context.ResolveMemberAsync(user.Id, memberRef);

@@ -17,7 +17,7 @@ public class PeriodicTasksService(ILogger logger, IServiceProvider services) : B
     private async Task RunPeriodicTasksAsync(CancellationToken ct)
     {
         _logger.Debug("Running periodic tasks");
-        
+
         await using var scope = services.CreateAsyncScope();
 
         var keyCacheSvc = scope.ServiceProvider.GetRequiredService<KeyCacheService>();

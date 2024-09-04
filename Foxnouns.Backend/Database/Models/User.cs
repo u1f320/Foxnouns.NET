@@ -39,7 +39,7 @@ public class User : BaseModel
         public required string Tooltip { get; set; }
         public bool Muted { get; set; }
         public bool Favourite { get; set; }
-        
+
         // This type is generally serialized directly, so the converter is applied here.
         [JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
         public PreferenceSize Size { get; set; }

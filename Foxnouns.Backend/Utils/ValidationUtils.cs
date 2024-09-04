@@ -120,7 +120,6 @@ public static class ValidationUtils
     }
 
 
-
     private static readonly string[] DefaultStatusOptions =
     [
         "favourite",
@@ -147,11 +146,13 @@ public static class ValidationUtils
             {
                 case > Limits.FieldNameLimit:
                     errors.Add(($"fields.{index}.name",
-                        ValidationError.LengthError("Field name is too long", 1, Limits.FieldNameLimit, field.Name.Length)));
+                        ValidationError.LengthError("Field name is too long", 1, Limits.FieldNameLimit,
+                            field.Name.Length)));
                     break;
                 case < 1:
                     errors.Add(($"fields.{index}.name",
-                        ValidationError.LengthError("Field name is too short", 1, Limits.FieldNameLimit, field.Name.Length)));
+                        ValidationError.LengthError("Field name is too short", 1, Limits.FieldNameLimit,
+                            field.Name.Length)));
                     break;
             }
 

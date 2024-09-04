@@ -21,7 +21,7 @@ public class UserAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService 
     private async Task UpdateUserAvatarAsync(Snowflake id, string newAvatar)
     {
         _logger.Debug("Updating avatar for user {MemberId}", id);
-        
+
         var user = await db.Users.FindAsync(id);
         if (user == null)
         {
@@ -55,7 +55,7 @@ public class UserAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService 
     private async Task ClearUserAvatarAsync(Snowflake id)
     {
         _logger.Debug("Clearing avatar for user {MemberId}", id);
-        
+
         var user = await db.Users.FindAsync(id);
         if (user == null)
         {

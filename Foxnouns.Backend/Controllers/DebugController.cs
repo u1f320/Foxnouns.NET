@@ -14,11 +14,13 @@ public class DebugController(
     IClock clock,
     ILogger logger) : ApiControllerBase
 {
+    private readonly ILogger _logger = logger.ForContext<DebugController>();
+
     [HttpPost("users")]
     [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateUserAsync([FromBody] CreateUserRequest req)
     {
-        logger.Debug("Creating user with username {Username} and email {Email}", req.Username, req.Email);
+        _logger.Debug("Creating user with username {Username} and email {Email}", req.Username, req.Email);
 
         var user = await authSvc.CreateUserWithPasswordAsync(req.Username, req.Email, req.Password);
         var frontendApp = await db.GetFrontendApplicationAsync();

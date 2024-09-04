@@ -110,6 +110,7 @@ public record HttpApiError
 
     [JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
     public required ErrorCode Code { get; init; }
+
     [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
     public string? ErrorId { get; init; }
 
