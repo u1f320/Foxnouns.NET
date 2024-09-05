@@ -150,6 +150,11 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("display_name");
 
+                    b.Property<List<Field>>("Fields")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("fields");
+
                     b.Property<string[]>("Links")
                         .IsRequired()
                         .HasColumnType("text[]")
@@ -159,6 +164,16 @@ namespace Foxnouns.Backend.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
+
+                    b.Property<List<FieldEntry>>("Names")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("names");
+
+                    b.Property<List<Pronoun>>("Pronouns")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("pronouns");
 
                     b.Property<bool>("Unlisted")
                         .HasColumnType("boolean")
@@ -269,7 +284,7 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("bio");
 
-                    b.Property<Dictionary<Guid, User.CustomPreference>>("CustomPreferences")
+                    b.Property<Dictionary<Snowflake, User.CustomPreference>>("CustomPreferences")
                         .IsRequired()
                         .HasColumnType("jsonb")
                         .HasColumnName("custom_preferences");
@@ -290,6 +305,11 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("display_name");
 
+                    b.Property<List<Field>>("Fields")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("fields");
+
                     b.Property<Instant>("LastActive")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_active");
@@ -307,13 +327,28 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("member_title");
 
+                    b.Property<List<FieldEntry>>("Names")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("names");
+
                     b.Property<string>("Password")
                         .HasColumnType("text")
                         .HasColumnName("password");
 
+                    b.Property<List<Pronoun>>("Pronouns")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("pronouns");
+
                     b.Property<int>("Role")
                         .HasColumnType("integer")
                         .HasColumnName("role");
+
+                    b.Property<UserSettings>("Settings")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("settings");
 
                     b.Property<string>("Username")
                         .IsRequired()
@@ -358,72 +393,6 @@ namespace Foxnouns.Backend.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_members_users_user_id");
 
-                    b.OwnsOne("System.Collections.Generic.List<Foxnouns.Backend.Database.Models.Field>", "Fields", b1 =>
-                        {
-                            b1.Property<long>("MemberId")
-                                .HasColumnType("bigint");
-
-                            b1.Property<int>("Capacity")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("MemberId");
-
-                            b1.ToTable("members");
-
-                            b1.ToJson("fields");
-
-                            b1.WithOwner()
-                                .HasForeignKey("MemberId")
-                                .HasConstraintName("fk_members_members_id");
-                        });
-
-                    b.OwnsOne("System.Collections.Generic.List<Foxnouns.Backend.Database.Models.FieldEntry>", "Names", b1 =>
-                        {
-                            b1.Property<long>("MemberId")
-                                .HasColumnType("bigint");
-
-                            b1.Property<int>("Capacity")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("MemberId");
-
-                            b1.ToTable("members");
-
-                            b1.ToJson("names");
-
-                            b1.WithOwner()
-                                .HasForeignKey("MemberId")
-                                .HasConstraintName("fk_members_members_id");
-                        });
-
-                    b.OwnsOne("System.Collections.Generic.List<Foxnouns.Backend.Database.Models.Pronoun>", "Pronouns", b1 =>
-                        {
-                            b1.Property<long>("MemberId")
-                                .HasColumnType("bigint");
-
-                            b1.Property<int>("Capacity")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("MemberId");
-
-                            b1.ToTable("members");
-
-                            b1.ToJson("pronouns");
-
-                            b1.WithOwner()
-                                .HasForeignKey("MemberId")
-                                .HasConstraintName("fk_members_members_id");
-                        });
-
-                    b.Navigation("Fields")
-                        .IsRequired();
-
-                    b.Navigation("Names")
-                        .IsRequired();
-
-                    b.Navigation("Pronouns")
-                        .IsRequired();
-
                     b.Navigation("User");
                 });
 
@@ -446,78 +415,6 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Foxnouns.Backend.Database.Models.User", b =>
-                {
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Fields#List", "Fields", b1 =>
-                        {
-                            b1.Property<long>("UserId")
-                                .HasColumnType("bigint");
-
-                            b1.Property<int>("Capacity")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("UserId")
-                                .HasName("pk_users");
-
-                            b1.ToTable("users");
-
-                            b1.ToJson("fields");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId")
-                                .HasConstraintName("fk_users_users_user_id");
-                        });
-
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Names#List", "Names", b1 =>
-                        {
-                            b1.Property<long>("UserId")
-                                .HasColumnType("bigint");
-
-                            b1.Property<int>("Capacity")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("UserId")
-                                .HasName("pk_users");
-
-                            b1.ToTable("users");
-
-                            b1.ToJson("names");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId")
-                                .HasConstraintName("fk_users_users_user_id");
-                        });
-
-                    b.OwnsOne("Foxnouns.Backend.Database.Models.User.Pronouns#List", "Pronouns", b1 =>
-                        {
-                            b1.Property<long>("UserId")
-                                .HasColumnType("bigint");
-
-                            b1.Property<int>("Capacity")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("UserId")
-                                .HasName("pk_users");
-
-                            b1.ToTable("users");
-
-                            b1.ToJson("pronouns");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UserId")
-                                .HasConstraintName("fk_users_users_user_id");
-                        });
-
-                    b.Navigation("Fields")
-                        .IsRequired();
-
-                    b.Navigation("Names")
-                        .IsRequired();
-
-                    b.Navigation("Pronouns")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.User", b =>

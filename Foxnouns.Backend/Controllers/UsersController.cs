@@ -158,4 +158,35 @@ public class UsersController(
         public string? Avatar { get; init; }
         public string[]? Links { get; init; }
     }
+    
+    
+    [HttpGet("@me/settings")]
+    [Authorize("user.read_hidden")]
+    [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetUserSettingsAsync(CancellationToken ct = default)
+    {
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
+        return Ok(user.Settings);
+    }
+
+    [HttpPatch("@me/settings")]
+    [Authorize("user.read_hidden", "user.update")]
+    [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateUserSettingsAsync([FromBody] UpdateUserSettingsRequest req, CancellationToken ct = default)
+    {
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
+
+        if (req.HasProperty(nameof(req.DarkMode)))
+            user.Settings.DarkMode = req.DarkMode;
+
+        db.Update(user);
+        await db.SaveChangesAsync(ct);
+
+        return Ok(user.Settings);
+    }
+
+    public class UpdateUserSettingsRequest : PatchRequest
+    {
+        public bool? DarkMode { get; init; }
+    }
 }

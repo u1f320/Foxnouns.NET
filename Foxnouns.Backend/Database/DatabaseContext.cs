@@ -63,6 +63,7 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<User>().Property(u => u.Names).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.Pronouns).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.CustomPreferences).HasColumnType("jsonb");
+        modelBuilder.Entity<User>().Property(u => u.Settings).HasColumnType("jsonb");
 
         modelBuilder.Entity<Member>().Property(m => m.Fields).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Names).HasColumnType("jsonb");

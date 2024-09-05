@@ -25,6 +25,7 @@ public class User : BaseModel
 
     public List<Member> Members { get; } = [];
     public List<AuthMethod> AuthMethods { get; } = [];
+    public UserSettings Settings { get; set; } = new();
 
     public required Instant LastActive { get; set; }
 
@@ -58,4 +59,9 @@ public enum PreferenceSize
     Large,
     Normal,
     Small,
+}
+
+public class UserSettings
+{
+    public bool? DarkMode { get; set; } = null;
 }
