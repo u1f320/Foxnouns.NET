@@ -1,0 +1,21 @@
+$font-family-sans-serif:
+	"FiraGO",
+	system-ui,
+	-apple-system,
+	"Segoe UI",
+	Roboto,
+	"Helvetica Neue",
+	"Noto Sans",
+	"Liberation Sans",
+	Arial,
+	sans-serif,
+	"Apple Color Emoji",
+	"Segoe UI Emoji",
+	"Segoe UI Symbol",
+	"Noto Color Emoji" !default;
+
+@import "bootstrap/scss/bootstrap";
+
+@import "@fontsource/firago/400.css";
+@import "@fontsource/firago/400-italic.css";
+@import "@fontsource/firago/700.css";
