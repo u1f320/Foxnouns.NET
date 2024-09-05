@@ -23,11 +23,15 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
     public readonly HttpStatusCode StatusCode = statusCode ?? HttpStatusCode.InternalServerError;
     public readonly ErrorCode ErrorCode = errorCode ?? ErrorCode.InternalServerError;
 
-    public class Unauthorized(string message) : ApiError(message, statusCode: HttpStatusCode.Unauthorized,
-        errorCode: ErrorCode.AuthenticationError);
+    public class Unauthorized(string message, ErrorCode errorCode = ErrorCode.AuthenticationError) : ApiError(message,
+        statusCode: HttpStatusCode.Unauthorized,
+        errorCode: errorCode);
 
-    public class Forbidden(string message, IEnumerable<string>? scopes = null)
-        : ApiError(message, statusCode: HttpStatusCode.Forbidden)
+    public class Forbidden(
+        string message,
+        IEnumerable<string>? scopes = null,
+        ErrorCode errorCode = ErrorCode.Forbidden)
+        : ApiError(message, statusCode: HttpStatusCode.Forbidden, errorCode: errorCode)
     {
         public readonly string[] Scopes = scopes?.ToArray() ?? [];
     }
@@ -115,6 +119,8 @@ public enum ErrorCode
     Forbidden,
     BadRequest,
     AuthenticationError,
+    AuthenticationRequired,
+    MissingScopes,
     GenericApiError,
     UserNotFound,
     MemberNotFound,

@@ -12,7 +12,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
     public async Task<UserResponse> RenderUserAsync(User user, User? selfUser = null,
         Token? token = null,
         bool renderMembers = true,
-        bool renderAuthMethods = false)
+        bool renderAuthMethods = false,
+        CancellationToken ct = default)
     {
         var isSelfUser = selfUser?.Id == user.Id;
         var tokenCanReadHiddenMembers = token.HasScope("member.read") && isSelfUser;
@@ -24,7 +25,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         renderAuthMethods = renderAuthMethods && tokenPrivileged;
 
         IEnumerable<Member> members =
-            renderMembers ? await db.Members.Where(m => m.UserId == user.Id).ToListAsync() : [];
+            renderMembers ? await db.Members.Where(m => m.UserId == user.Id).ToListAsync(ct) : [];
         // Unless the user is requesting their own members AND the token can read hidden members, we filter out unlisted members.
         if (!(isSelfUser && tokenCanReadHiddenMembers)) members = members.Where(m => m.Unlisted);
 
@@ -32,7 +33,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
             ? await db.AuthMethods
                 .Where(a => a.UserId == user.Id)
                 .Include(a => a.FediverseApplication)
-                .ToListAsync()
+                .ToListAsync(ct)
             : [];
 
         return new UserResponse(

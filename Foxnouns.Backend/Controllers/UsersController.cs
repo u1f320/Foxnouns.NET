@@ -20,15 +20,16 @@ public class UsersController(
 {
     [HttpGet("{userRef}")]
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUserAsync(string userRef)
+    public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
     {
-        var user = await db.ResolveUserAsync(userRef, CurrentToken);
+        var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
         return Ok(await userRendererService.RenderUserAsync(
             user,
             selfUser: CurrentUser,
             token: CurrentToken,
             renderMembers: true,
-            renderAuthMethods: true
+            renderAuthMethods: true,
+            ct: ct
         ));
     }
 
@@ -57,6 +58,11 @@ public class UsersController(
         {
             errors.Add(("bio", ValidationUtils.ValidateBio(req.Bio)));
             user.Bio = req.Bio;
+        }
+
+        if (req.HasProperty(nameof(req.Links)))
+        {
+            user.Links = req.Links ?? [];
         }
 
         if (req.HasProperty(nameof(req.Avatar)))
@@ -150,5 +156,6 @@ public class UsersController(
         public string? DisplayName { get; init; }
         public string? Bio { get; init; }
         public string? Avatar { get; init; }
+        public string[]? Links { get; init; }
     }
 }

@@ -9,23 +9,29 @@ namespace Foxnouns.Backend.Database;
 
 public static class DatabaseQueryExtensions
 {
-    public static async Task<User> ResolveUserAsync(this DatabaseContext context, string userRef, Token? token)
+    public static async Task<User> ResolveUserAsync(this DatabaseContext context, string userRef, Token? token,
+        CancellationToken ct = default)
     {
-        if (userRef == "@me" && token != null)
-            return await context.Users.FirstAsync(u => u.Id == token.UserId);
+        if (userRef == "@me")
+        {
+            return token != null
+                ? await context.Users.FirstAsync(u => u.Id == token.UserId, ct)
+                : throw new ApiError.Unauthorized("This endpoint requires an authenticated user.",
+                    ErrorCode.AuthenticationRequired);
+        }
 
         User? user;
         if (Snowflake.TryParse(userRef, out var snowflake))
         {
             user = await context.Users
                 .Where(u => !u.Deleted)
-                .FirstOrDefaultAsync(u => u.Id == snowflake);
+                .FirstOrDefaultAsync(u => u.Id == snowflake, ct);
             if (user != null) return user;
         }
 
         user = await context.Users
             .Where(u => !u.Deleted)
-            .FirstOrDefaultAsync(u => u.Username == userRef);
+            .FirstOrDefaultAsync(u => u.Username == userRef, ct);
         if (user != null) return user;
         throw new ApiError.NotFound("No user with that ID or username found.", code: ErrorCode.UserNotFound);
     }
