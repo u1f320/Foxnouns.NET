@@ -6,11 +6,7 @@ import Logo from "./Logo";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import {
-	BrightnessHigh,
-	BrightnessHighFill,
-	MoonFill,
-} from "react-bootstrap-icons";
+import { BrightnessHigh, BrightnessHighFill, MoonFill } from "react-bootstrap-icons";
 
 export default function MainNavbar({
 	user,
@@ -48,40 +44,39 @@ export default function MainNavbar({
 				? MoonFill
 				: BrightnessHighFill;
 
+	const theme = settings.dark_mode ? "dark" : "light";
+
 	return (
-		<Navbar expand="lg" className="mb-4 mx-2">
+		<Navbar expand="lg" className={`mb-4 mx-2 bg-${theme}`} color={theme} variant={theme}>
 			<Navbar.Brand to="/" as={Link}>
 				<Logo />
 			</Navbar.Brand>
 			<Navbar.Toggle aria-controls="main-navbar" />
 			<Navbar.Collapse id="main-navbar">
-				<Nav className="ms-auto">{userMenu}</Nav>
+				<Nav className="ms-auto">
+					{userMenu}
+					<fetcher.Form method="POST" action="/dark-mode">
+						<NavDropdown
+							title={
+								<>
+									<ThemeIcon /> Theme
+								</>
+							}
+							align="end"
+						>
+							<NavDropdown.Item as="button" name="theme" value="auto" type="submit">
+								Automatic
+							</NavDropdown.Item>
+							<NavDropdown.Item as="button" name="theme" value="dark" type="submit">
+								Dark mode
+							</NavDropdown.Item>
+							<NavDropdown.Item as="button" name="theme" value="light" type="submit">
+								Light mode
+							</NavDropdown.Item>
+						</NavDropdown>
+					</fetcher.Form>
+				</Nav>
 			</Navbar.Collapse>
-			<fetcher.Form method="POST" action="/dark-mode">
-				<NavDropdown
-					title={
-						<>
-							<ThemeIcon /> Theme
-						</>
-					}
-					align="end"
-				>
-					<NavDropdown.Item as="button" name="theme" value="auto" type="submit">
-						Automatic
-					</NavDropdown.Item>
-					<NavDropdown.Item as="button" name="theme" value="dark" type="submit">
-						Dark mode
-					</NavDropdown.Item>
-					<NavDropdown.Item
-						as="button"
-						name="theme"
-						value="light"
-						type="submit"
-					>
-						Light mode
-					</NavDropdown.Item>
-				</NavDropdown>
-			</fetcher.Form>
 		</Navbar>
 	);
 }

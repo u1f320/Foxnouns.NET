@@ -35,15 +35,11 @@ export default async function serverRequest<T>(
 		} as ApiError;
 	}
 
-	if (resp.status < 200 || resp.status >= 400)
-		throw (await resp.json()) as ApiError;
+	if (resp.status < 200 || resp.status >= 400) throw (await resp.json()) as ApiError;
 	return (await resp.json()) as T;
 }
 
-export function getCookie(
-	req: Request,
-	cookieName: string,
-): string | undefined {
+export function getCookie(req: Request, cookieName: string): string | undefined {
 	const header = req.headers.get("Cookie");
 	if (!header) return undefined;
 
@@ -53,11 +49,7 @@ export function getCookie(
 
 const YEAR = 365 * 86400;
 
-export const writeCookie = (
-	cookieName: string,
-	value: string,
-	maxAge: number | undefined = YEAR,
-) =>
+export const writeCookie = (cookieName: string, value: string, maxAge: number | undefined = YEAR) =>
 	serializeCookie(cookieName, value, {
 		maxAge,
 		path: "/",

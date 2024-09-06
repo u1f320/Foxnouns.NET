@@ -32,11 +32,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 			const user = await serverRequest<User>("GET", "/users/@me", { token });
 			meUser = user;
 
-			settings = await serverRequest<UserSettings>(
-				"GET",
-				"/users/@me/settings",
-				{ token },
-			);
+			settings = await serverRequest<UserSettings>("GET", "/users/@me/settings", { token });
 		} catch (e) {
 			// If we get an unauthorized error, clear the token, as it's not valid anymore.
 			if ((e as ApiError).code === ErrorCode.AuthenticationRequired) {

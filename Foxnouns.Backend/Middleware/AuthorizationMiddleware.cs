@@ -18,7 +18,8 @@ public class AuthorizationMiddleware : IMiddleware
 
         var token = ctx.GetToken();
         if (token == null)
-            throw new ApiError.Unauthorized("This endpoint requires an authenticated user.", ErrorCode.AuthenticationRequired);
+            throw new ApiError.Unauthorized("This endpoint requires an authenticated user.",
+                ErrorCode.AuthenticationRequired);
         if (attribute.Scopes.Length > 0 && attribute.Scopes.Except(token.Scopes.ExpandScopes()).Any())
             throw new ApiError.Forbidden("This endpoint requires ungranted scopes.",
                 attribute.Scopes.Except(token.Scopes.ExpandScopes()), ErrorCode.MissingScopes);
