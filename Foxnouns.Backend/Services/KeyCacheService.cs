@@ -11,10 +11,10 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
 {
     private readonly ILogger _logger = logger.ForContext<KeyCacheService>();
 
-    public Task SetKeyAsync(string key, string value, Duration expireAfter) =>
-        SetKeyAsync(key, value, clock.GetCurrentInstant() + expireAfter);
+    public Task SetKeyAsync(string key, string value, Duration expireAfter, CancellationToken ct = default) =>
+        SetKeyAsync(key, value, clock.GetCurrentInstant() + expireAfter, ct);
 
-    public async Task SetKeyAsync(string key, string value, Instant expires)
+    public async Task SetKeyAsync(string key, string value, Instant expires, CancellationToken ct = default)
     {
         db.TemporaryKeys.Add(new TemporaryKey
         {
@@ -22,18 +22,18 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
             Key = key,
             Value = value,
         });
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
     }
 
-    public async Task<string?> GetKeyAsync(string key, bool delete = false)
+    public async Task<string?> GetKeyAsync(string key, bool delete = false, CancellationToken ct = default)
     {
-        var value = await db.TemporaryKeys.FirstOrDefaultAsync(k => k.Key == key);
+        var value = await db.TemporaryKeys.FirstOrDefaultAsync(k => k.Key == key, ct);
         if (value == null) return null;
 
         if (delete)
         {
-            await db.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync();
-            await db.SaveChangesAsync();
+            await db.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync(ct);
+            await db.SaveChangesAsync(ct);
         }
 
         return value.Value;
@@ -45,18 +45,18 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
         if (count != 0) _logger.Information("Removed {Count} expired keys from the database", count);
     }
 
-    public Task SetKeyAsync<T>(string key, T obj, Duration expiresAt) where T : class =>
-        SetKeyAsync(key, obj, clock.GetCurrentInstant() + expiresAt);
+    public Task SetKeyAsync<T>(string key, T obj, Duration expiresAt, CancellationToken ct = default) where T : class =>
+        SetKeyAsync(key, obj, clock.GetCurrentInstant() + expiresAt, ct);
 
-    public async Task SetKeyAsync<T>(string key, T obj, Instant expires) where T : class
+    public async Task SetKeyAsync<T>(string key, T obj, Instant expires, CancellationToken ct = default) where T : class
     {
         var value = JsonConvert.SerializeObject(obj);
-        await SetKeyAsync(key, value, expires);
+        await SetKeyAsync(key, value, expires, ct);
     }
 
-    public async Task<T?> GetKeyAsync<T>(string key, bool delete = false) where T : class
+    public async Task<T?> GetKeyAsync<T>(string key, bool delete = false, CancellationToken ct = default) where T : class
     {
-        var value = await GetKeyAsync(key, delete: false);
+        var value = await GetKeyAsync(key, delete, ct);
         return value == null ? default : JsonConvert.DeserializeObject<T>(value);
     }
 }

@@ -25,24 +25,24 @@ public class MembersController(
 
     [HttpGet]
     [ProducesResponseType<IEnumerable<MemberRendererService.PartialMember>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMembersAsync(string userRef)
+    public async Task<IActionResult> GetMembersAsync(string userRef, CancellationToken ct = default)
     {
-        var user = await db.ResolveUserAsync(userRef, CurrentToken);
+        var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
         return Ok(await memberRendererService.RenderUserMembersAsync(user, CurrentToken));
     }
 
     [HttpGet("{memberRef}")]
     [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMemberAsync(string userRef, string memberRef)
+    public async Task<IActionResult> GetMemberAsync(string userRef, string memberRef, CancellationToken ct = default)
     {
-        var member = await db.ResolveMemberAsync(userRef, memberRef, CurrentToken);
+        var member = await db.ResolveMemberAsync(userRef, memberRef, CurrentToken, ct);
         return Ok(memberRendererService.RenderMember(member, CurrentToken));
     }
 
     [HttpPost("/api/v2/users/@me/members")]
     [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
     [Authorize("member.create")]
-    public async Task<IActionResult> CreateMemberAsync([FromBody] CreateMemberRequest req)
+    public async Task<IActionResult> CreateMemberAsync([FromBody] CreateMemberRequest req, CancellationToken ct = default)
     {
         ValidationUtils.Validate([
             ("name", ValidationUtils.ValidateMemberName(req.Name)),
@@ -71,7 +71,7 @@ public class MembersController(
 
         try
         {
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync(ct);
         }
         catch (UniqueConstraintException)
         {
@@ -88,18 +88,18 @@ public class MembersController(
 
     [HttpDelete("/api/v2/users/@me/members/{memberRef}")]
     [Authorize("member.update")]
-    public async Task<IActionResult> DeleteMemberAsync(string memberRef)
+    public async Task<IActionResult> DeleteMemberAsync(string memberRef, CancellationToken ct = default)
     {
-        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef, ct);
         var deleteCount = await db.Members.Where(m => m.UserId == CurrentUser!.Id && m.Id == member.Id)
-            .ExecuteDeleteAsync();
+            .ExecuteDeleteAsync(ct);
         if (deleteCount == 0)
         {
             _logger.Warning("Successfully resolved member {Id} but could not delete them", member.Id);
             return NoContent();
         }
 
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
 
         if (member.Avatar != null) await objectStorage.DeleteMemberAvatarAsync(member.Id, member.Avatar);
         return NoContent();

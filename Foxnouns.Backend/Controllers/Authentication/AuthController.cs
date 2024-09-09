@@ -13,13 +13,13 @@ public class AuthController(Config config, KeyCacheService keyCacheSvc, ILogger 
 
     [HttpPost("urls")]
     [ProducesResponseType<UrlsResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> UrlsAsync()
+    public async Task<IActionResult> UrlsAsync(CancellationToken ct = default)
     {
         _logger.Debug("Generating auth URLs for Discord: {Discord}, Google: {Google}, Tumblr: {Tumblr}",
             config.DiscordAuth.Enabled,
             config.GoogleAuth.Enabled,
             config.TumblrAuth.Enabled);
-        var state = HttpUtility.UrlEncode(await keyCacheSvc.GenerateAuthStateAsync());
+        var state = HttpUtility.UrlEncode(await keyCacheSvc.GenerateAuthStateAsync(ct));
         string? discord = null;
         if (config.DiscordAuth is { ClientId: not null, ClientSecret: not null })
             discord =

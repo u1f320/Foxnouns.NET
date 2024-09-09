@@ -10,7 +10,7 @@ public class RemoteAuthService(Config config)
     private readonly Uri _discordTokenUri = new("https://discord.com/api/oauth2/token");
     private readonly Uri _discordUserUri = new("https://discord.com/api/v10/users/@me");
 
-    public async Task<RemoteUser> RequestDiscordTokenAsync(string code, string state)
+    public async Task<RemoteUser> RequestDiscordTokenAsync(string code, string state, CancellationToken ct = default)
     {
         var redirectUri = $"{config.BaseUrl}/auth/login/discord";
         var resp = await _httpClient.PostAsync(_discordTokenUri, new FormUrlEncodedContent(
@@ -22,17 +22,17 @@ public class RemoteAuthService(Config config)
                 { "code", code },
                 { "redirect_uri", redirectUri }
             }
-        ));
+        ), ct);
         resp.EnsureSuccessStatusCode();
-        var token = await resp.Content.ReadFromJsonAsync<DiscordTokenResponse>();
+        var token = await resp.Content.ReadFromJsonAsync<DiscordTokenResponse>(ct);
         if (token == null) throw new FoxnounsError("Discord token response was null");
 
         var req = new HttpRequestMessage(HttpMethod.Get, _discordUserUri);
         req.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
 
-        var resp2 = await _httpClient.SendAsync(req);
+        var resp2 = await _httpClient.SendAsync(req, ct);
         resp2.EnsureSuccessStatusCode();
-        var user = await resp2.Content.ReadFromJsonAsync<DiscordUserResponse>();
+        var user = await resp2.Content.ReadFromJsonAsync<DiscordUserResponse>(ct);
         if (user == null) throw new FoxnounsError("Discord user response was null");
 
         return new RemoteUser(user.id, user.username);

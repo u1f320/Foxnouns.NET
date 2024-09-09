@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Serilog.Events;
 
 namespace Foxnouns.Backend;
@@ -15,6 +16,7 @@ public class Config
     public LoggingConfig Logging { get; init; } = new();
     public DatabaseConfig Database { get; init; } = new();
     public StorageConfig Storage { get; init; } = new();
+    public EmailAuthConfig EmailAuth { get; init; } = new();
     public DiscordAuthConfig DiscordAuth { get; init; } = new();
     public GoogleAuthConfig GoogleAuth { get; init; } = new();
     public TumblrAuthConfig TumblrAuth { get; init; } = new();
@@ -44,6 +46,12 @@ public class Config
         public string AccessKey { get; init; } = string.Empty;
         public string SecretKey { get; init; } = string.Empty;
         public string Bucket { get; init; } = string.Empty;
+    }
+
+    public class EmailAuthConfig
+    {
+        public bool Enabled => From != null;
+        public string? From { get; init; }
     }
 
     public class DiscordAuthConfig

@@ -58,8 +58,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
-builder.Services
-    .AddServices(config)
+builder.AddServices(config)
     .AddCustomMiddleware()
     .AddEndpointsApiExplorer()
     .AddSwaggerGen();

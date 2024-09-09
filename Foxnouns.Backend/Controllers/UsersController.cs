@@ -36,10 +36,10 @@ public class UsersController(
     [HttpPatch("@me")]
     [Authorize("user.update")]
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserRequest req)
+    public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserRequest req, CancellationToken ct = default)
     {
-        await using var tx = await db.Database.BeginTransactionAsync();
-        var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id);
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
         var errors = new List<(string, ValidationError?)>();
 
         if (req.Username != null && req.Username != user.Username)
@@ -76,20 +76,20 @@ public class UsersController(
             queue.QueueInvocableWithPayload<UserAvatarUpdateInvocable, AvatarUpdatePayload>(
                 new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar));
 
-        await db.SaveChangesAsync();
-        await tx.CommitAsync();
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
         return Ok(await userRendererService.RenderUserAsync(user, CurrentUser, renderMembers: false,
-            renderAuthMethods: false));
+            renderAuthMethods: false, ct: ct));
     }
 
     [HttpPatch("@me/custom-preferences")]
     [Authorize("user.update")]
     [ProducesResponseType<Dictionary<Snowflake, User.CustomPreference>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateCustomPreferencesAsync([FromBody] List<CustomPreferencesUpdateRequest> req)
+    public async Task<IActionResult> UpdateCustomPreferencesAsync([FromBody] List<CustomPreferencesUpdateRequest> req, CancellationToken ct = default)
     {
         ValidationUtils.Validate(ValidateCustomPreferences(req));
 
-        var user = await db.ResolveUserAsync(CurrentUser!.Id);
+        var user = await db.ResolveUserAsync(CurrentUser!.Id, ct);
         var preferences = user.CustomPreferences.Where(x => req.Any(r => r.Id == x.Key)).ToDictionary();
 
         foreach (var r in req)
@@ -119,7 +119,7 @@ public class UsersController(
         }
 
         user.CustomPreferences = preferences;
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(ct);
 
         return Ok(user.CustomPreferences);
     }

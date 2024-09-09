@@ -70,38 +70,43 @@ public static class WebApplicationExtensions
     }
 
     /// <summary>
-    /// Adds required services to the IServiceCollection.
+    /// Adds required services to the WebApplicationBuilder.
     /// This should only add services that are not ASP.NET-related (i.e. no middleware).
     /// </summary>
-    public static IServiceCollection AddServices(this IServiceCollection services, Config config)
+    public static IServiceCollection AddServices(this WebApplicationBuilder builder, Config config)
     {
-        services
-            .AddQueue()
-            .AddDbContext<DatabaseContext>()
-            .AddMetricServer(o => o.Port = config.Logging.MetricsPort)
-            .AddMinio(c =>
-                c.WithEndpoint(config.Storage.Endpoint)
-                    .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
-                    .Build())
-            .AddSingleton<MetricsCollectionService>()
-            .AddSingleton<IClock>(SystemClock.Instance)
-            .AddSnowflakeGenerator()
-            .AddScoped<UserRendererService>()
-            .AddScoped<MemberRendererService>()
-            .AddScoped<AuthService>()
-            .AddScoped<KeyCacheService>()
-            .AddScoped<RemoteAuthService>()
-            .AddScoped<ObjectStorageService>()
-            // Background services
-            .AddHostedService<PeriodicTasksService>()
-            // Transient jobs
-            .AddTransient<MemberAvatarUpdateInvocable>()
-            .AddTransient<UserAvatarUpdateInvocable>();
-
-        if (!config.Logging.EnableMetrics)
-            services.AddHostedService<BackgroundMetricsCollectionService>();
-
-        return services;
+        builder.Host.ConfigureServices((ctx, services) =>
+        {
+            services
+                .AddQueue()
+                .AddMailer(ctx.Configuration)
+                .AddDbContext<DatabaseContext>()
+                .AddMetricServer(o => o.Port = config.Logging.MetricsPort)
+                .AddMinio(c =>
+                    c.WithEndpoint(config.Storage.Endpoint)
+                        .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
+                        .Build())
+                .AddSingleton<MetricsCollectionService>()
+                .AddSingleton<IClock>(SystemClock.Instance)
+                .AddSnowflakeGenerator()
+                .AddSingleton<MailService>()
+                .AddScoped<UserRendererService>()
+                .AddScoped<MemberRendererService>()
+                .AddScoped<AuthService>()
+                .AddScoped<KeyCacheService>()
+                .AddScoped<RemoteAuthService>()
+                .AddScoped<ObjectStorageService>()
+                // Background services
+                .AddHostedService<PeriodicTasksService>()
+                // Transient jobs
+                .AddTransient<MemberAvatarUpdateInvocable>()
+                .AddTransient<UserAvatarUpdateInvocable>();
+            
+            if (!config.Logging.EnableMetrics)
+                services.AddHostedService<BackgroundMetricsCollectionService>();
+        });
+        
+        return builder.Services;
     }
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) => services
