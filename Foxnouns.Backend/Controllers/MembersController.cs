@@ -16,9 +16,9 @@ namespace Foxnouns.Backend.Controllers;
 public class MembersController(
     ILogger logger,
     DatabaseContext db,
-    MemberRendererService memberRendererService,
+    MemberRendererService memberRenderer,
     ISnowflakeGenerator snowflakeGenerator,
-    ObjectStorageService objectStorage,
+    ObjectStorageService objectStorageService,
     IQueue queue) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<MembersController>();
@@ -28,7 +28,7 @@ public class MembersController(
     public async Task<IActionResult> GetMembersAsync(string userRef, CancellationToken ct = default)
     {
         var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
-        return Ok(await memberRendererService.RenderUserMembersAsync(user, CurrentToken));
+        return Ok(await memberRenderer.RenderUserMembersAsync(user, CurrentToken));
     }
 
     [HttpGet("{memberRef}")]
@@ -36,7 +36,7 @@ public class MembersController(
     public async Task<IActionResult> GetMemberAsync(string userRef, string memberRef, CancellationToken ct = default)
     {
         var member = await db.ResolveMemberAsync(userRef, memberRef, CurrentToken, ct);
-        return Ok(memberRendererService.RenderMember(member, CurrentToken));
+        return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
     [HttpPost("/api/v2/users/@me/members")]
@@ -83,7 +83,7 @@ public class MembersController(
             queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
                 new AvatarUpdatePayload(member.Id, req.Avatar));
 
-        return Ok(memberRendererService.RenderMember(member, CurrentToken));
+        return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
     [HttpDelete("/api/v2/users/@me/members/{memberRef}")]
@@ -101,7 +101,7 @@ public class MembersController(
 
         await db.SaveChangesAsync(ct);
 
-        if (member.Avatar != null) await objectStorage.DeleteMemberAvatarAsync(member.Id, member.Avatar);
+        if (member.Avatar != null) await objectStorageService.DeleteMemberAvatarAsync(member.Id, member.Avatar);
         return NoContent();
     }
 

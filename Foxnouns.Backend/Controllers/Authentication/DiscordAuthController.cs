@@ -15,10 +15,10 @@ public class DiscordAuthController(
     ILogger logger,
     IClock clock,
     DatabaseContext db,
-    KeyCacheService keyCacheSvc,
-    AuthService authSvc,
-    RemoteAuthService remoteAuthSvc,
-    UserRendererService userRendererSvc) : ApiControllerBase
+    KeyCacheService keyCacheService,
+    AuthService authService,
+    RemoteAuthService remoteAuthService,
+    UserRendererService userRenderer) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<DiscordAuthController>();
 
@@ -30,17 +30,17 @@ public class DiscordAuthController(
     public async Task<IActionResult> CallbackAsync([FromBody] AuthController.CallbackRequest req, CancellationToken ct = default)
     {
         CheckRequirements();
-        await keyCacheSvc.ValidateAuthStateAsync(req.State, ct);
+        await keyCacheService.ValidateAuthStateAsync(req.State, ct);
 
-        var remoteUser = await remoteAuthSvc.RequestDiscordTokenAsync(req.Code, req.State, ct);
-        var user = await authSvc.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id, ct: ct);
+        var remoteUser = await remoteAuthService.RequestDiscordTokenAsync(req.Code, req.State, ct);
+        var user = await authService.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id, ct: ct);
         if (user != null) return Ok(await GenerateUserTokenAsync(user,ct));
 
         _logger.Debug("Discord user {Username} ({Id}) authenticated with no local account", remoteUser.Username,
             remoteUser.Id);
 
         var ticket = AuthUtils.RandomToken();
-        await keyCacheSvc.SetKeyAsync($"discord:{ticket}", remoteUser, Duration.FromMinutes(20), ct);
+        await keyCacheService.SetKeyAsync($"discord:{ticket}", remoteUser, Duration.FromMinutes(20), ct);
 
         return Ok(new AuthController.CallbackResponse(false, ticket, remoteUser.Username));
     }
@@ -49,7 +49,7 @@ public class DiscordAuthController(
     [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> RegisterAsync([FromBody] AuthController.OauthRegisterRequest req, CancellationToken ct = default)
     {
-        var remoteUser = await keyCacheSvc.GetKeyAsync<RemoteAuthService.RemoteUser>($"discord:{req.Ticket}",ct:ct);
+        var remoteUser = await keyCacheService.GetKeyAsync<RemoteAuthService.RemoteUser>($"discord:{req.Ticket}",ct:ct);
         if (remoteUser == null) throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);
         if (await db.AuthMethods.AnyAsync(a => a.AuthType == AuthType.Discord && a.RemoteId == remoteUser.Id, ct))
         {
@@ -58,7 +58,7 @@ public class DiscordAuthController(
             throw new FoxnounsError("Discord ticket was issued for user with existing link");
         }
 
-        var user = await authSvc.CreateUserWithRemoteAuthAsync(req.Username, AuthType.Discord, remoteUser.Id,
+        var user = await authService.CreateUserWithRemoteAuthAsync(req.Username, AuthType.Discord, remoteUser.Id,
             remoteUser.Username, ct: ct);
 
         return Ok(await GenerateUserTokenAsync(user, ct));
@@ -70,7 +70,7 @@ public class DiscordAuthController(
         _logger.Debug("Logging user {Id} in with Discord", user.Id);
 
         var (tokenStr, token) =
-            authSvc.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
+            authService.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
         db.Add(token);
 
         _logger.Debug("Generated token {TokenId} for {UserId}", user.Id, token.Id);
@@ -78,7 +78,7 @@ public class DiscordAuthController(
         await db.SaveChangesAsync(ct);
 
         return new AuthController.AuthResponse(
-            await userRendererSvc.RenderUserAsync(user, selfUser: user, renderMembers: false, ct: ct),
+            await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false, ct: ct),
             tokenStr,
             token.ExpiresAt
         );

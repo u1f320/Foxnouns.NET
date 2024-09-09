@@ -4,7 +4,7 @@ using Minio.Exceptions;
 
 namespace Foxnouns.Backend.Services;
 
-public class ObjectStorageService(ILogger logger, Config config, IMinioClient minio)
+public class ObjectStorageService(ILogger logger, Config config, IMinioClient minioClient)
 {
     private readonly ILogger _logger = logger.ForContext<ObjectStorageService>();
 
@@ -13,7 +13,8 @@ public class ObjectStorageService(ILogger logger, Config config, IMinioClient mi
         _logger.Debug("Deleting object at path {Path}", path);
         try
         {
-            await minio.RemoveObjectAsync(new RemoveObjectArgs().WithBucket(config.Storage.Bucket).WithObject(path),
+            await minioClient.RemoveObjectAsync(
+                new RemoveObjectArgs().WithBucket(config.Storage.Bucket).WithObject(path),
                 ct);
         }
         catch (InvalidObjectNameException)
@@ -27,7 +28,7 @@ public class ObjectStorageService(ILogger logger, Config config, IMinioClient mi
         _logger.Debug("Putting object at path {Path} with length {Length} and content type {ContentType}", path,
             data.Length, contentType);
 
-        await minio.PutObjectAsync(new PutObjectArgs()
+        await minioClient.PutObjectAsync(new PutObjectArgs()
                 .WithBucket(config.Storage.Bucket)
                 .WithObject(path)
                 .WithObjectSize(data.Length)

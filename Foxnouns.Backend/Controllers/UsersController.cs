@@ -14,7 +14,7 @@ namespace Foxnouns.Backend.Controllers;
 [Route("/api/v2/users")]
 public class UsersController(
     DatabaseContext db,
-    UserRendererService userRendererService,
+    UserRendererService userRenderer,
     ISnowflakeGenerator snowflakeGenerator,
     IQueue queue) : ApiControllerBase
 {
@@ -23,7 +23,7 @@ public class UsersController(
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
     {
         var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
-        return Ok(await userRendererService.RenderUserAsync(
+        return Ok(await userRenderer.RenderUserAsync(
             user,
             selfUser: CurrentUser,
             token: CurrentToken,
@@ -78,7 +78,7 @@ public class UsersController(
 
         await db.SaveChangesAsync(ct);
         await tx.CommitAsync(ct);
-        return Ok(await userRendererService.RenderUserAsync(user, CurrentUser, renderMembers: false,
+        return Ok(await userRenderer.RenderUserAsync(user, CurrentUser, renderMembers: false,
             renderAuthMethods: false, ct: ct));
     }
 

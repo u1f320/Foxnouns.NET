@@ -14,12 +14,12 @@ public static class AvatarObjectExtensions
     private static readonly string[] ValidContentTypes = ["image/png", "image/webp", "image/jpeg"];
 
     public static async Task
-        DeleteMemberAvatarAsync(this ObjectStorageService objectStorage, Snowflake id, string hash, CancellationToken ct = default) =>
-        await objectStorage.RemoveObjectAsync(MemberAvatarUpdateInvocable.Path(id, hash), ct);
+        DeleteMemberAvatarAsync(this ObjectStorageService objectStorageService, Snowflake id, string hash, CancellationToken ct = default) =>
+        await objectStorageService.RemoveObjectAsync(MemberAvatarUpdateInvocable.Path(id, hash), ct);
 
     public static async Task
-        DeleteUserAvatarAsync(this ObjectStorageService objectStorage, Snowflake id, string hash, CancellationToken ct = default) =>
-        await objectStorage.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
+        DeleteUserAvatarAsync(this ObjectStorageService objectStorageService, Snowflake id, string hash, CancellationToken ct = default) =>
+        await objectStorageService.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
 
     public static async Task<Stream> ConvertBase64UriToAvatar(this string uri)
     {

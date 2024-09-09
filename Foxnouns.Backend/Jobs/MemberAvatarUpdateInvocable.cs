@@ -6,7 +6,7 @@ using Foxnouns.Backend.Services;
 
 namespace Foxnouns.Backend.Jobs;
 
-public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService objectStorage, ILogger logger)
+public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService objectStorageService, ILogger logger)
     : IInvocable, IInvocableWithPayload<AvatarUpdatePayload>
 {
     private readonly ILogger _logger = logger.ForContext<UserAvatarUpdateInvocable>();
@@ -36,13 +36,13 @@ public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageServic
             image.Seek(0, SeekOrigin.Begin);
             var prevHash = member.Avatar;
 
-            await objectStorage.PutObjectAsync(Path(id, hash), image, "image/webp");
+            await objectStorageService.PutObjectAsync(Path(id, hash), image, "image/webp");
 
             member.Avatar = hash;
             await db.SaveChangesAsync();
 
             if (prevHash != null && prevHash != hash)
-                await objectStorage.RemoveObjectAsync(Path(id, prevHash));
+                await objectStorageService.RemoveObjectAsync(Path(id, prevHash));
 
             _logger.Information("Updated avatar for member {MemberId}", id);
         }
@@ -69,7 +69,7 @@ public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageServic
             return;
         }
 
-        await objectStorage.RemoveObjectAsync(Path(member.Id, member.Avatar));
+        await objectStorageService.RemoveObjectAsync(Path(member.Id, member.Avatar));
 
         member.Avatar = null;
         await db.SaveChangesAsync();

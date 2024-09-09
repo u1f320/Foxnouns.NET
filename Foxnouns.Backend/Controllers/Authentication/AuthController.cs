@@ -7,7 +7,7 @@ using NodaTime;
 namespace Foxnouns.Backend.Controllers.Authentication;
 
 [Route("/api/v2/auth")]
-public class AuthController(Config config, KeyCacheService keyCacheSvc, ILogger logger) : ApiControllerBase
+public class AuthController(Config config, KeyCacheService keyCache, ILogger logger) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<AuthController>();
 
@@ -19,7 +19,7 @@ public class AuthController(Config config, KeyCacheService keyCacheSvc, ILogger 
             config.DiscordAuth.Enabled,
             config.GoogleAuth.Enabled,
             config.TumblrAuth.Enabled);
-        var state = HttpUtility.UrlEncode(await keyCacheSvc.GenerateAuthStateAsync(ct));
+        var state = HttpUtility.UrlEncode(await keyCache.GenerateAuthStateAsync(ct));
         string? discord = null;
         if (config.DiscordAuth is { ClientId: not null, ClientSecret: not null })
             discord =

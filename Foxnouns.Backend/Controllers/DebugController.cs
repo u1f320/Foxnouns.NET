@@ -9,8 +9,8 @@ namespace Foxnouns.Backend.Controllers;
 [Route("/api/v2/debug")]
 public class DebugController(
     DatabaseContext db,
-    AuthService authSvc,
-    UserRendererService userRendererSvc,
+    AuthService authService,
+    UserRendererService userRenderer,
     IClock clock,
     ILogger logger) : ApiControllerBase
 {
@@ -22,17 +22,17 @@ public class DebugController(
     {
         _logger.Debug("Creating user with username {Username} and email {Email}", req.Username, req.Email);
 
-        var user = await authSvc.CreateUserWithPasswordAsync(req.Username, req.Email, req.Password);
+        var user = await authService.CreateUserWithPasswordAsync(req.Username, req.Email, req.Password);
         var frontendApp = await db.GetFrontendApplicationAsync();
 
         var (tokenStr, token) =
-            authSvc.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
+            authService.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
         db.Add(token);
 
         await db.SaveChangesAsync();
 
         return Ok(new AuthController.AuthResponse(
-            await userRendererSvc.RenderUserAsync(user, selfUser: user, renderMembers: false),
+            await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false),
             tokenStr,
             token.ExpiresAt
         ));

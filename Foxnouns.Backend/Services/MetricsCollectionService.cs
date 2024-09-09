@@ -47,7 +47,7 @@ public class MetricsCollectionService(
     }
 }
 
-public class BackgroundMetricsCollectionService(ILogger logger, MetricsCollectionService innerService)
+public class BackgroundMetricsCollectionService(ILogger logger, MetricsCollectionService metricsCollectionService)
     : BackgroundService
 {
     private readonly ILogger _logger = logger.ForContext<BackgroundMetricsCollectionService>();
@@ -60,7 +60,7 @@ public class BackgroundMetricsCollectionService(ILogger logger, MetricsCollectio
         while (await timer.WaitForNextTickAsync(ct))
         {
             _logger.Debug("Collecting metrics");
-            await innerService.CollectMetricsAsync(ct);
+            await metricsCollectionService.CollectMetricsAsync(ct);
         }
     }
 }

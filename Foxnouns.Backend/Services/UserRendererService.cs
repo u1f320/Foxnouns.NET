@@ -7,7 +7,7 @@ using NodaTime;
 
 namespace Foxnouns.Backend.Services;
 
-public class UserRendererService(DatabaseContext db, MemberRendererService memberRendererService, Config config)
+public class UserRendererService(DatabaseContext db, MemberRendererService memberRenderer, Config config)
 {
     public async Task<UserResponse> RenderUserAsync(User user, User? selfUser = null,
         Token? token = null,
@@ -39,7 +39,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         return new UserResponse(
             user.Id, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user), user.Links,
             user.Names, user.Pronouns, user.Fields, user.CustomPreferences,
-            renderMembers ? members.Select(memberRendererService.RenderPartialMember) : null,
+            renderMembers ? members.Select(memberRenderer.RenderPartialMember) : null,
             renderAuthMethods
                 ? authMethods.Select(a => new AuthenticationMethodResponse(
                     a.Id, a.AuthType, a.RemoteId,
