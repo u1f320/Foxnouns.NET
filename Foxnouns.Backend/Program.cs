@@ -9,9 +9,6 @@ using Newtonsoft.Json.Serialization;
 using Prometheus;
 using Sentry.Extensibility;
 
-// Read version information from .version in the repository root
-await BuildInfo.ReadBuildInfo();
-
 var builder = WebApplication.CreateBuilder(args);
 
 var config = builder.AddConfiguration();

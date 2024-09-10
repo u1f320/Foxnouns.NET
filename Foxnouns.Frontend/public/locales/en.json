@@ -1,0 +1,12 @@
+{
+  "navbar": {
+    "view-profile": "View profile",
+    "settings": "Settings",
+    "log-out": "Log out",
+    "log-in": "Log in or sign up",
+    "theme": "Theme",
+    "theme-auto": "Automatic",
+    "theme-dark": "Dark",
+    "theme-light": "Light"
+  }
+}

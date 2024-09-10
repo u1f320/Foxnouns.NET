@@ -121,6 +121,7 @@ public static class WebApplicationExtensions
 
     public static async Task Initialize(this WebApplication app, string[] args)
     {
+        // Read version information from .version in the repository root
         await BuildInfo.ReadBuildInfo();
 
         app.Services.ConfigureQueue().LogQueuedTaskProgress(app.Services.GetRequiredService<ILogger<IQueue>>());

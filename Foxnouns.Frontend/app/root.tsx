@@ -9,6 +9,8 @@ import {
 } from "@remix-run/react";
 import { LoaderFunction } from "@remix-run/node";
 import SSRProvider from "react-bootstrap/SSRProvider";
+import { useChangeLanguage } from "remix-i18next/react";
+import { useTranslation } from "react-i18next";
 
 import serverRequest, { getCookie, writeCookie } from "./lib/request.server";
 import Meta from "./lib/api/meta";
@@ -18,6 +20,7 @@ import { ApiError, ErrorCode } from "./lib/api/error";
 
 import "./app.scss";
 import getLocalSettings from "./lib/settings.server";
+import { LANGUAGE } from "~/env.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
 	const meta = await serverRequest<Meta>("GET", "/meta");
@@ -29,8 +32,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 	let settings = getLocalSettings(request);
 	if (token) {
 		try {
-			const user = await serverRequest<User>("GET", "/users/@me", { token });
-			meUser = user;
+			meUser = await serverRequest<User>("GET", "/users/@me", { token });
 
 			settings = await serverRequest<UserSettings>("GET", "/users/@me/settings", { token });
 		} catch (e) {
@@ -42,7 +44,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 	}
 
 	return json(
-		{ meta, meUser, settings },
+		{ meta, meUser, settings, locale: LANGUAGE },
 		{
 			headers: { "Set-Cookie": setCookie },
 		},
@@ -50,10 +52,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-	const { settings } = useLoaderData<typeof loader>();
+	const { settings, locale } = useLoaderData<typeof loader>();
+	const { i18n } = useTranslation();
+	i18n.language = locale;
+	useChangeLanguage(locale);
 
 	return (
-		<html lang="en" data-bs-theme={settings.dark_mode ? "dark" : "light"}>
+		<html lang={locale} data-bs-theme={settings.dark_mode ? "dark" : "light"} dir={i18n.dir()}>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />

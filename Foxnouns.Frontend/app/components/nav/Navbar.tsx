@@ -7,6 +7,7 @@ import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { BrightnessHigh, BrightnessHighFill, MoonFill } from "react-bootstrap-icons";
+import { useTranslation } from "react-i18next";
 
 export default function MainNavbar({
 	user,
@@ -17,23 +18,26 @@ export default function MainNavbar({
 	settings: UserSettings;
 }) {
 	const fetcher = useFetcher();
+	const { t } = useTranslation();
 
 	const userMenu = user ? (
 		<NavDropdown title={<>@{user.username}</>} align="end">
 			<NavDropdown.Item as={Link} to={`/@${user.username}`}>
-				View profile
+				{t("navbar.view-profile")}
 			</NavDropdown.Item>
 			<NavDropdown.Item as={Link} to="/settings">
-				Settings
+				{t("navbar.settings")}
 			</NavDropdown.Item>
 			<NavDropdown.Divider />
-			<NavDropdown.Item as={Link} to="/auth/logout">
-				Log out
-			</NavDropdown.Item>
+			<fetcher.Form method="POST" action="/auth/log-out">
+				<NavDropdown.Item as="button" type="submit">
+					{t("navbar.log-out")}
+				</NavDropdown.Item>
+			</fetcher.Form>
 		</NavDropdown>
 	) : (
 		<Nav.Link to="/auth/login" as={Link}>
-			Log in or sign up
+			{t("navbar.log-in")}
 		</Nav.Link>
 	);
 
@@ -59,19 +63,19 @@ export default function MainNavbar({
 						<NavDropdown
 							title={
 								<>
-									<ThemeIcon /> Theme
+									<ThemeIcon /> {t("navbar.theme")}
 								</>
 							}
 							align="end"
 						>
 							<NavDropdown.Item as="button" name="theme" value="auto" type="submit">
-								Automatic
+								{t("navbar.theme-auto")}
 							</NavDropdown.Item>
 							<NavDropdown.Item as="button" name="theme" value="dark" type="submit">
-								Dark mode
+								{t("navbar.theme-dark")}
 							</NavDropdown.Item>
 							<NavDropdown.Item as="button" name="theme" value="light" type="submit">
-								Light mode
+								{t("navbar.theme-light")}
 							</NavDropdown.Item>
 						</NavDropdown>
 					</fetcher.Form>
