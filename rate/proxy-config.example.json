@@ -1,0 +1,5 @@
+{
+    "port": 5003,
+    "proxy_target": "http://localhost:5000",
+    "debug": true
+}

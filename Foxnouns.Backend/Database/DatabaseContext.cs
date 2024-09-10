@@ -28,6 +28,9 @@ public class DatabaseContext : DbContext
         {
             Timeout = config.Database.Timeout ?? 5,
             MaxPoolSize = config.Database.MaxPoolSize ?? 50,
+            MinPoolSize = 0,
+            ConnectionPruningInterval = 10,
+            ConnectionIdleLifetime = 10,
         }.ConnectionString;
 
         var dataSourceBuilder = new NpgsqlDataSourceBuilder(connString);
