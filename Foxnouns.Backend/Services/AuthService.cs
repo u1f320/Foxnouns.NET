@@ -81,11 +81,11 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
         var user = await db.Users.FirstOrDefaultAsync(u =>
             u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email), ct);
         if (user == null)
-            throw new ApiError.NotFound("No user with that email address found, or password is incorrect");
+            throw new ApiError.NotFound("No user with that email address found, or password is incorrect", ErrorCode.UserNotFound);
 
         var pwResult = await Task.Run(() => _passwordHasher.VerifyHashedPassword(user, user.Password!, password), ct);
-        if (pwResult == PasswordVerificationResult.Failed)
-            throw new ApiError.NotFound("No user with that email address found, or password is incorrect");
+        if (pwResult == PasswordVerificationResult.Failed) // TODO: this seems to fail on some valid passwords?
+            throw new ApiError.NotFound("No user with that email address found, or password is incorrect", ErrorCode.UserNotFound);
         if (pwResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);

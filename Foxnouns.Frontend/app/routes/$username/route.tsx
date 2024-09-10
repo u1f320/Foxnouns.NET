@@ -1,4 +1,4 @@
-import { json, LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { redirect, useLoaderData } from "@remix-run/react";
 import { User } from "~/lib/api/user";
 import serverRequest from "~/lib/request.server";
@@ -9,7 +9,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `@${user.username} - pronouns.cc` }];
 };
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader = async ({ params }: LoaderFunctionArgs) => {
 	let username = params.username!;
 	if (!username.startsWith("@")) throw redirect(`/@${username}`);
 	username = username.substring("@".length);

@@ -7,8 +7,7 @@ import {
 	ScrollRestoration,
 	useLoaderData,
 } from "@remix-run/react";
-import { LoaderFunction } from "@remix-run/node";
-import SSRProvider from "react-bootstrap/SSRProvider";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { useChangeLanguage } from "remix-i18next/react";
 import { useTranslation } from "react-i18next";
 
@@ -22,7 +21,7 @@ import "./app.scss";
 import getLocalSettings from "./lib/settings.server";
 import { LANGUAGE } from "~/env.server";
 
-export const loader: LoaderFunction = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const meta = await serverRequest<Meta>("GET", "/meta");
 
 	const token = getCookie(request, "pronounscc-token");
@@ -66,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<SSRProvider>{children}</SSRProvider>
+				{children}
 				<ScrollRestoration />
 				<Scripts />
 			</body>

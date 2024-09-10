@@ -8,5 +8,11 @@
     "theme-auto": "Automatic",
     "theme-dark": "Dark",
     "theme-light": "Light"
+  },
+  "log-in": {
+    "title": "Log in",
+    "email": "Email address",
+    "password": "Password",
+    "log-in-button": "Log in"
   }
 }

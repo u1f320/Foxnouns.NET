@@ -36,7 +36,7 @@ export default function MainNavbar({
 			</fetcher.Form>
 		</NavDropdown>
 	) : (
-		<Nav.Link to="/auth/login" as={Link}>
+		<Nav.Link to="/auth/log-in" as={Link}>
 			{t("navbar.log-in")}
 		</Nav.Link>
 	);
