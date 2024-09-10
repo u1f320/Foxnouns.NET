@@ -25,6 +25,7 @@ type Handler struct {
 	Port        int    `json:"port"`
 	ProxyTarget string `json:"proxy_target"`
 	Debug       bool   `json:"debug"`
+	PoweredBy   string `json:"powered_by"`
 
 	limiter *Limiter
 	proxy   *httputil.ReverseProxy
@@ -32,6 +33,10 @@ type Handler struct {
 }
 
 func (hn *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if hn.PoweredBy != "" {
+		w.Header().Set("X-Powered-By", hn.PoweredBy)
+	}
+
 	// all public api endpoints are prefixed with this
 	if !strings.HasPrefix(r.URL.Path, "/api/v2") {
 		w.WriteHeader(http.StatusNotFound)
