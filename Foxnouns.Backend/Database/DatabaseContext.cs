@@ -26,6 +26,7 @@ public class DatabaseContext : DbContext
     {
         var connString = new NpgsqlConnectionStringBuilder(config.Database.Url)
         {
+            Pooling = config.Database.EnablePooling ?? true,
             Timeout = config.Database.Timeout ?? 5,
             MaxPoolSize = config.Database.MaxPoolSize ?? 50,
             MinPoolSize = 0,

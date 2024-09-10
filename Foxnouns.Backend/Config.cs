@@ -36,6 +36,7 @@ public class Config
     public class DatabaseConfig
     {
         public string Url { get; init; } = string.Empty;
+        public bool? EnablePooling { get; init; }
         public int? Timeout { get; init; }
         public int? MaxPoolSize { get; init; }
     }
