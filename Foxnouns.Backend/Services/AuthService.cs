@@ -16,7 +16,7 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// Creates a new user with the given email address and password.
     /// This method does <i>not</i> save the resulting user, the caller must still call <see cref="M:Microsoft.EntityFrameworkCore.DbContext.SaveChanges" />.
     /// </summary>
-    public async Task<User> CreateUserWithPasswordAsync(string username, string email, string password)
+    public async Task<User> CreateUserWithPasswordAsync(string username, string email, string password, CancellationToken ct = default)
     {
         var user = new User
         {
@@ -31,7 +31,7 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
         };
 
         db.Add(user);
-        user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password));
+        user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
 
         return user;
     }

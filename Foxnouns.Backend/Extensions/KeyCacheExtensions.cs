@@ -1,6 +1,7 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
+using Newtonsoft.Json;
 using NodaTime;
 
 namespace Foxnouns.Backend.Extensions;
@@ -25,7 +26,8 @@ public static class KeyCacheExtensions
     public static async Task<string> GenerateRegisterEmailStateAsync(this KeyCacheService keyCacheService, string email,
         Snowflake? userId = null, CancellationToken ct = default)
     {
-        var state = AuthUtils.RandomToken();
+        // This state is used in links, not just as JSON values, so make it URL-safe
+        var state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
         await keyCacheService.SetKeyAsync($"email_state:{state}", new RegisterEmailState(email, userId),
             Duration.FromDays(1), ct);
         return state;
@@ -36,4 +38,7 @@ public static class KeyCacheExtensions
         await keyCacheService.GetKeyAsync<RegisterEmailState>($"email_state:{state}", delete: true, ct);
 }
 
-public record RegisterEmailState(string Email, Snowflake? ExistingUserId);
+public record RegisterEmailState(
+    string Email,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+    Snowflake? ExistingUserId);

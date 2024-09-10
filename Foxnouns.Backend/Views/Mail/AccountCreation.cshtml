@@ -1,0 +1,12 @@
+@model Foxnouns.Backend.Mailables.AccountCreationMailableView
+
+<p>
+    Please continue creating a new pronouns.cc account by using the following link:
+    <br/>
+    <a href="@Model.BaseUrl/auth/signup/confirm/@Model.Code">Confirm your email address</a>
+    <br/>
+    Note that this link will expire in one hour.
+</p>
+<p>
+    If you didn't mean to create a new account, feel free to ignore this email.
+</p>

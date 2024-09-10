@@ -12,8 +12,7 @@ public class AccountCreationMailable(Config config, AccountCreationMailableView 
     }
 }
 
-public class AccountCreationMailableView
+public class AccountCreationMailableView : BaseView
 {
-    public required string To { get; init; }
     public required string Code { get; init; }
 }

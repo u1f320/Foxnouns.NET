@@ -30,14 +30,13 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
         var value = await db.TemporaryKeys.FirstOrDefaultAsync(k => k.Key == key, ct);
         if (value == null) return null;
 
-        if (delete)
-        {
-            await db.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync(ct);
-            await db.SaveChangesAsync(ct);
-        }
+        if (delete) await db.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync(ct);
 
         return value.Value;
     }
+
+    public async Task DeleteKeyAsync(string key, CancellationToken ct = default) =>
+        await db.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync(ct);
 
     public async Task DeleteExpiredKeysAsync(CancellationToken ct)
     {
@@ -54,7 +53,8 @@ public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
         await SetKeyAsync(key, value, expires, ct);
     }
 
-    public async Task<T?> GetKeyAsync<T>(string key, bool delete = false, CancellationToken ct = default) where T : class
+    public async Task<T?> GetKeyAsync<T>(string key, bool delete = false, CancellationToken ct = default)
+        where T : class
     {
         var value = await GetKeyAsync(key, delete, ct);
         return value == null ? default : JsonConvert.DeserializeObject<T>(value);

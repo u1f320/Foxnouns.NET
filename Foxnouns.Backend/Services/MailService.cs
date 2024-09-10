@@ -10,15 +10,22 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
 
     public void QueueAccountCreationEmail(string to, string code)
     {
-        _logger.Debug("Sending account creation email to {ToEmail}", to);
-        
         queue.QueueAsyncTask(async () =>
         {
-            await mailer.SendAsync(new AccountCreationMailable(config, new AccountCreationMailableView
+            _logger.Debug("Sending account creation email to {ToEmail}", to);
+            try
             {
-                To = to,
-                Code = code
-            }));
+                await mailer.SendAsync(new AccountCreationMailable(config, new AccountCreationMailableView
+                {
+                    BaseUrl = config.BaseUrl,
+                    To = to,
+                    Code = code
+                }));
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc, "Sending account creation email");
+            }
         });
     }
 }

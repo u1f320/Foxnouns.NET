@@ -79,7 +79,7 @@ public static class WebApplicationExtensions
         {
             services
                 .AddQueue()
-                .AddMailer(ctx.Configuration)
+                .AddSmtpMailer(ctx.Configuration)
                 .AddDbContext<DatabaseContext>()
                 .AddMetricServer(o => o.Port = config.Logging.MetricsPort)
                 .AddMinio(c =>
