@@ -110,6 +110,7 @@ public static class DatabaseQueryExtensions
         CancellationToken ct = default)
     {
         var hash = SHA512.HashData(rawToken);
+
         var oauthToken = await context.Tokens
             .Include(t => t.Application)
             .Include(t => t.User)
@@ -118,5 +119,14 @@ public static class DatabaseQueryExtensions
                 ct);
 
         return oauthToken;
+    }
+
+    public static async Task<Snowflake?> GetTokenUserId(this DatabaseContext context, byte[] rawToken,
+        CancellationToken ct = default)
+    {
+        var hash = SHA512.HashData(rawToken);
+        return await context.Tokens
+            .Where(t => t.Hash == hash && t.ExpiresAt > SystemClock.Instance.GetCurrentInstant() && !t.ManuallyExpired)
+            .Select(t => t.UserId).FirstOrDefaultAsync(ct);
     }
 }

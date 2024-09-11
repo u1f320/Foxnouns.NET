@@ -43,8 +43,8 @@ public partial class InternalController(DatabaseContext db, IClock clock) : Cont
         if (!AuthUtils.TryParseToken(req.Token, out var rawToken))
             return Ok(new RequestDataResponse(null, template));
 
-        var oauthToken = await db.GetToken(rawToken);
-        return Ok(new RequestDataResponse(oauthToken?.UserId, template));
+        var userId = await db.GetTokenUserId(rawToken);
+        return Ok(new RequestDataResponse(userId, template));
     }
 
     public record RequestDataRequest(string? Token, string Method, string Path);
