@@ -30,7 +30,7 @@ public class EmailAuthController(
         if (!req.Email.Contains('@')) throw new ApiError.BadRequest("Email is invalid", "email", req.Email);
 
         var state = await keyCacheService.GenerateRegisterEmailStateAsync(req.Email, userId: null, ct);
-        
+
         // If there's already a user with that email address, pretend we sent an email but actually ignore it
         if (await db.AuthMethods.AnyAsync(a => a.AuthType == AuthType.Email && a.RemoteId == req.Email, ct))
             return NoContent();
@@ -40,55 +40,53 @@ public class EmailAuthController(
     }
 
     [HttpPost("callback")]
-    public async Task<IActionResult> CallbackAsync([FromBody] CallbackRequest req, CancellationToken ct = default)
+    public async Task<IActionResult> CallbackAsync([FromBody] CallbackRequest req)
     {
         CheckRequirements();
 
-        var state = await keyCacheService.GetRegisterEmailStateAsync(req.State, ct);
+        var state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
         if (state == null) throw new ApiError.BadRequest("Invalid state", "state", req.State);
-        
+
         // If this callback is for an existing user, add the email address to their auth methods
         if (state.ExistingUserId != null)
         {
             var authMethod =
-                await authService.AddAuthMethodAsync(state.ExistingUserId.Value, AuthType.Email, state.Email, ct: ct);
+                await authService.AddAuthMethodAsync(state.ExistingUserId.Value, AuthType.Email, state.Email);
             _logger.Debug("Added email auth {AuthId} for user {UserId}", authMethod.Id, state.ExistingUserId);
             return NoContent();
         }
 
         var ticket = AuthUtils.RandomToken();
-        await keyCacheService.SetKeyAsync($"email:{ticket}", state.Email, Duration.FromMinutes(20), ct);
+        await keyCacheService.SetKeyAsync($"email:{ticket}", state.Email, Duration.FromMinutes(20));
 
         return Ok(new AuthController.CallbackResponse(false, ticket, state.Email));
     }
 
     [HttpPost("complete-registration")]
-    public async Task<IActionResult> CompleteRegistrationAsync([FromBody] CompleteRegistrationRequest req,
-        CancellationToken ct = default)
+    public async Task<IActionResult> CompleteRegistrationAsync([FromBody] CompleteRegistrationRequest req)
     {
-        var email = await keyCacheService.GetKeyAsync($"email:{req.Ticket}", ct: ct);
+        var email = await keyCacheService.GetKeyAsync($"email:{req.Ticket}");
         if (email == null) throw new ApiError.BadRequest("Unknown ticket", "ticket", req.Ticket);
 
         // Check if username is valid at all
         ValidationUtils.Validate([("username", ValidationUtils.ValidateUsername(req.Username))]);
         // Check if username is already taken
-        if (await db.Users.AnyAsync(u => u.Username == req.Username, ct))
+        if (await db.Users.AnyAsync(u => u.Username == req.Username))
             throw new ApiError.BadRequest("Username is already taken", "username", req.Username);
 
-        var user = await authService.CreateUserWithPasswordAsync(req.Username, email, req.Password, ct);
-        var frontendApp = await db.GetFrontendApplicationAsync(ct);
+        var user = await authService.CreateUserWithPasswordAsync(req.Username, email, req.Password);
+        var frontendApp = await db.GetFrontendApplicationAsync();
 
         var (tokenStr, token) =
             authService.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
         db.Add(token);
 
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync();
 
-        // Specifically do *not* pass the CancellationToken so we don't cancel the rendering after creating the user account.
-        await keyCacheService.DeleteKeyAsync($"email:{req.Ticket}", ct: default);
+        await keyCacheService.DeleteKeyAsync($"email:{req.Ticket}");
 
         return Ok(new AuthController.AuthResponse(
-            await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false, ct: default),
+            await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false),
             tokenStr,
             token.ExpiresAt
         ));

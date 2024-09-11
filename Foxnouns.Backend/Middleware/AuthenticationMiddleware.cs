@@ -20,18 +20,13 @@ public class AuthenticationMiddleware(DatabaseContext db, IClock clock) : IMiddl
             return;
         }
 
-        var header = ctx.Request.Headers.Authorization.ToString();
-        if (!AuthUtils.TryFromBase64String(header, out var rawToken))
+        if (!AuthUtils.TryParseToken(ctx.Request.Headers.Authorization.ToString(), out var rawToken))
         {
             await next(ctx);
             return;
         }
 
-        var hash = SHA512.HashData(rawToken);
-        var oauthToken = await db.Tokens
-            .Include(t => t.Application)
-            .Include(t => t.User)
-            .FirstOrDefaultAsync(t => t.Hash == hash && t.ExpiresAt > clock.GetCurrentInstant() && !t.ManuallyExpired);
+        var oauthToken = await db.GetToken(rawToken);
         if (oauthToken == null)
         {
             await next(ctx);

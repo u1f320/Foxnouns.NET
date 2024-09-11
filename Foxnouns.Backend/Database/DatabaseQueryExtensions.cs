@@ -105,4 +105,18 @@ public static class DatabaseQueryExtensions
         await context.SaveChangesAsync(ct);
         return app;
     }
+
+    public static async Task<Token?> GetToken(this DatabaseContext context, byte[] rawToken,
+        CancellationToken ct = default)
+    {
+        var hash = SHA512.HashData(rawToken);
+        var oauthToken = await context.Tokens
+            .Include(t => t.Application)
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(
+                t => t.Hash == hash && t.ExpiresAt > SystemClock.Instance.GetCurrentInstant() && !t.ManuallyExpired,
+                ct);
+
+        return oauthToken;
+    }
 }

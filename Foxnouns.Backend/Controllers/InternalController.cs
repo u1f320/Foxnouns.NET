@@ -40,16 +40,10 @@ public partial class InternalController(DatabaseContext db, IClock clock) : Cont
         template = GetCleanedTemplate(template);
 
         // If no token was supplied, or it isn't valid base 64, return a null user ID (limiting by IP)
-        if (req.Token == null) return Ok(new RequestDataResponse(null, template));
-        if (!AuthUtils.TryFromBase64String(req.Token, out var rawToken))
+        if (!AuthUtils.TryParseToken(req.Token, out var rawToken))
             return Ok(new RequestDataResponse(null, template));
 
-        var hash = SHA512.HashData(rawToken);
-        var oauthToken = await db.Tokens
-            .Include(t => t.Application)
-            .Include(t => t.User)
-            .FirstOrDefaultAsync(t => t.Hash == hash && t.ExpiresAt > clock.GetCurrentInstant() && !t.ManuallyExpired);
-
+        var oauthToken = await db.GetToken(rawToken);
         return Ok(new RequestDataResponse(oauthToken?.UserId, template));
     }
 

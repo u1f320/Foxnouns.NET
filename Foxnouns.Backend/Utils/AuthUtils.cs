@@ -79,6 +79,17 @@ public static class AuthUtils
             return false;
         }
     }
+    
+    public static bool TryParseToken(string? input, out byte[] rawToken)
+    {
+        rawToken = [];
+
+        if (string.IsNullOrWhiteSpace(input)) return false;
+        if (input.StartsWith("bearer ", StringComparison.InvariantCultureIgnoreCase))
+            input = input["bearer ".Length..];
+
+        return TryFromBase64String(input, out rawToken);
+    }
 
     public static string RandomToken(int bytes = 48) =>
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(bytes)).Trim('=');

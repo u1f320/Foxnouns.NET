@@ -16,7 +16,8 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// Creates a new user with the given email address and password.
     /// This method does <i>not</i> save the resulting user, the caller must still call <see cref="M:Microsoft.EntityFrameworkCore.DbContext.SaveChanges" />.
     /// </summary>
-    public async Task<User> CreateUserWithPasswordAsync(string username, string email, string password, CancellationToken ct = default)
+    public async Task<User> CreateUserWithPasswordAsync(string username, string email, string password,
+        CancellationToken ct = default)
     {
         var user = new User
         {
@@ -76,16 +77,19 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// <returns>A tuple of the authenticated user and whether multi-factor authentication is required</returns>
     /// <exception cref="ApiError.NotFound">Thrown if the email address is not associated with any user
     /// or if the password is incorrect</exception>
-    public async Task<(User, EmailAuthenticationResult)> AuthenticateUserAsync(string email, string password, CancellationToken ct = default)
+    public async Task<(User, EmailAuthenticationResult)> AuthenticateUserAsync(string email, string password,
+        CancellationToken ct = default)
     {
         var user = await db.Users.FirstOrDefaultAsync(u =>
             u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email), ct);
         if (user == null)
-            throw new ApiError.NotFound("No user with that email address found, or password is incorrect", ErrorCode.UserNotFound);
+            throw new ApiError.NotFound("No user with that email address found, or password is incorrect",
+                ErrorCode.UserNotFound);
 
         var pwResult = await Task.Run(() => _passwordHasher.VerifyHashedPassword(user, user.Password!, password), ct);
         if (pwResult == PasswordVerificationResult.Failed) // TODO: this seems to fail on some valid passwords?
-            throw new ApiError.NotFound("No user with that email address found, or password is incorrect", ErrorCode.UserNotFound);
+            throw new ApiError.NotFound("No user with that email address found, or password is incorrect",
+                ErrorCode.UserNotFound);
         if (pwResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
