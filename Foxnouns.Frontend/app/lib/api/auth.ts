@@ -5,3 +5,9 @@ export type AuthResponse = {
 	token: string;
 	expires_at: string;
 };
+
+export type AuthUrls = {
+	discord?: string;
+	google?: string;
+	tumblr?: string;
+};

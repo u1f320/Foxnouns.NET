@@ -6,6 +6,8 @@ import {
 	Scripts,
 	ScrollRestoration,
 	useLoaderData,
+	useRouteError,
+	useRouteLoaderData,
 } from "@remix-run/react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useChangeLanguage } from "remix-i18next/react";
@@ -20,6 +22,7 @@ import { ApiError, ErrorCode } from "./lib/api/error";
 import "./app.scss";
 import getLocalSettings from "./lib/settings.server";
 import { LANGUAGE } from "~/env.server";
+import { errorCodeDesc } from "./components/ErrorAlert";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const meta = await serverRequest<Meta>("GET", "/meta");
@@ -51,13 +54,29 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export function Layout({ children }: { children: React.ReactNode }) {
-	const { settings, locale } = useLoaderData<typeof loader>();
+	const { locale, settings } = useRouteLoaderData<typeof loader>("root") || {
+		meta: {
+			users: {
+				total: 0,
+				active_month: 0,
+				active_week: 0,
+				active_day: 0,
+			},
+			members: 0,
+			version: "",
+			hash: "",
+		},
+	};
 	const { i18n } = useTranslation();
-	i18n.language = locale;
-	useChangeLanguage(locale);
+	i18n.language = locale || "en";
+	useChangeLanguage(locale || "en");
 
 	return (
-		<html lang={locale} data-bs-theme={settings.dark_mode ? "dark" : "light"} dir={i18n.dir()}>
+		<html
+			lang={locale || "en"}
+			data-bs-theme={settings?.dark_mode ? "dark" : "light"}
+			dir={i18n.dir()}
+		>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -70,6 +89,49 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Scripts />
 			</body>
 		</html>
+	);
+}
+
+export function ErrorBoundary() {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const error: any = useRouteError();
+	const { t } = useTranslation();
+
+	console.log(error);
+
+	const errorElem =
+		"code" in error && "message" in error ? (
+			<ApiErrorElem error={error as ApiError} />
+		) : (
+			<>{t("error.errors.generic-error")}</>
+		);
+
+	return (
+		<html lang="en">
+			<head>
+				<title>
+					<>{t("error.title")} - pronouns.cc</>
+				</title>
+				<MetaComponent />
+				<Links />
+			</head>
+			<body>
+				{errorElem}
+				<Scripts />
+			</body>
+		</html>
+	);
+}
+
+function ApiErrorElem({ error }: { error: ApiError }) {
+	const { t } = useTranslation();
+	const errorDesc = errorCodeDesc(t, error.code);
+
+	return (
+		<>
+			<h4>{t("error.heading")}</h4>
+			<p>{errorDesc}</p>
+		</>
 	);
 }
 

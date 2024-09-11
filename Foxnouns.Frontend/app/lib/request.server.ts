@@ -39,6 +39,8 @@ export default async function serverRequest<T>(
 	return (await resp.json()) as T;
 }
 
+export const getToken = (req: Request) => getCookie(req, "pronounscc-token");
+
 export function getCookie(req: Request, cookieName: string): string | undefined {
 	const header = req.headers.get("Cookie");
 	if (!header) return undefined;
