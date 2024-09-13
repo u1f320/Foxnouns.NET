@@ -25,7 +25,6 @@ public class DiscordAuthController(
     [HttpPost("callback")]
     // TODO: duplicating attribute doesn't work, find another way to mark both as possible response
     // leaving it here for documentation purposes
-    [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<AuthController.CallbackResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CallbackAsync([FromBody] AuthController.CallbackRequest req, CancellationToken ct = default)
     {
@@ -42,7 +41,14 @@ public class DiscordAuthController(
         var ticket = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync($"discord:{ticket}", remoteUser, Duration.FromMinutes(20), ct);
 
-        return Ok(new AuthController.CallbackResponse(false, ticket, remoteUser.Username));
+        return Ok(new AuthController.CallbackResponse(
+            HasAccount: false,
+            Ticket: ticket,
+            RemoteUsername: remoteUser.Username,
+            User: null,
+            Token: null,
+            ExpiresAt: null
+        ));
     }
 
     [HttpPost("register")]
@@ -64,7 +70,7 @@ public class DiscordAuthController(
         return Ok(await GenerateUserTokenAsync(user, ct));
     }
 
-    private async Task<AuthController.AuthResponse> GenerateUserTokenAsync(User user, CancellationToken ct = default)
+    private async Task<AuthController.CallbackResponse> GenerateUserTokenAsync(User user, CancellationToken ct = default)
     {
         var frontendApp = await db.GetFrontendApplicationAsync(ct);
         _logger.Debug("Logging user {Id} in with Discord", user.Id);
@@ -77,10 +83,13 @@ public class DiscordAuthController(
 
         await db.SaveChangesAsync(ct);
 
-        return new AuthController.AuthResponse(
-            await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false, ct: ct),
-            tokenStr,
-            token.ExpiresAt
+        return new AuthController.CallbackResponse(
+            HasAccount: true,
+            Ticket: null,
+            RemoteUsername: null,
+            User: await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false, ct: ct),
+            Token: tokenStr,
+            ExpiresAt: token.ExpiresAt
         );
     }
 

@@ -59,7 +59,8 @@ public class EmailAuthController(
         var ticket = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync($"email:{ticket}", state.Email, Duration.FromMinutes(20));
 
-        return Ok(new AuthController.CallbackResponse(false, ticket, state.Email));
+        return Ok(new AuthController.CallbackResponse(HasAccount: false, Ticket: ticket, RemoteUsername: state.Email,
+            User: null, Token: null, ExpiresAt: null));
     }
 
     [HttpPost("complete-registration")]

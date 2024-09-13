@@ -1,13 +1,10 @@
-using System.Security.Cryptography;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
-using Microsoft.EntityFrameworkCore;
-using NodaTime;
 
 namespace Foxnouns.Backend.Middleware;
 
-public class AuthenticationMiddleware(DatabaseContext db, IClock clock) : IMiddleware
+public class AuthenticationMiddleware(DatabaseContext db) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext ctx, RequestDelegate next)
     {

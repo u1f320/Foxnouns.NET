@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Utils;
@@ -6,14 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.EntityFrameworkCore;
-using NodaTime;
 
 namespace Foxnouns.Backend.Controllers;
 
 [ApiController]
 [Route("/api/internal")]
-public partial class InternalController(DatabaseContext db, IClock clock) : ControllerBase
+public partial class InternalController(DatabaseContext db) : ControllerBase
 {
     [GeneratedRegex(@"(\{\w+\})")]
     private static partial Regex PathVarRegex();

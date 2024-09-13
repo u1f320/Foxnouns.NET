@@ -2,6 +2,7 @@ using System.Web;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using NodaTime;
 
 namespace Foxnouns.Backend.Controllers.Authentication;
@@ -26,7 +27,7 @@ public class AuthController(Config config, KeyCacheService keyCache, ILogger log
                 $"https://discord.com/oauth2/authorize?response_type=code" +
                 $"&client_id={config.DiscordAuth.ClientId}&scope=identify" +
                 $"&prompt=none&state={state}" +
-                $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/login/discord")}";
+                $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/discord")}";
 
         return Ok(new UrlsResponse(discord, null, null));
     }
@@ -45,8 +46,16 @@ public class AuthController(Config config, KeyCacheService keyCache, ILogger log
 
     public record CallbackResponse(
         bool HasAccount, // If true, user has an account, but it's deleted
-        string Ticket,
-        string? RemoteUsername
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        string? Ticket,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        string? RemoteUsername,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        UserRendererService.UserResponse? User,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        string? Token,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        Instant? ExpiresAt
     );
 
     public record OauthRegisterRequest(string Ticket, string Username);

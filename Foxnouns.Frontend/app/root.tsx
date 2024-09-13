@@ -23,6 +23,7 @@ import "./app.scss";
 import getLocalSettings from "./lib/settings.server";
 import { LANGUAGE } from "~/env.server";
 import { errorCodeDesc } from "./components/ErrorAlert";
+import { Container } from "react-bootstrap";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const meta = await serverRequest<Meta>("GET", "/meta");
@@ -141,7 +142,9 @@ export default function App() {
 	return (
 		<>
 			<Navbar meta={meta} user={meUser} settings={settings} />
-			<Outlet />
+			<Container>
+				<Outlet />
+			</Container>
 		</>
 	);
 }

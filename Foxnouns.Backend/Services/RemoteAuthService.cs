@@ -3,8 +3,9 @@ using System.Web;
 
 namespace Foxnouns.Backend.Services;
 
-public class RemoteAuthService(Config config)
+public class RemoteAuthService(Config config, ILogger logger)
 {
+    private readonly ILogger _logger = logger.ForContext<RemoteAuthService>();
     private readonly HttpClient _httpClient = new();
 
     private readonly Uri _discordTokenUri = new("https://discord.com/api/oauth2/token");
@@ -12,7 +13,7 @@ public class RemoteAuthService(Config config)
 
     public async Task<RemoteUser> RequestDiscordTokenAsync(string code, string state, CancellationToken ct = default)
     {
-        var redirectUri = $"{config.BaseUrl}/auth/login/discord";
+        var redirectUri = $"{config.BaseUrl}/auth/callback/discord";
         var resp = await _httpClient.PostAsync(_discordTokenUri, new FormUrlEncodedContent(
             new Dictionary<string, string>
             {
@@ -23,6 +24,13 @@ public class RemoteAuthService(Config config)
                 { "redirect_uri", redirectUri }
             }
         ), ct);
+        if (!resp.IsSuccessStatusCode)
+        {
+            var respBody = await resp.Content.ReadAsStringAsync(ct);
+            _logger.Error("Received error status {StatusCode} when exchanging OAuth token: {ErrorBody}", (int)resp.StatusCode, respBody);
+            throw new FoxnounsError("Invalid Discord OAuth response");
+        }
+        
         resp.EnsureSuccessStatusCode();
         var token = await resp.Content.ReadFromJsonAsync<DiscordTokenResponse>(ct);
         if (token == null) throw new FoxnounsError("Discord token response was null");

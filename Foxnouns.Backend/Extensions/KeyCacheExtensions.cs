@@ -11,7 +11,7 @@ public static class KeyCacheExtensions
     public static async Task<string> GenerateAuthStateAsync(this KeyCacheService keyCacheService,
         CancellationToken ct = default)
     {
-        var state = AuthUtils.RandomToken();
+        var state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
         await keyCacheService.SetKeyAsync($"oauth_state:{state}", "", Duration.FromMinutes(10), ct);
         return state;
     }

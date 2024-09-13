@@ -10,7 +10,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import ListGroup from "react-bootstrap/ListGroup";
-import { Container, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import i18n from "~/i18next.server";
 import serverRequest, { getToken, writeCookie } from "~/lib/request.server";
@@ -72,7 +72,7 @@ export default function LoginPage() {
 	const actionData = useActionData<typeof action>();
 
 	return (
-		<Container>
+		<>
 			<Row>
 				<Col md className="mb-4">
 					<h2>{t("log-in.form-title")}</h2>
@@ -121,7 +121,7 @@ export default function LoginPage() {
 					</ListGroup>
 				</Col>
 			</Row>
-		</Container>
+		</>
 	);
 }
 
