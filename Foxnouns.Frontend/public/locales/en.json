@@ -1,52 +1,62 @@
 {
-	"error": {
-		"heading": "An error occurred",
-		"errors": {
-			"authentication-error": "There was an error validating your credentials.",
-			"authentication-required": "You need to log in.",
-			"bad-request": "Server rejected your input, please check anything for errors.",
-			"forbidden": "You are not allowed to perform that action.",
-			"generic-error": "An unknown error occurred.",
-			"internal-server-error": "Server experienced an internal error, please try again later.",
-			"member-not-found": "Member not found, please check your spelling and try again.",
-			"user-not-found": "User not found, please check your spelling and try again."
-		},
-		"title": "Error"
-	},
-	"navbar": {
-		"view-profile": "View profile",
-		"settings": "Settings",
-		"log-out": "Log out",
-		"log-in": "Log in or sign up",
-		"theme": "Theme",
-		"theme-auto": "Automatic",
-		"theme-dark": "Dark",
-		"theme-light": "Light"
-	},
-	"log-in": {
-		"callback": {
-			"success": "Successfully logged in!",
-			"success-link": "Welcome back, <1>@{{username}}</1>!",
-			"redirect-hint": "If you're not redirected to your profile in a few seconds, press the link above.",
-			"remote-username": {
-				"discord": "Your discord username"
-			},
-			"username": "Username",
-			"sign-up-button": "Sign up"
-		},
-		"title": "Log in",
-		"form-title": "Log in with email",
-		"email": "Email address",
-		"password": "Password",
-		"log-in-button": "Log in",
-		"register-with-email": "Register with email",
-		"3rd-party": {
-			"title": "Log in with another service",
-			"desc": "If you prefer, you can also log in with one of these services:",
-			"discord": "Log in with Discord",
-			"google": "Log in with Google",
-			"tumblr": "Log in with Tumblr"
-		},
-		"invalid-credentials": "Invalid email address or password, please check your spelling and try again."
-	}
+  "error": {
+    "heading": "An error occurred",
+    "validation": {
+      "too-long": "Value is too long, maximum length is {{maxLength}}, current length is {{actualLength}}.",
+      "too-short": "Value is too short, minimum length is {{minLength}}, current length is {{actualLength}}.",
+      "disallowed-value": "The value <1>{{actualValue}}</1> is not allowed here. Allowed values are: <4>{{allowedValues}}</4>",
+      "generic": "The value <1>{{actualValue}}</1> is not allowed here. Reason: {{reason}}",
+      "generic-no-value": "The value you entered is not allowed here. Reason: {{reason}}"
+    },
+    "errors": {
+      "authentication-error": "There was an error validating your credentials.",
+      "authentication-required": "You need to log in.",
+      "bad-request": "Server rejected your input, please check anything for errors.",
+      "forbidden": "You are not allowed to perform that action.",
+      "generic-error": "An unknown error occurred.",
+      "internal-server-error": "Server experienced an internal error, please try again later.",
+      "member-not-found": "Member not found, please check your spelling and try again.",
+      "user-not-found": "User not found, please check your spelling and try again."
+    },
+    "title": "Error"
+  },
+  "navbar": {
+    "view-profile": "View profile",
+    "settings": "Settings",
+    "log-out": "Log out",
+    "log-in": "Log in or sign up",
+    "theme": "Theme",
+    "theme-auto": "Automatic",
+    "theme-dark": "Dark",
+    "theme-light": "Light"
+  },
+  "log-in": {
+    "callback": {
+      "success": "Successfully logged in!",
+      "success-link": "Welcome back, <1>@{{username}}</1>!",
+      "redirect-hint": "If you're not redirected to your profile in a few seconds, press the link above.",
+      "remote-username": {
+        "discord": "Your discord username"
+      },
+      "username": "Username",
+      "sign-up-button": "Sign up",
+      "invalid-ticket": "Invalid ticket (it might have been too long since you logged in with Discord), please <2>try again</2>.",
+      "invalid-username": "Invalid username",
+      "username-taken": "That username is already taken, please try something else."
+    },
+    "title": "Log in",
+    "form-title": "Log in with email",
+    "email": "Email address",
+    "password": "Password",
+    "log-in-button": "Log in",
+    "register-with-email": "Register with email",
+    "3rd-party": {
+      "title": "Log in with another service",
+      "desc": "If you prefer, you can also log in with one of these services:",
+      "discord": "Log in with Discord",
+      "google": "Log in with Google",
+      "tumblr": "Log in with Tumblr"
+    },
+    "invalid-credentials": "Invalid email address or password, please check your spelling and try again."
+  }
 }
