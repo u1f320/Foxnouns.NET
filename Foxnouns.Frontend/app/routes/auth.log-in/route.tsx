@@ -5,7 +5,12 @@ import {
 	redirect,
 	ActionFunctionArgs,
 } from "@remix-run/node";
-import { Form as RemixForm, useActionData, useLoaderData } from "@remix-run/react";
+import {
+	Form as RemixForm,
+	ShouldRevalidateFunction,
+	useActionData,
+	useLoaderData,
+} from "@remix-run/react";
 import { Form, Button, ButtonGroup, ListGroup, Row, Col } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import i18n from "~/i18next.server";
@@ -17,6 +22,10 @@ import { User } from "~/lib/api/user";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `${data?.meta.title || "Log in"} - pronouns.cc` }];
+};
+
+export const shouldRevalidate: ShouldRevalidateFunction = ({ actionResult }) => {
+	return !actionResult;
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

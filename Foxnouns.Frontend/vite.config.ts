@@ -20,5 +20,9 @@ export default defineConfig({
 				changeOrigin: true,
 			},
 		},
+		hmr: {
+			host: "localhost",
+			protocol: "ws",
+		},
 	},
 });

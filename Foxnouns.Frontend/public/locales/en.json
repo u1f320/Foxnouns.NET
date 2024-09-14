@@ -32,6 +32,10 @@
   },
   "log-in": {
     "callback": {
+      "title": {
+        "discord-success": "Log in with Discord",
+        "discord-register": "Register with Discord"
+      },
       "success": "Successfully logged in!",
       "success-link": "Welcome back, <1>@{{username}}</1>!",
       "redirect-hint": "If you're not redirected to your profile in a few seconds, press the link above.",
@@ -58,5 +62,13 @@
       "tumblr": "Log in with Tumblr"
     },
     "invalid-credentials": "Invalid email address or password, please check your spelling and try again."
+  },
+  "welcome": {
+    "title": "Welcome",
+    "header": "Welcome to pronouns.cc!",
+    "customize-profile": "Customize your profile",
+    "create-members": "Create members",
+    "custom-preferences": "Customize your preferences",
+    "profile-button": "Go to your profile"
   }
 }

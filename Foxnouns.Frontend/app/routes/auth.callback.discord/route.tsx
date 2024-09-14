@@ -1,4 +1,10 @@
-import { ActionFunctionArgs, json, redirect, LoaderFunctionArgs } from "@remix-run/node";
+import {
+	ActionFunctionArgs,
+	json,
+	redirect,
+	LoaderFunctionArgs,
+	MetaFunction,
+} from "@remix-run/node";
 import { type ApiError, ErrorCode, firstErrorFor } from "~/lib/api/error";
 import serverRequest, { writeCookie } from "~/lib/request.server";
 import { AuthResponse, CallbackResponse } from "~/lib/api/auth";
@@ -12,12 +18,18 @@ import {
 import { Trans, useTranslation } from "react-i18next";
 import { Form, Button, Alert } from "react-bootstrap";
 import ErrorAlert from "~/components/ErrorAlert";
+import i18n from "~/i18next.server";
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+	return [{ title: `${data?.meta.title || "Log in"} - pronouns.cc` }];
+};
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({ actionResult }) => {
 	return !actionResult;
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+	const t = await i18n.getFixedT(request);
 	const url = new URL(request.url);
 
 	const code = url.searchParams.get("code");
@@ -32,7 +44,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	if (resp.has_account) {
 		return json(
-			{ hasAccount: true, user: resp.user!, ticket: null, remoteUser: null },
+			{
+				meta: { title: t("log-in.callback.title.discord-success") },
+				hasAccount: true,
+				user: resp.user!,
+				ticket: null,
+				remoteUser: null,
+			},
 			{
 				headers: {
 					"Set-Cookie": writeCookie("pronounscc-token", resp.token!),
@@ -42,6 +60,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	}
 
 	return json({
+		meta: { title: t("log-in.callback.title.discord-register") },
 		hasAccount: false,
 		user: null,
 		ticket: resp.ticket!,
