@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
@@ -95,7 +94,7 @@ public static class DatabaseQueryExtensions
         {
             Id = new Snowflake(0),
             ClientId = RandomNumberGenerator.GetHexString(32, true),
-            ClientSecret = AuthUtils.RandomToken(48),
+            ClientSecret = AuthUtils.RandomToken(),
             Name = "pronouns.cc",
             Scopes = ["*"],
             RedirectUris = [],

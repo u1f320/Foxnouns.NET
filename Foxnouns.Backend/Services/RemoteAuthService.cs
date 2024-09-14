@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Web;
+using JetBrains.Annotations;
 
 namespace Foxnouns.Backend.Services;
 
@@ -27,10 +27,11 @@ public class RemoteAuthService(Config config, ILogger logger)
         if (!resp.IsSuccessStatusCode)
         {
             var respBody = await resp.Content.ReadAsStringAsync(ct);
-            _logger.Error("Received error status {StatusCode} when exchanging OAuth token: {ErrorBody}", (int)resp.StatusCode, respBody);
+            _logger.Error("Received error status {StatusCode} when exchanging OAuth token: {ErrorBody}",
+                (int)resp.StatusCode, respBody);
             throw new FoxnounsError("Invalid Discord OAuth response");
         }
-        
+
         resp.EnsureSuccessStatusCode();
         var token = await resp.Content.ReadFromJsonAsync<DiscordTokenResponse>(ct);
         if (token == null) throw new FoxnounsError("Discord token response was null");
@@ -46,10 +47,14 @@ public class RemoteAuthService(Config config, ILogger logger)
         return new RemoteUser(user.id, user.username);
     }
 
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "InconsistentNaming",
+        Justification = "Easier to use snake_case here, rather than passing in JSON converter options")]
+    [UsedImplicitly]
     private record DiscordTokenResponse(string access_token, string token_type);
 
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "InconsistentNaming",
+        Justification = "Easier to use snake_case here, rather than passing in JSON converter options")]
+    [UsedImplicitly]
     private record DiscordUserResponse(string id, string username);
 
     public record RemoteUser(string Id, string Username);

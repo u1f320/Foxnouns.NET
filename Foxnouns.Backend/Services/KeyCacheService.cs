@@ -1,6 +1,5 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
-using Foxnouns.Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;

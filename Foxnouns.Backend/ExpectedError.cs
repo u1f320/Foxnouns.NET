@@ -1,6 +1,4 @@
-using System.Collections.ObjectModel;
 using System.Net;
-using Foxnouns.Backend.Middleware;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -51,7 +49,7 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
             {
                 { "status", (int)HttpStatusCode.BadRequest },
                 { "message", Message },
-                { "code", ErrorCode.BadRequest.ToString() }
+                { "code", "BAD_REQUEST" }
             };
             if (errors == null) return o;
 
@@ -84,7 +82,7 @@ public class ApiError(string message, HttpStatusCode? statusCode = null, ErrorCo
             {
                 { "status", (int)HttpStatusCode.BadRequest },
                 { "message", Message },
-                { "code", ErrorCode.BadRequest.ToString() }
+                { "code", "BAD_REQUEST" }
             };
             if (modelState == null) return o;
 

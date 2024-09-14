@@ -9,7 +9,7 @@ public class Application : BaseModel
     public required string ClientSecret { get; init; }
     public required string Name { get; init; }
     public required string[] Scopes { get; init; }
-    public required string[] RedirectUris { get; set; }
+    public required string[] RedirectUris { get; init; }
 
     public static Application Create(ISnowflakeGenerator snowflakeGenerator, string name, string[] scopes,
         string[] redirectUrls)

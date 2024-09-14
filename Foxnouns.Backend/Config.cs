@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Serilog.Events;
 
 namespace Foxnouns.Backend;

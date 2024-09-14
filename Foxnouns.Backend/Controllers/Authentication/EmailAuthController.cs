@@ -3,6 +3,7 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
@@ -11,8 +12,8 @@ namespace Foxnouns.Backend.Controllers.Authentication;
 
 [Route("/api/v2/auth/email")]
 public class EmailAuthController(
+    [UsedImplicitly] Config config,
     DatabaseContext db,
-    Config config,
     AuthService authService,
     MailService mailService,
     KeyCacheService keyCacheService,

@@ -45,7 +45,7 @@ public class AuthController(Config config, KeyCacheService keyCache, ILogger log
     );
 
     public record CallbackResponse(
-        bool HasAccount, // If true, user has an account, but it's deleted
+        bool HasAccount,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         string? Ticket,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

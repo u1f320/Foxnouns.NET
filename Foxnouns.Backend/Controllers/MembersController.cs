@@ -88,18 +88,16 @@ public class MembersController(
 
     [HttpDelete("/api/v2/users/@me/members/{memberRef}")]
     [Authorize("member.update")]
-    public async Task<IActionResult> DeleteMemberAsync(string memberRef, CancellationToken ct = default)
+    public async Task<IActionResult> DeleteMemberAsync(string memberRef)
     {
-        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef, ct);
+        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
         var deleteCount = await db.Members.Where(m => m.UserId == CurrentUser!.Id && m.Id == member.Id)
-            .ExecuteDeleteAsync(ct);
+            .ExecuteDeleteAsync();
         if (deleteCount == 0)
         {
             _logger.Warning("Successfully resolved member {Id} but could not delete them", member.Id);
             return NoContent();
         }
-
-        await db.SaveChangesAsync(ct);
 
         if (member.Avatar != null) await objectStorageService.DeleteMemberAvatarAsync(member.Id, member.Avatar);
         return NoContent();

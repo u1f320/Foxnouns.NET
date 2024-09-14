@@ -74,6 +74,7 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// </summary>
     /// <param name="email">The user's email address</param>
     /// <param name="password">The user's password, in plain text</param>
+    /// <param name="ct">Cancellation token</param>
     /// <returns>A tuple of the authenticated user and whether multi-factor authentication is required</returns>
     /// <exception cref="ApiError.NotFound">Thrown if the email address is not associated with any user
     /// or if the password is incorrect</exception>
