@@ -6,11 +6,7 @@ import {
 	ActionFunctionArgs,
 } from "@remix-run/node";
 import { Form as RemixForm, useActionData, useLoaderData } from "@remix-run/react";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import ListGroup from "react-bootstrap/ListGroup";
-import { Row, Col } from "react-bootstrap";
+import { Form, Button, ButtonGroup, ListGroup, Row, Col } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import i18n from "~/i18next.server";
 import serverRequest, { getToken, writeCookie } from "~/lib/request.server";

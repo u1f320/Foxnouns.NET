@@ -10,10 +10,8 @@ import {
 	ShouldRevalidateFunction,
 } from "@remix-run/react";
 import { Trans, useTranslation } from "react-i18next";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
+import { Form, Button, Alert } from "react-bootstrap";
 import ErrorAlert from "~/components/ErrorAlert";
-import Alert from "react-bootstrap/Alert";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({ actionResult }) => {
 	return !actionResult;

@@ -1,0 +1,22 @@
+﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
+WORKDIR /app
+EXPOSE 5000
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["Foxnouns.Backend/Foxnouns.Backend.csproj", "Foxnouns.Backend/"]
+RUN dotnet restore "Foxnouns.Backend/Foxnouns.Backend.csproj"
+COPY . .
+WORKDIR "/src/Foxnouns.Backend"
+RUN dotnet build "Foxnouns.Backend.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "Foxnouns.Backend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Foxnouns.Backend.dll", "--migrate-and-start"]

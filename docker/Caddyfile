@@ -1,0 +1,4 @@
+http:// {
+    reverse_proxy /api/* http://rate:5003
+    reverse_proxy http://frontend:3000
+}

@@ -1,5 +1,5 @@
 import { TFunction } from "i18next";
-import Alert from "react-bootstrap/Alert";
+import { Alert } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
 import {
 	ApiError,

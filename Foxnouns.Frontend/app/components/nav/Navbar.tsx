@@ -3,9 +3,7 @@ import Meta from "~/lib/api/meta";
 import { User, UserSettings } from "~/lib/api/user";
 import Logo from "./Logo";
 
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
+import { Nav, Navbar, NavDropdown } from "react-bootstrap";
 import { BrightnessHigh, BrightnessHighFill, MoonFill } from "react-bootstrap-icons";
 import { useTranslation } from "react-i18next";
 

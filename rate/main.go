@@ -23,6 +23,14 @@ func main() {
 		log.Fatalf("unmarshaling config.json: %v", err)
 	}
 
+	// Override port from environment if it's set
+	if portEnv := os.Getenv("PORT"); portEnv != "" {
+		port, err := strconv.Atoi(portEnv)
+		if err == nil {
+			hn.Port = port
+		}
+	}
+
 	proxyURL, err := url.Parse(hn.ProxyTarget)
 	if err != nil {
 		log.Fatalf("parsing proxy_target as URL: %v", err)
