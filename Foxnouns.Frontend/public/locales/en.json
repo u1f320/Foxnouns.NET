@@ -18,7 +18,8 @@
       "member-not-found": "Member not found, please check your spelling and try again.",
       "user-not-found": "User not found, please check your spelling and try again."
     },
-    "title": "Error"
+    "title": "An error occurred",
+    "more-info": "Click here for a more detailed error"
   },
   "navbar": {
     "view-profile": "View profile",
@@ -66,9 +67,13 @@
   "welcome": {
     "title": "Welcome",
     "header": "Welcome to pronouns.cc!",
+    "blurb": "{welcome.blurb}",
     "customize-profile": "Customize your profile",
+    "customize-profile-blurb": "{welcome.customize-profile-blurb}",
     "create-members": "Create members",
+    "create-members-blurb": "{welcome.create-members-blurb}",
     "custom-preferences": "Customize your preferences",
+    "custom-preferences-blurb": "{welcome.custom-preferences-blurb}",
     "profile-button": "Go to your profile"
   }
 }

@@ -24,6 +24,8 @@ import getLocalSettings from "./lib/settings.server";
 import { LANGUAGE } from "~/env.server";
 import { errorCodeDesc } from "./components/ErrorAlert";
 import { Container } from "react-bootstrap";
+import { ReactNode } from "react";
+import BaseNavbar from "~/components/nav/BaseNavbar";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const meta = await serverRequest<Meta>("GET", "/meta");
@@ -54,7 +56,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	);
 };
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({ children }: { children: ReactNode }) {
 	const { locale, settings } = useRouteLoaderData<typeof loader>("root") || {
 		meta: {
 			users: {
@@ -94,6 +96,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export function ErrorBoundary() {
+	const data = useRouteLoaderData<typeof loader>("root");
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const error: any = useRouteError();
 	const { t } = useTranslation();
@@ -110,14 +114,17 @@ export function ErrorBoundary() {
 	return (
 		<html lang="en">
 			<head>
-				<title>
-					<>{t("error.title")} - pronouns.cc</>
-				</title>
+				<title>{t("error.title")}</title>
 				<MetaComponent />
 				<Links />
 			</head>
 			<body>
-				{errorElem}
+				{data?.meUser && data?.settings && data?.meta ? (
+					<Navbar meta={data.meta} user={data.meUser} settings={data.settings} />
+				) : (
+					<BaseNavbar theme="light" />
+				)}
+				<Container>{errorElem}</Container>
 				<Scripts />
 			</body>
 		</html>
@@ -130,8 +137,14 @@ function ApiErrorElem({ error }: { error: ApiError }) {
 
 	return (
 		<>
-			<h4>{t("error.heading")}</h4>
+			<h1>{t("error.heading")}</h1>
 			<p>{errorDesc}</p>
+			<details>
+				<summary>{t("error.more-info")}</summary>
+				<pre>
+					<code>{JSON.stringify(error, null, "  ")}</code>
+				</pre>
+			</details>
 		</>
 	);
 }
