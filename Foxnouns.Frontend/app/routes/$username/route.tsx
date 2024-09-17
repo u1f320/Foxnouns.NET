@@ -1,6 +1,6 @@
 import { json, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { redirect, useLoaderData } from "@remix-run/react";
-import { User } from "~/lib/api/user";
+import { UserWithMembers } from "~/lib/api/user";
 import serverRequest from "~/lib/request.server";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -9,14 +9,19 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `@${user.username} - pronouns.cc` }];
 };
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+	const url = new URL(request.url);
+	const memberPage = parseInt(url.searchParams.get("page") ?? "0", 10);
+
 	let username = params.username!;
 	if (!username.startsWith("@")) throw redirect(`/@${username}`);
 	username = username.substring("@".length);
 
-	const user = await serverRequest<User>("GET", `/users/${username}`);
+	const user = await serverRequest<UserWithMembers>("GET", `/users/${username}`);
+	let members = user.members.slice(memberPage * 20, (memberPage + 1) * 20);
+	if (members.length === 0) members = user.members.slice(0, 20);
 
-	return json({ user });
+	return json({ user, members });
 };
 
 export default function UserPage() {
