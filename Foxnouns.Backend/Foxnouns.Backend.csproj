@@ -44,7 +44,7 @@
     </Target>
 
     <ItemGroup>
-        <EmbeddedResource Include="..\.version" LogicalName="version" />
+        <EmbeddedResource Watch="false" Include="..\.version" LogicalName="version" />
     </ItemGroup>
 
     <ItemGroup>

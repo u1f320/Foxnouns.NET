@@ -31,7 +31,6 @@ public class AuthenticationMiddleware(DatabaseContext db) : IMiddleware
         }
 
         ctx.SetToken(oauthToken);
-
         await next(ctx);
     }
 }
