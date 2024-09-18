@@ -4,6 +4,7 @@ using System.Globalization;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
 using NodaTime;
+using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace Foxnouns.Backend.Database;
 

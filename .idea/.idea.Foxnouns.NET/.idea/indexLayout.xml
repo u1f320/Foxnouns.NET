@@ -3,6 +3,7 @@
   <component name="UserContentModel">
     <attachedFolders>
       <Path>Foxnouns.Frontend</Path>
+      <Path>migrators/go-exporter</Path>
     </attachedFolders>
     <explicitIncludes />
     <explicitExcludes />

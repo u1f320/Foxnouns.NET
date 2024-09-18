@@ -48,6 +48,16 @@ func userToNewUser(u db.User) (NewUser, error) {
 		Links:       u.Links,
 		Names:       u.Names,
 
+		Discord:           u.Discord,
+		DiscordUsername:   u.DiscordUsername,
+		Fediverse:         u.Fediverse,
+		FediverseUsername: u.FediverseUsername,
+		FediverseAppID:    u.FediverseAppID,
+		Tumblr:            u.Tumblr,
+		TumblrUsername:    u.TumblrUsername,
+		Google:            u.Google,
+		GoogleUsername:    u.GoogleUsername,
+
 		MemberListHidden: u.ListPrivate,
 		Timezone:         u.Timezone,
 		Role:             "USER",
@@ -87,6 +97,19 @@ type NewUser struct {
 	Names       []db.FieldEntry `json:"names"`
 	Pronouns    []NewPronoun    `json:"pronouns"`
 	Fields      []NewField      `json:"fields"`
+
+	Discord         *string `json:"discord_id"`
+	DiscordUsername *string `json:"discord_username"`
+
+	Fediverse         *string `json:"fediverse_id"`
+	FediverseUsername *string `json:"fediverse_username"`
+	FediverseAppID    *int64  `json:"fediverse_app_id"`
+
+	Tumblr         *string `json:"tumblr_id"`
+	TumblrUsername *string `json:"tumblr_username"`
+
+	Google         *string `json:"google_id"`
+	GoogleUsername *string `json:"google_username"`
 
 	MemberListHidden bool    `json:"member_list_hidden"`
 	Timezone         *string `json:"timezone"`

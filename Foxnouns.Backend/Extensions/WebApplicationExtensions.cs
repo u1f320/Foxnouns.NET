@@ -34,7 +34,6 @@ public static class WebApplicationExtensions
             .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
-            .MinimumLevel.Override("Hangfire", LogEventLevel.Information)
             .WriteTo.Console();
 
         if (config.Logging.SeqLogUrl != null)

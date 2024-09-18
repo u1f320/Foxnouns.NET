@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foxnouns.Backend", "Foxnouns.Backend\Foxnouns.Backend.csproj", "{439E3E38-5AEF-4F73-AD57-E32057B3FC7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetImporter", "migrators\NetImporter\NetImporter.csproj", "{FBCF80EE-624F-43AF-8122-230B5447940C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{439E3E38-5AEF-4F73-AD57-E32057B3FC7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{439E3E38-5AEF-4F73-AD57-E32057B3FC7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{439E3E38-5AEF-4F73-AD57-E32057B3FC7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBCF80EE-624F-43AF-8122-230B5447940C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBCF80EE-624F-43AF-8122-230B5447940C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBCF80EE-624F-43AF-8122-230B5447940C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBCF80EE-624F-43AF-8122-230B5447940C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
