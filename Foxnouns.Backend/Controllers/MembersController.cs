@@ -50,7 +50,8 @@ public class MembersController(
             ("bio", ValidationUtils.ValidateBio(req.Bio)),
             ("avatar", ValidationUtils.ValidateAvatar(req.Avatar)),
             ..ValidationUtils.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
-            ..ValidationUtils.ValidateFieldEntries(req.Names?.ToArray(), CurrentUser!.CustomPreferences, "names")
+            ..ValidationUtils.ValidateFieldEntries(req.Names?.ToArray(), CurrentUser!.CustomPreferences, "names"),
+            ..ValidationUtils.ValidatePronouns(req.Pronouns?.ToArray(), CurrentUser!.CustomPreferences)
         ]);
 
         var member = new Member

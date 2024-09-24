@@ -5,3 +5,4 @@ node_modules/
 config.ini
 *.DotSettings.user
 proxy-config.json
+.DS_Store

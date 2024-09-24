@@ -62,7 +62,26 @@ public class UsersController(
 
         if (req.HasProperty(nameof(req.Links)))
         {
+            // TODO: validate link length
             user.Links = req.Links ?? [];
+        }
+
+        if (req.Names != null)
+        {
+            errors.AddRange(ValidationUtils.ValidateFieldEntries(req.Names, CurrentUser!.CustomPreferences, "names"));
+            user.Names = req.Names.ToList();
+        }
+
+        if (req.Pronouns != null)
+        {
+            errors.AddRange(ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences));
+            user.Pronouns = req.Pronouns.ToList();
+        }
+
+        if (req.Fields != null)
+        {
+            errors.AddRange(ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences));
+            user.Fields = req.Fields.ToList();
         }
 
         if (req.HasProperty(nameof(req.Avatar)))
@@ -157,6 +176,9 @@ public class UsersController(
         public string? Bio { get; init; }
         public string? Avatar { get; init; }
         public string[]? Links { get; init; }
+        public FieldEntry[]? Names { get; init; }
+        public Pronoun[]? Pronouns { get; init; }
+        public Field[]? Fields { get; init; }
     }
     
     
