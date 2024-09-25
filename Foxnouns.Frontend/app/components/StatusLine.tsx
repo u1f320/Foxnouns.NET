@@ -8,15 +8,14 @@ import {
 import classNames from "classnames";
 import { ReactNode } from "react";
 import StatusIcon from "~/components/StatusIcon";
+import PronounLink from "~/components/PronounLink";
 
 export default function StatusLine({
 	entry,
 	preferences,
-	children,
 }: {
 	entry: FieldEntry | Pronoun;
 	preferences: Record<string, CustomPreference>;
-	children: ReactNode;
 }) {
 	const mergedPrefs = Object.assign({}, defaultPreferences, preferences);
 	const currentPref =
@@ -28,9 +27,19 @@ export default function StatusLine({
 		"fs-6": currentPref.size == PreferenceSize.Small,
 	});
 
+	if ("display_text" in entry) {
+		const pronoun = entry as Pronoun;
+		return (
+			<span className={classes}>
+				<StatusIcon preferences={preferences} status={entry.status} />{" "}
+				<PronounLink pronoun={pronoun} />
+			</span>
+		);
+	}
+
 	return (
 		<span className={classes}>
-			<StatusIcon preferences={preferences} status={entry.status} /> {children}
+			<StatusIcon preferences={preferences} status={entry.status} /> {entry.value}
 		</span>
 	);
 }

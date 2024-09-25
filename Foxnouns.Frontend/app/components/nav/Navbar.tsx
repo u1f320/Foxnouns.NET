@@ -6,12 +6,7 @@ import { Nav, NavDropdown } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import BaseNavbar from "~/components/nav/BaseNavbar";
 
-export default function MainNavbar({
-	user,
-}: {
-	meta: Meta;
-	user?: User;
-}) {
+export default function MainNavbar({ user }: { meta: Meta; user?: User }) {
 	const fetcher = useFetcher();
 	const { t } = useTranslation();
 
@@ -35,10 +30,6 @@ export default function MainNavbar({
 			{t("navbar.log-in")}
 		</Nav.Link>
 	);
-	
-	return (
-		<BaseNavbar>
-			{userMenu}
-		</BaseNavbar>
-	);
+
+	return <BaseNavbar>{userMenu}</BaseNavbar>;
 }

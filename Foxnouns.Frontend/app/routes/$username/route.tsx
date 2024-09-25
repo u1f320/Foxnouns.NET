@@ -7,8 +7,7 @@ import { Alert } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
 import { renderMarkdown } from "~/lib/markdown";
 import ProfileLink from "~/components/ProfileLink";
-import StatusLine from "~/components/StatusLine";
-import PronounLink from "~/components/PronounLink";
+import ProfileField from "~/components/ProfileField";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	const { user } = data!;
@@ -18,17 +17,21 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 	const url = new URL(request.url);
-	const memberPage = parseInt(url.searchParams.get("page") ?? "0", 10);
+	let memberPage = parseInt(url.searchParams.get("page") ?? "0", 10);
 
 	let username = params.username!;
 	if (!username.startsWith("@")) throw redirect(`/@${username}`);
 	username = username.substring("@".length);
 
 	const user = await serverRequest<UserWithMembers>("GET", `/users/${username}`);
+	const pageCount = Math.ceil(user.members.length / 20);
 	let members = user.members.slice(memberPage * 20, (memberPage + 1) * 20);
-	if (members.length === 0) members = user.members.slice(0, 20);
+	if (members.length === 0) {
+		members = user.members.slice(0, 20);
+		memberPage = 0;
+	}
 
-	return json({ user, members });
+	return json({ user, members, currentPage: memberPage, pageCount });
 };
 
 export default function UserPage() {
@@ -90,27 +93,27 @@ export default function UserPage() {
 				</div>
 				<div className="row row-cols-1 row-cols-sm-2 row-cols-md-3">
 					{user.names.length > 0 && (
-						<div className="col-md">
-							<h3>{t("user.heading.names")}</h3>
-							<ul className="list-unstyled fs-5">
-								{user.names.map((n, i) => (
-									<StatusLine entry={n} preferences={user.custom_preferences} key={i}>
-										{n.value}
-									</StatusLine>
-								))}
-							</ul>
-						</div>
+						<ProfileField
+							name={t("user.heading.names")}
+							entries={user.names}
+							preferences={user.custom_preferences}
+						/>
 					)}
 					{user.pronouns.length > 0 && (
-						<div className="col-md">
-							<h3>{t("user.heading.pronouns")}</h3>
-							{user.pronouns.map((p, i) => (
-								<StatusLine entry={p} preferences={user.custom_preferences} key={i}>
-									<PronounLink pronoun={p} />
-								</StatusLine>
-							))}
-						</div>
+						<ProfileField
+							name={t("user.heading.pronouns")}
+							entries={user.pronouns}
+							preferences={user.custom_preferences}
+						/>
 					)}
+					{user.fields.map((f, i) => (
+						<ProfileField
+							name={f.name}
+							entries={f.entries}
+							preferences={user.custom_preferences}
+							key={i}
+						/>
+					))}
 				</div>
 			</div>
 		</>

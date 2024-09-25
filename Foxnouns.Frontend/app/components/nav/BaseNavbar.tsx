@@ -3,7 +3,7 @@ import { Nav, Navbar } from "react-bootstrap";
 import { Link } from "@remix-run/react";
 import Logo from "~/components/nav/Logo";
 
-export default function BaseNavbar({ children }: { children?: ReactNode; }) {
+export default function BaseNavbar({ children }: { children?: ReactNode }) {
 	return (
 		<Navbar expand="lg" className={`mb-4 mx-2`}>
 			<Navbar.Brand to="/" as={Link}>
