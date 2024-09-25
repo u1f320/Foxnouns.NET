@@ -1,4 +1,4 @@
-import { CustomPreference, defaultPreferences } from "~/lib/api/user";
+import { CustomPreference, defaultPreferences, mergePreferences } from "~/lib/api/user";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import Icon from "~/components/KeyedIcon";
 
@@ -9,7 +9,7 @@ export default function StatusIcon({
 	preferences: Record<string, CustomPreference>;
 	status: string;
 }) {
-	const mergedPrefs = Object.assign({}, defaultPreferences, preferences);
+	const mergedPrefs = mergePreferences(preferences);
 	const currentPref = status in mergedPrefs ? mergedPrefs[status] : defaultPreferences.missing;
 
 	const id = crypto.randomUUID();

@@ -2,11 +2,11 @@ import {
 	CustomPreference,
 	defaultPreferences,
 	FieldEntry,
+	mergePreferences,
 	PreferenceSize,
 	Pronoun,
 } from "~/lib/api/user";
 import classNames from "classnames";
-import { ReactNode } from "react";
 import StatusIcon from "~/components/StatusIcon";
 import PronounLink from "~/components/PronounLink";
 
@@ -17,7 +17,7 @@ export default function StatusLine({
 	entry: FieldEntry | Pronoun;
 	preferences: Record<string, CustomPreference>;
 }) {
-	const mergedPrefs = Object.assign({}, defaultPreferences, preferences);
+	const mergedPrefs = mergePreferences(preferences);
 	const currentPref =
 		entry.status in mergedPrefs ? mergedPrefs[entry.status] : defaultPreferences.missing;
 

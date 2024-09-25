@@ -3,6 +3,7 @@ export type PartialUser = {
 	username: string;
 	display_name?: string | null;
 	avatar_url?: string | null;
+	custom_preferences: Record<string, CustomPreference>;
 };
 
 export type User = PartialUser & {
@@ -12,7 +13,6 @@ export type User = PartialUser & {
 	names: FieldEntry[];
 	pronouns: Pronoun[];
 	fields: Field[];
-	custom_preferences: Record<string, CustomPreference>;
 };
 
 export type UserWithMembers = User & { members: PartialMember[] };
@@ -35,6 +35,7 @@ export type PartialMember = {
 	avatar_url: string | null;
 	names: FieldEntry[];
 	pronouns: Pronoun[];
+	unlisted: boolean | null;
 };
 
 export type FieldEntry = {
@@ -61,6 +62,10 @@ export enum PreferenceSize {
 	Large = "LARGE",
 	Normal = "NORMAL",
 	Small = "SMALL",
+}
+
+export function mergePreferences(prefs: Record<string, CustomPreference>) {
+	return Object.assign({}, defaultPreferences, prefs);
 }
 
 export const defaultPreferences = Object.freeze({

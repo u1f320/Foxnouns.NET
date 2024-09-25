@@ -3,11 +3,14 @@ import { Link, redirect, useLoaderData, useRouteLoaderData } from "@remix-run/re
 import { UserWithMembers } from "~/lib/api/user";
 import serverRequest from "~/lib/request.server";
 import { loader as rootLoader } from "~/root";
-import { Alert } from "react-bootstrap";
+import { Alert, Button } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
 import { renderMarkdown } from "~/lib/markdown";
 import ProfileLink from "~/components/ProfileLink";
 import ProfileField from "~/components/ProfileField";
+import { PersonPlusFill } from "react-bootstrap-icons";
+import { defaultAvatarUrl } from "~/lib/utils";
+import MemberCard from "~/routes/$username/MemberCard";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	const { user } = data!;
@@ -39,16 +42,17 @@ export default function UserPage() {
 	const { user } = useLoaderData<typeof loader>();
 	const { meUser } = useRouteLoaderData<typeof rootLoader>("root") || { meUser: undefined };
 
+	const isMeUser = meUser && meUser.id === user.id;
 	const bio = renderMarkdown(user.bio);
 
 	return (
 		<>
-			{meUser && meUser.id === user.id && (
+			{isMeUser && (
 				<Alert variant="secondary">
 					<Trans t={t} i18nKey="user.own-profile-alert">
 						You are currently viewing your <strong>public</strong> profile.
 						<br />
-						<Link to={`/@${user.username}/edit`}>Edit your profile</Link>
+						<Link to="/edit/profile">Edit your profile</Link>
 					</Trans>
 				</Alert>
 			)}
@@ -56,7 +60,7 @@ export default function UserPage() {
 				<div className="row">
 					<div className="col-md-4 text-center">
 						<img
-							src={user.avatar_url || "https://pronouns.cc/default/512.webp"}
+							src={user.avatar_url || defaultAvatarUrl}
 							alt={t("user.avatar-alt", { username: user.username })}
 							width={200}
 							height={200}
@@ -116,6 +120,39 @@ export default function UserPage() {
 					))}
 				</div>
 			</div>
+			{user.members.length > 0 ||
+				(isMeUser && (
+					<>
+						<hr />
+						<h2>
+							{user.member_title || t("user.heading.members")}{" "}
+							{/* @ts-expect-error using as=Link causes an error here, even though it runs completely fine */}
+							<Button as={Link} to="/settings/members/create" variant="success">
+								<PersonPlusFill /> {t("user.create-member-button")}
+							</Button>
+						</h2>
+						<div className="grid">
+							{user.members.length === 0 ? (
+								<div>
+									<Trans t={t} i18nKey="user.no-members-blurb">
+										You don&apos;t have any members yet.
+										<br />
+										Members are sub-profiles that can have their own avatar, names, pronouns, and preferred terms.
+										<br />
+										You can create a new member with the &quot;Create member&quot; button above.{" "}
+										<span className="text-muted">(only you can see this)</span>
+									</Trans>
+								</div>
+							) : (
+								<div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 text-center">
+									{user.members.map((member, i) => (
+										<MemberCard user={user} member={member} key={i} />
+									))}
+								</div>
+							)}
+						</div>
+					</>
+				))}
 		</>
 	);
 }
