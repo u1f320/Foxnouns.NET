@@ -79,7 +79,7 @@ public static class AuthUtils
             return false;
         }
     }
-    
+
     public static bool TryParseToken(string? input, out byte[] rawToken)
     {
         rawToken = [];

@@ -11,6 +11,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
     public async Task<IEnumerable<PartialMember>> RenderUserMembersAsync(User user, Token? token)
     {
         var canReadHiddenMembers = token != null && token.UserId == user.Id && token.HasScope("member.read");
+        var renderUnlisted = token != null && token.UserId == user.Id && token.HasScope("user.read_hidden");
         var canReadMemberList = !user.ListHidden || canReadHiddenMembers;
 
         IEnumerable<Member> members = canReadMemberList
@@ -20,7 +21,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
                 .ToListAsync()
             : [];
         if (!canReadHiddenMembers) members = members.Where(m => !m.Unlisted);
-        return members.Select(RenderPartialMember);
+        return members.Select(m => RenderPartialMember(m, renderUnlisted));
     }
 
     public MemberResponse RenderMember(Member member, Token? token)
@@ -34,10 +35,11 @@ public class MemberRendererService(DatabaseContext db, Config config)
     }
 
     private UserRendererService.PartialUser RenderPartialUser(User user) =>
-        new(user.Id, user.Username, user.DisplayName, AvatarUrlFor(user));
+        new(user.Id, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
 
-    public PartialMember RenderPartialMember(Member member) => new(member.Id, member.Name,
-        member.DisplayName, member.Bio, AvatarUrlFor(member), member.Names, member.Pronouns);
+    public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) => new(member.Id, member.Name,
+        member.DisplayName, member.Bio, AvatarUrlFor(member), member.Names, member.Pronouns,
+        renderUnlisted ? member.Unlisted : null);
 
     private string? AvatarUrlFor(Member member) =>
         member.Avatar != null ? $"{config.MediaBaseUrl}/members/{member.Id}/avatars/{member.Avatar}.webp" : null;
@@ -52,7 +54,9 @@ public class MemberRendererService(DatabaseContext db, Config config)
         string? Bio,
         string? AvatarUrl,
         IEnumerable<FieldEntry> Names,
-        IEnumerable<Pronoun> Pronouns);
+        IEnumerable<Pronoun> Pronouns,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        bool? Unlisted);
 
     public record MemberResponse(
         Snowflake Id,

@@ -42,7 +42,8 @@ public class MembersController(
     [HttpPost("/api/v2/users/@me/members")]
     [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
     [Authorize("member.create")]
-    public async Task<IActionResult> CreateMemberAsync([FromBody] CreateMemberRequest req, CancellationToken ct = default)
+    public async Task<IActionResult> CreateMemberAsync([FromBody] CreateMemberRequest req,
+        CancellationToken ct = default)
     {
         ValidationUtils.Validate([
             ("name", ValidationUtils.ValidateMemberName(req.Name)),

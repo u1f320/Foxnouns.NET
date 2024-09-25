@@ -104,7 +104,8 @@ public class UsersController(
     [HttpPatch("@me/custom-preferences")]
     [Authorize("user.update")]
     [ProducesResponseType<Dictionary<Snowflake, User.CustomPreference>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateCustomPreferencesAsync([FromBody] List<CustomPreferencesUpdateRequest> req, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateCustomPreferencesAsync([FromBody] List<CustomPreferencesUpdateRequest> req,
+        CancellationToken ct = default)
     {
         ValidationUtils.Validate(ValidateCustomPreferences(req));
 
@@ -180,8 +181,8 @@ public class UsersController(
         public Pronoun[]? Pronouns { get; init; }
         public Field[]? Fields { get; init; }
     }
-    
-    
+
+
     [HttpGet("@me/settings")]
     [Authorize("user.read_hidden")]
     [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
@@ -194,7 +195,8 @@ public class UsersController(
     [HttpPatch("@me/settings")]
     [Authorize("user.read_hidden", "user.update")]
     [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateUserSettingsAsync([FromBody] UpdateUserSettingsRequest req, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateUserSettingsAsync([FromBody] UpdateUserSettingsRequest req,
+        CancellationToken ct = default)
     {
         var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
 

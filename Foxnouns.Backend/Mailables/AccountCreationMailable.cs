@@ -2,7 +2,8 @@ using Coravel.Mailer.Mail;
 
 namespace Foxnouns.Backend.Mailables;
 
-public class AccountCreationMailable(Config config, AccountCreationMailableView view) : Mailable<AccountCreationMailableView>
+public class AccountCreationMailable(Config config, AccountCreationMailableView view)
+    : Mailable<AccountCreationMailableView>
 {
     public override void Build()
     {

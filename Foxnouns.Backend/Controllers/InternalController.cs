@@ -60,7 +60,8 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
         {
             if (endpoint.RoutePattern.RawText == null) continue;
 
-            var templateMatcher = new TemplateMatcher(TemplateParser.Parse(endpoint.RoutePattern.RawText), new RouteValueDictionary());
+            var templateMatcher = new TemplateMatcher(TemplateParser.Parse(endpoint.RoutePattern.RawText),
+                new RouteValueDictionary());
             if (!templateMatcher.TryMatch(url, new())) continue;
             var httpMethodAttribute = endpoint.Metadata.GetMetadata<HttpMethodAttribute>();
             if (httpMethodAttribute != null &&

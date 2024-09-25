@@ -156,7 +156,8 @@ public static class ValidationUtils
                     break;
             }
 
-            errors = errors.Concat(ValidateFieldEntries(field.Entries, customPreferences, $"fields.{index}.entries")).ToList();
+            errors = errors.Concat(ValidateFieldEntries(field.Entries, customPreferences, $"fields.{index}.entries"))
+                .ToList();
         }
 
         return errors;
@@ -238,12 +239,14 @@ public static class ValidationUtils
                 {
                     case > Limits.FieldEntryTextLimit:
                         errors.Add(($"{errorPrefix}.{entryIdx}.value",
-                            ValidationError.LengthError("Pronoun display text is too long", 1, Limits.FieldEntryTextLimit,
+                            ValidationError.LengthError("Pronoun display text is too long", 1,
+                                Limits.FieldEntryTextLimit,
                                 entry.Value.Length)));
                         break;
                     case < 1:
                         errors.Add(($"{errorPrefix}.{entryIdx}.value",
-                            ValidationError.LengthError("Pronoun display text is too short", 1, Limits.FieldEntryTextLimit,
+                            ValidationError.LengthError("Pronoun display text is too short", 1,
+                                Limits.FieldEntryTextLimit,
                                 entry.Value.Length)));
                         break;
                 }
