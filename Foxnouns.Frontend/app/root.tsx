@@ -79,16 +79,17 @@ export function Layout({ children }: { children: ReactNode }) {
 			lang={locale || "en"}
 			dir={i18n.dir()}
 		>
-			<head>
-				<meta charSet="utf-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<MetaComponent />
-				<Links />
-			</head>
-			<body>
-				{children}
-				<ScrollRestoration />
-				<Scripts />
+		<head>
+			<meta charSet="utf-8" />
+			<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			<MetaComponent />
+			<Links />
+		</head>
+		<body>
+		{children}
+		<ScrollRestoration />
+		<Scripts />
 			</body>
 		</html>
 	);
@@ -149,11 +150,11 @@ function ApiErrorElem({ error }: { error: ApiError }) {
 }
 
 export default function App() {
-	const { meta, meUser, settings } = useLoaderData<typeof loader>();
+	const { meta, meUser } = useLoaderData<typeof loader>();
 
 	return (
 		<>
-			<Navbar meta={meta} user={meUser} settings={settings} />
+			<Navbar meta={meta} user={meUser} />
 			<Container>
 				<Outlet />
 			</Container>
