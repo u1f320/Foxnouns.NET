@@ -4,6 +4,13 @@ import serverRequest, { getCookie, writeCookie } from "~/lib/request.server";
 
 // Handles theme switching
 // Remix itself handles redirecting back to the original page after the setting is set
+//
+// Note: this function is currently unused. Bootstrap only lets us switch themes with either prefers-color-scheme
+// *or* a programmatic switch using data-bs-theme, not both.
+// If the Sec-CH-Prefers-Color-Scheme header (https://caniuse.com/mdn-http_headers_sec-ch-prefers-color-scheme)
+// is added to Firefox and Safari, the dark mode setting should be reworked to use it instead.
+// As it stands, using prefers-color-scheme is the only way
+// to respect the operating system's dark mode setting without using JavaScript.
 export const action: ActionFunction = async ({ request }) => {
 	const body = await request.formData();
 	const theme = (body.get("theme") as string | null) || "auto";
@@ -13,7 +20,7 @@ export const action: ActionFunction = async ({ request }) => {
 		await serverRequest<UserSettings>("PATCH", "/users/@me/settings", {
 			token,
 			body: {
-				dark_mode: theme === "auto" ? null : theme === "dark" ? true : false,
+				dark_mode: theme === "auto" ? null : theme === "dark",
 			},
 		});
 

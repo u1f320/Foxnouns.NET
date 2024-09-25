@@ -57,7 +57,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export function Layout({ children }: { children: ReactNode }) {
-	const { locale, settings } = useRouteLoaderData<typeof loader>("root") || {
+	const { locale } = useRouteLoaderData<typeof loader>("root") || {
 		meta: {
 			users: {
 				total: 0,
@@ -77,7 +77,6 @@ export function Layout({ children }: { children: ReactNode }) {
 	return (
 		<html
 			lang={locale || "en"}
-			data-bs-theme={settings?.dark_mode ? "dark" : "light"}
 			dir={i18n.dir()}
 		>
 			<head>
@@ -119,10 +118,10 @@ export function ErrorBoundary() {
 				<Links />
 			</head>
 			<body>
-				{data?.meUser && data?.settings && data?.meta ? (
-					<Navbar meta={data.meta} user={data.meUser} settings={data.settings} />
+				{data?.meUser && data?.meta ? (
+					<Navbar meta={data.meta} user={data.meUser} />
 				) : (
-					<BaseNavbar theme="light" />
+					<BaseNavbar />
 				)}
 				<Container>{errorElem}</Container>
 				<Scripts />

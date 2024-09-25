@@ -21,7 +21,7 @@ import ErrorAlert from "~/components/ErrorAlert";
 import i18n from "~/i18next.server";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-	return [{ title: `${data?.meta.title || "Log in"} - pronouns.cc` }];
+	return [{ title: `${data?.meta.title || "Log in"} • pronouns.cc` }];
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({ actionResult }) => {

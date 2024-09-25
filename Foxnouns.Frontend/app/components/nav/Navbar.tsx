@@ -1,19 +1,16 @@
 import { Link, useFetcher } from "@remix-run/react";
 import Meta from "~/lib/api/meta";
-import { User, UserSettings } from "~/lib/api/user";
+import { User } from "~/lib/api/user";
 
 import { Nav, NavDropdown } from "react-bootstrap";
-import { BrightnessHigh, BrightnessHighFill, MoonFill } from "react-bootstrap-icons";
 import { useTranslation } from "react-i18next";
 import BaseNavbar from "~/components/nav/BaseNavbar";
 
 export default function MainNavbar({
 	user,
-	settings,
 }: {
 	meta: Meta;
 	user?: User;
-	settings: UserSettings;
 }) {
 	const fetcher = useFetcher();
 	const { t } = useTranslation();
@@ -38,39 +35,10 @@ export default function MainNavbar({
 			{t("navbar.log-in")}
 		</Nav.Link>
 	);
-
-	const ThemeIcon =
-		settings.dark_mode === null
-			? BrightnessHigh
-			: settings.dark_mode
-				? MoonFill
-				: BrightnessHighFill;
-
-	const theme = settings.dark_mode ? "dark" : "light";
-
+	
 	return (
-		<BaseNavbar theme={theme}>
+		<BaseNavbar>
 			{userMenu}
-			<fetcher.Form method="POST" action="/dark-mode">
-				<NavDropdown
-					title={
-						<>
-							<ThemeIcon /> {t("navbar.theme")}
-						</>
-					}
-					align="end"
-				>
-					<NavDropdown.Item as="button" name="theme" value="auto" type="submit">
-						{t("navbar.theme-auto")}
-					</NavDropdown.Item>
-					<NavDropdown.Item as="button" name="theme" value="dark" type="submit">
-						{t("navbar.theme-dark")}
-					</NavDropdown.Item>
-					<NavDropdown.Item as="button" name="theme" value="light" type="submit">
-						{t("navbar.theme-light")}
-					</NavDropdown.Item>
-				</NavDropdown>
-			</fetcher.Form>
 		</BaseNavbar>
 	);
 }

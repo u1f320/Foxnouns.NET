@@ -7,7 +7,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { Button } from "react-bootstrap";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-	return [{ title: `${data?.meta.title || "Welcome"} - pronouns.cc` }];
+	return [{ title: `${data?.meta.title || "Welcome"} • pronouns.cc` }];
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

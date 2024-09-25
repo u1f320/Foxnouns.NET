@@ -21,7 +21,7 @@ import ErrorAlert from "~/components/ErrorAlert";
 import { User } from "~/lib/api/user";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-	return [{ title: `${data?.meta.title || "Log in"} - pronouns.cc` }];
+	return [{ title: `${data?.meta.title || "Log in"} • pronouns.cc` }];
 };
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({ actionResult }) => {

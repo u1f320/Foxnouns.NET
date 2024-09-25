@@ -13,7 +13,7 @@ import PronounLink from "~/components/PronounLink";
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	const { user } = data!;
 
-	return [{ title: `@${user.username} - pronouns.cc` }];
+	return [{ title: `@${user.username} • pronouns.cc` }];
 };
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {

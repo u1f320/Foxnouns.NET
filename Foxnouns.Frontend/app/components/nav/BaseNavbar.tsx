@@ -3,9 +3,9 @@ import { Nav, Navbar } from "react-bootstrap";
 import { Link } from "@remix-run/react";
 import Logo from "~/components/nav/Logo";
 
-export default function BaseNavbar({ children, theme }: { children?: ReactNode; theme: string }) {
+export default function BaseNavbar({ children }: { children?: ReactNode; }) {
 	return (
-		<Navbar expand="lg" className={`mb-4 mx-2 bg-${theme}`} color={theme} variant={theme}>
+		<Navbar expand="lg" className={`mb-4 mx-2`}>
 			<Navbar.Brand to="/" as={Link}>
 				<Logo />
 			</Navbar.Brand>
