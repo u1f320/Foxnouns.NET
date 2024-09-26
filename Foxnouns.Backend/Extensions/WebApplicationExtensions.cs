@@ -99,7 +99,8 @@ public static class WebApplicationExtensions
                 .AddHostedService<PeriodicTasksService>()
                 // Transient jobs
                 .AddTransient<MemberAvatarUpdateInvocable>()
-                .AddTransient<UserAvatarUpdateInvocable>();
+                .AddTransient<UserAvatarUpdateInvocable>()
+                .AddTransient<CreateFlagInvocable>();
 
             if (!config.Logging.EnableMetrics)
                 services.AddHostedService<BackgroundMetricsCollectionService>();
