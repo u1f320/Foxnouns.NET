@@ -37,7 +37,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
             : [];
 
         return new UserResponse(
-            user.Id, user.Sid, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user), user.Links,
+            user.Id, user.Sid, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user),
+            user.Links,
             user.Names, user.Pronouns, user.Fields, user.CustomPreferences,
             renderMembers ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden)) : null,
             renderAuthMethods
@@ -47,7 +48,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
                 ))
                 : null,
             tokenHidden ? user.ListHidden : null,
-            tokenHidden ? user.LastActive : null
+            tokenHidden ? user.LastActive : null,
+            tokenHidden ? user.LastSidReroll : null
         );
     }
 
@@ -77,7 +79,9 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         bool? MemberListHidden,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        Instant? LastActive
+        Instant? LastActive,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        Instant? LastSidReroll
     );
 
     public record AuthenticationMethodResponse(
