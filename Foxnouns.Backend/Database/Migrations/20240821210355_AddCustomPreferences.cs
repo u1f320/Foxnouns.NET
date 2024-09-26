@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Collections.Generic;
 using Foxnouns.Backend.Database.Models;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -8,6 +9,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Foxnouns.Backend.Database.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(DatabaseContext))]
+    [Migration("20240821210355_AddCustomPreferences")]
     public partial class AddCustomPreferences : Migration
     {
         /// <inheritdoc />

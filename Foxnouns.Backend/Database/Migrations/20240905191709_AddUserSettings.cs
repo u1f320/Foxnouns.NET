@@ -1,4 +1,5 @@
 ﻿using Foxnouns.Backend.Database.Models;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -6,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Foxnouns.Backend.Database.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(DatabaseContext))]
+    [Migration("20240905191709_AddUserSettings")]
     public partial class AddUserSettings : Migration
     {
         /// <inheritdoc />

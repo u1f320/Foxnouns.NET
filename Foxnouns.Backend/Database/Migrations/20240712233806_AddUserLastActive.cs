@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using NodaTime;
 
 #nullable disable
@@ -6,6 +7,8 @@ using NodaTime;
 namespace Foxnouns.Backend.Database.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(DatabaseContext))]
+    [Migration("20240712233806_AddUserLastActive")]
     public partial class AddUserLastActive : Migration
     {
         /// <inheritdoc />
