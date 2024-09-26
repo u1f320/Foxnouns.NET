@@ -27,7 +27,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         IEnumerable<Member> members =
             renderMembers ? await db.Members.Where(m => m.UserId == user.Id).ToListAsync(ct) : [];
         // Unless the user is requesting their own members AND the token can read hidden members, we filter out unlisted members.
-        if (!(isSelfUser && tokenCanReadHiddenMembers)) members = members.Where(m => m.Unlisted);
+        if (!(isSelfUser && tokenCanReadHiddenMembers)) members = members.Where(m => !m.Unlisted);
 
         var authMethods = renderAuthMethods
             ? await db.AuthMethods
