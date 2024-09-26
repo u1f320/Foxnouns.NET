@@ -37,7 +37,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
             : [];
 
         return new UserResponse(
-            user.Id, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user), user.Links,
+            user.Id, user.Sid, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user), user.Links,
             user.Names, user.Pronouns, user.Fields, user.CustomPreferences,
             renderMembers ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden)) : null,
             renderAuthMethods
@@ -52,13 +52,14 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
     }
 
     public PartialUser RenderPartialUser(User user) =>
-        new(user.Id, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
+        new(user.Id, user.Sid, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
 
     private string? AvatarUrlFor(User user) =>
         user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
 
     public record UserResponse(
         Snowflake Id,
+        string Sid,
         string Username,
         string? DisplayName,
         string? Bio,
@@ -92,6 +93,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
 
     public record PartialUser(
         Snowflake Id,
+        string Sid,
         string Username,
         string? DisplayName,
         string? AvatarUrl,

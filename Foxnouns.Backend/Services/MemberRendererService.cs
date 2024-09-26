@@ -29,15 +29,15 @@ public class MemberRendererService(DatabaseContext db, Config config)
         var renderUnlisted = token?.UserId == member.UserId && token.HasScope("user.read_hidden");
 
         return new MemberResponse(
-            member.Id, member.Name, member.DisplayName, member.Bio,
+            member.Id, member.Sid, member.Name, member.DisplayName, member.Bio,
             AvatarUrlFor(member), member.Links, member.Names, member.Pronouns, member.Fields,
             RenderPartialUser(member.User), renderUnlisted ? member.Unlisted : null);
     }
 
     private UserRendererService.PartialUser RenderPartialUser(User user) =>
-        new(user.Id, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
+        new(user.Id, user.Sid, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
 
-    public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) => new(member.Id, member.Name,
+    public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) => new(member.Id, member.Sid, member.Name,
         member.DisplayName, member.Bio, AvatarUrlFor(member), member.Names, member.Pronouns,
         renderUnlisted ? member.Unlisted : null);
 
@@ -49,6 +49,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
 
     public record PartialMember(
         Snowflake Id,
+        string Sid,
         string Name,
         string? DisplayName,
         string? Bio,
@@ -60,6 +61,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
 
     public record MemberResponse(
         Snowflake Id,
+        string Sid,
         string Name,
         string? DisplayName,
         string? Bio,
