@@ -175,6 +175,13 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("pronouns");
 
+                    b.Property<string>("Sid")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("sid")
+                        .HasDefaultValueSql("find_free_member_sid()");
+
                     b.Property<bool>("Unlisted")
                         .HasColumnType("boolean")
                         .HasColumnName("unlisted");
@@ -185,6 +192,10 @@ namespace Foxnouns.Backend.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_members");
+
+                    b.HasIndex("Sid")
+                        .IsUnique()
+                        .HasDatabaseName("ix_members_sid");
 
                     b.HasIndex("UserId", "Name")
                         .IsUnique()
@@ -314,6 +325,10 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_active");
 
+                    b.Property<Instant>("LastSidReroll")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sid_reroll");
+
                     b.Property<string[]>("Links")
                         .IsRequired()
                         .HasColumnType("text[]")
@@ -350,6 +365,13 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("settings");
 
+                    b.Property<string>("Sid")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("sid")
+                        .HasDefaultValueSql("find_free_user_sid()");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text")
@@ -357,6 +379,10 @@ namespace Foxnouns.Backend.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_users");
+
+                    b.HasIndex("Sid")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_sid");
 
                     b.HasIndex("Username")
                         .IsUnique()

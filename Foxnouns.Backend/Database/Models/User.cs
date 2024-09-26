@@ -8,6 +8,7 @@ namespace Foxnouns.Backend.Database.Models;
 public class User : BaseModel
 {
     public required string Username { get; set; }
+    public string Sid { get; set; } = string.Empty;
     public string? DisplayName { get; set; }
     public string? Bio { get; set; }
     public string? MemberTitle { get; set; }
@@ -28,6 +29,7 @@ public class User : BaseModel
     public UserSettings Settings { get; set; } = new();
 
     public required Instant LastActive { get; set; }
+    public Instant LastSidReroll { get; set; }
 
     public bool Deleted { get; set; }
     public Instant? DeletedAt { get; set; }

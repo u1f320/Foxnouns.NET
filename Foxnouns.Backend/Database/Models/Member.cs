@@ -3,6 +3,7 @@ namespace Foxnouns.Backend.Database.Models;
 public class Member : BaseModel
 {
     public required string Name { get; set; }
+    public string Sid { get; set; } = string.Empty;
     public string? DisplayName { get; set; }
     public string? Bio { get; set; }
     public string? Avatar { get; set; }

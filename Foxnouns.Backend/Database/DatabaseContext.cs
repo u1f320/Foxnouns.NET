@@ -60,15 +60,19 @@ public class DatabaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
+        modelBuilder.Entity<User>().HasIndex(u => u.Sid).IsUnique();
         modelBuilder.Entity<Member>().HasIndex(m => new { m.UserId, m.Name }).IsUnique();
+        modelBuilder.Entity<Member>().HasIndex(m => m.Sid).IsUnique();
         modelBuilder.Entity<TemporaryKey>().HasIndex(k => k.Key).IsUnique();
 
+        modelBuilder.Entity<User>().Property(u => u.Sid).HasDefaultValueSql("find_free_user_sid()");
         modelBuilder.Entity<User>().Property(u => u.Fields).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.Names).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.Pronouns).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.CustomPreferences).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.Settings).HasColumnType("jsonb");
 
+        modelBuilder.Entity<Member>().Property(m => m.Sid).HasDefaultValueSql("find_free_member_sid()");
         modelBuilder.Entity<Member>().Property(m => m.Fields).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Names).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Pronouns).HasColumnType("jsonb");
