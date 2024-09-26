@@ -1,4 +1,3 @@
-using System.Security.Cryptography;
 using Coravel.Invocable;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
@@ -45,5 +44,5 @@ public class CreateFlagInvocable(DatabaseContext db, ObjectStorageService object
         throw new NotImplementedException();
     }
 
-    private static string Path(string hash) => $"flags/{hash}.webp";
+    public static string Path(string hash) => $"flags/{hash}.webp";
 }

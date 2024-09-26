@@ -24,6 +24,10 @@ public static class AvatarObjectExtensions
             CancellationToken ct = default) =>
         await objectStorageService.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
 
+    public static async Task DeleteFlagAsync(this ObjectStorageService objectStorageService, string hash,
+        CancellationToken ct = default) =>
+        await objectStorageService.RemoveObjectAsync(CreateFlagInvocable.Path(hash), ct);
+
     public static async Task<(string Hash, Stream Image)> ConvertBase64UriToImage(this string uri, int size, bool crop)
     {
         if (!uri.StartsWith("data:image/"))
