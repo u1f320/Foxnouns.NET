@@ -3,7 +3,7 @@ import { Link, redirect, useLoaderData, useRouteLoaderData } from "@remix-run/re
 import { UserWithMembers } from "~/lib/api/user";
 import serverRequest from "~/lib/request.server";
 import { loader as rootLoader } from "~/root";
-import { Alert, Button } from "react-bootstrap";
+import { Alert, Button, Pagination } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
 import { renderMarkdown } from "~/lib/markdown";
 import ProfileLink from "~/components/ProfileLink";
@@ -11,6 +11,7 @@ import ProfileField from "~/components/ProfileField";
 import { PersonPlusFill } from "react-bootstrap-icons";
 import { defaultAvatarUrl } from "~/lib/utils";
 import MemberCard from "~/routes/$username/MemberCard";
+import { ReactNode } from "react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	const { user } = data!;
@@ -34,16 +35,43 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 		memberPage = 0;
 	}
 
+	console.log(JSON.stringify(members));
+
 	return json({ user, members, currentPage: memberPage, pageCount });
 };
 
 export default function UserPage() {
 	const { t } = useTranslation();
-	const { user } = useLoaderData<typeof loader>();
+	const { user, members, currentPage, pageCount } = useLoaderData<typeof loader>();
 	const { meUser } = useRouteLoaderData<typeof rootLoader>("root") || { meUser: undefined };
 
 	const isMeUser = meUser && meUser.id === user.id;
 	const bio = renderMarkdown(user.bio);
+
+	const paginationItems: ReactNode[] = [];
+	for (let i = 0; i < pageCount; i++) {
+		paginationItems.push(
+			<Pagination.Item key={i} as={Link} to={`/@${user.username}?page=${i}`}>
+				{i + 1}
+			</Pagination.Item>,
+		);
+	}
+
+	const pagination = (
+		<Pagination className="justify-content-center">
+			<Pagination.Prev
+				as={Link}
+				to={`/@${user.username}?page=${currentPage - 1}`}
+				disabled={currentPage === 0}
+			/>
+			{paginationItems}
+			<Pagination.Next
+				as={Link}
+				to={`/@${user.username}?page=${currentPage + 1}`}
+				disabled={currentPage === pageCount - 1}
+			/>
+		</Pagination>
+	);
 
 	return (
 		<>
@@ -120,39 +148,43 @@ export default function UserPage() {
 					))}
 				</div>
 			</div>
-			{user.members.length > 0 ||
-				(isMeUser && (
-					<>
-						<hr />
-						<h2>
-							{user.member_title || t("user.heading.members")}{" "}
-							{/* @ts-expect-error using as=Link causes an error here, even though it runs completely fine */}
+			{(members.length > 0 || isMeUser) && (
+				<>
+					<hr />
+					<h2>
+						{user.member_title || t("user.heading.members")}{" "}
+						{isMeUser && (
+							// @ts-expect-error using as=Link causes an error here, even though it runs completely fine
 							<Button as={Link} to="/settings/members/create" variant="success">
 								<PersonPlusFill /> {t("user.create-member-button")}
 							</Button>
-						</h2>
-						<div className="grid">
-							{user.members.length === 0 ? (
-								<div>
-									<Trans t={t} i18nKey="user.no-members-blurb">
-										You don&apos;t have any members yet.
-										<br />
-										Members are sub-profiles that can have their own avatar, names, pronouns, and preferred terms.
-										<br />
-										You can create a new member with the &quot;Create member&quot; button above.{" "}
-										<span className="text-muted">(only you can see this)</span>
-									</Trans>
-								</div>
-							) : (
-								<div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 text-center">
-									{user.members.map((member, i) => (
-										<MemberCard user={user} member={member} key={i} />
-									))}
-								</div>
-							)}
-						</div>
-					</>
-				))}
+						)}
+					</h2>
+					{pageCount > 1 && pagination}
+					<div className="grid">
+						{members.length === 0 ? (
+							<div>
+								<Trans t={t} i18nKey="user.no-members-blurb">
+									You don&apos;t have any members yet.
+									<br />
+									Members are sub-profiles that can have their own avatar, names, pronouns, and
+									preferred terms.
+									<br />
+									You can create a new member with the &quot;Create member&quot; button above.{" "}
+									<span className="text-muted">(only you can see this)</span>
+								</Trans>
+							</div>
+						) : (
+							<div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 text-center">
+								{members.map((member, i) => (
+									<MemberCard user={user} member={member} key={i} />
+								))}
+							</div>
+						)}
+					</div>
+					{pageCount > 1 && pagination}
+				</>
+			)}
 		</>
 	);
 }
