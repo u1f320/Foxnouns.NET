@@ -21,6 +21,9 @@ public class User : BaseModel
     public List<Field> Fields { get; set; } = [];
     public Dictionary<Snowflake, CustomPreference> CustomPreferences { get; set; } = [];
 
+    public List<PrideFlag> Flags { get; set; } = [];
+    public List<UserFlag> ProfileFlags { get; set; } = [];
+
     public UserRole Role { get; set; } = UserRole.User;
     public string? Password { get; set; } // Password may be null if the user doesn't authenticate with an email address
 

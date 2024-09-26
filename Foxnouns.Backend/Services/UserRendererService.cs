@@ -58,6 +58,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
 
     private string? AvatarUrlFor(User user) =>
         user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
+    
+    public string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
     public record UserResponse(
         Snowflake Id,

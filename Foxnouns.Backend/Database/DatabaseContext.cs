@@ -21,6 +21,10 @@ public class DatabaseContext : DbContext
     public DbSet<Token> Tokens { get; set; }
     public DbSet<Application> Applications { get; set; }
     public DbSet<TemporaryKey> TemporaryKeys { get; set; }
+    
+    public DbSet<PrideFlag> PrideFlags { get; set; }
+    public DbSet<UserFlag> UserFlags { get; set; }
+    public DbSet<MemberFlag> MemberFlags { get; set; }
 
     public DatabaseContext(Config config, ILoggerFactory? loggerFactory)
     {
@@ -76,6 +80,9 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<Member>().Property(m => m.Fields).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Names).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Pronouns).HasColumnType("jsonb");
+
+        modelBuilder.Entity<UserFlag>().Navigation(f => f.PrideFlag).AutoInclude();
+        modelBuilder.Entity<MemberFlag>().Navigation(f => f.PrideFlag).AutoInclude();
 
         modelBuilder.HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeUserSid))!)
             .HasName("find_free_user_sid");

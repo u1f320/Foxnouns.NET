@@ -14,6 +14,8 @@ public class Member : BaseModel
     public List<Pronoun> Pronouns { get; set; } = [];
     public List<Field> Fields { get; set; } = [];
 
+    public List<MemberFlag> ProfileFlags { get; set; } = [];
+
     public Snowflake UserId { get; init; }
     public User User { get; init; } = null!;
 }

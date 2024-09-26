@@ -204,6 +204,68 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("members", (string)null);
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.MemberFlag", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("MemberId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("member_id");
+
+                    b.Property<long>("PrideFlagId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("pride_flag_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_member_flags");
+
+                    b.HasIndex("MemberId")
+                        .HasDatabaseName("ix_member_flags_member_id");
+
+                    b.HasIndex("PrideFlagId")
+                        .HasDatabaseName("ix_member_flags_pride_flag_id");
+
+                    b.ToTable("member_flags", (string)null);
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.PrideFlag", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hash");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pride_flags");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_pride_flags_user_id");
+
+                    b.ToTable("pride_flags", (string)null);
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.TemporaryKey", b =>
                 {
                     b.Property<long>("Id")
@@ -391,6 +453,35 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.UserFlag", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("PrideFlagId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("pride_flag_id");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_flags");
+
+                    b.HasIndex("PrideFlagId")
+                        .HasDatabaseName("ix_user_flags_pride_flag_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_flags_user_id");
+
+                    b.ToTable("user_flags", (string)null);
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.AuthMethod", b =>
                 {
                     b.HasOne("Foxnouns.Backend.Database.Models.FediverseApplication", "FediverseApplication")
@@ -422,6 +513,35 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.MemberFlag", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.Member", null)
+                        .WithMany("ProfileFlags")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_member_flags_members_member_id");
+
+                    b.HasOne("Foxnouns.Backend.Database.Models.PrideFlag", "PrideFlag")
+                        .WithMany()
+                        .HasForeignKey("PrideFlagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_member_flags_pride_flags_pride_flag_id");
+
+                    b.Navigation("PrideFlag");
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.PrideFlag", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.User", null)
+                        .WithMany("Flags")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_pride_flags_users_user_id");
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Token", b =>
                 {
                     b.HasOne("Foxnouns.Backend.Database.Models.Application", "Application")
@@ -443,11 +563,39 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.UserFlag", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.PrideFlag", "PrideFlag")
+                        .WithMany()
+                        .HasForeignKey("PrideFlagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_flags_pride_flags_pride_flag_id");
+
+                    b.HasOne("Foxnouns.Backend.Database.Models.User", null)
+                        .WithMany("ProfileFlags")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_flags_users_user_id");
+
+                    b.Navigation("PrideFlag");
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Member", b =>
+                {
+                    b.Navigation("ProfileFlags");
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.User", b =>
                 {
                     b.Navigation("AuthMethods");
 
+                    b.Navigation("Flags");
+
                     b.Navigation("Members");
+
+                    b.Navigation("ProfileFlags");
                 });
 #pragma warning restore 612, 618
         }

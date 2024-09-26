@@ -47,6 +47,8 @@ public class MemberRendererService(DatabaseContext db, Config config)
     private string? AvatarUrlFor(User user) =>
         user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
 
+    private string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
+
     public record PartialMember(
         Snowflake Id,
         string Sid,
