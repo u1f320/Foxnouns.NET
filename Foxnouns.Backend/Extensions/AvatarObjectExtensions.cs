@@ -23,7 +23,7 @@ public static class AvatarObjectExtensions
             CancellationToken ct = default) =>
         await objectStorageService.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
 
-    public static async Task<Stream> ConvertBase64UriToAvatar(this string uri)
+    public static async Task<Stream> ConvertBase64UriToImage(this string uri, int size, bool crop)
     {
         if (!uri.StartsWith("data:image/"))
             throw new ArgumentException("Not a data URI", nameof(uri));
@@ -40,7 +40,12 @@ public static class AvatarObjectExtensions
         var image = Image.Load(rawImage);
 
         var processor = new ResizeProcessor(
-            new ResizeOptions { Size = new Size(512), Mode = ResizeMode.Crop, Position = AnchorPositionMode.Center },
+            new ResizeOptions
+            {
+                Size = new Size(size),
+                Mode = crop ? ResizeMode.Crop : ResizeMode.Max,
+                Position = AnchorPositionMode.Center
+            },
             image.Size
         );
 
