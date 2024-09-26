@@ -8,6 +8,7 @@ using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 
 namespace Foxnouns.Backend.Controllers;
 
@@ -16,7 +17,8 @@ public class UsersController(
     DatabaseContext db,
     UserRendererService userRenderer,
     ISnowflakeGenerator snowflakeGenerator,
-    IQueue queue) : ApiControllerBase
+    IQueue queue,
+    IClock clock) : ApiControllerBase
 {
     [HttpGet("{userRef}")]
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
@@ -212,5 +214,23 @@ public class UsersController(
     public class UpdateUserSettingsRequest : PatchRequest
     {
         public bool? DarkMode { get; init; }
+    }
+
+    [HttpPost("@me/reroll-sid")]
+    [Authorize("user.update")]
+    [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
+    public async Task<IActionResult> RerollSidAsync()
+    {
+        var minTimeAgo = clock.GetCurrentInstant() - Duration.FromHours(1);
+        if (CurrentUser!.LastSidReroll > minTimeAgo)
+            throw new ApiError.BadRequest("Cannot reroll short ID yet");
+
+        await db.Users.Where(u => u.Id == CurrentUser.Id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(u => u.Sid, _ => db.FindFreeUserSid())
+                .SetProperty(u => u.LastSidReroll, _ => clock.GetCurrentInstant()));
+        
+        var user = await db.ResolveUserAsync(CurrentUser.Id);
+        return Ok(await userRenderer.RenderUserAsync(user, CurrentUser, CurrentToken, renderMembers: false));
     }
 }

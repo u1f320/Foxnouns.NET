@@ -9,6 +9,7 @@ using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NodaTime;
 
 namespace Foxnouns.Backend.Controllers;
 
@@ -19,7 +20,8 @@ public class MembersController(
     MemberRendererService memberRenderer,
     ISnowflakeGenerator snowflakeGenerator,
     ObjectStorageService objectStorageService,
-    IQueue queue) : ApiControllerBase
+    IQueue queue,
+    IClock clock) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<MembersController>();
 
@@ -114,4 +116,25 @@ public class MembersController(
         List<FieldEntry>? Names,
         List<Pronoun>? Pronouns,
         List<Field>? Fields);
+
+    [HttpPost("/api/v2/users/@me/members/{memberRef}/reroll-sid")]
+    [Authorize("member.update")]
+    [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
+    public async Task<IActionResult> RerollSidAsync(string memberRef)
+    {
+        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+
+        var minTimeAgo = clock.GetCurrentInstant() - Duration.FromHours(1);
+        if (CurrentUser!.LastSidReroll > minTimeAgo)
+            throw new ApiError.BadRequest("Cannot reroll short ID yet");
+
+        await db.Members.Where(m => m.Id == member.Id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(m => m.Sid, _ => db.FindFreeMemberSid()));
+
+        // Re-fetch member so we can be sure the sid is correct
+        var updatedMember = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+
+        return Ok(memberRenderer.RenderMember(updatedMember, CurrentToken));
+    }
 }

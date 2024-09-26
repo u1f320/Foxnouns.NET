@@ -76,7 +76,23 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<Member>().Property(m => m.Fields).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Names).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Pronouns).HasColumnType("jsonb");
+
+        modelBuilder.HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeUserSid))!)
+            .HasName("find_free_user_sid");
+
+        modelBuilder.HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeMemberSid))!)
+            .HasName("find_free_member_sid");
     }
+
+    /// <summary>
+    /// Dummy method that calls <c>find_free_user_sid()</c> when used in an EF Core query.
+    /// </summary>
+    public string FindFreeUserSid() => throw new NotSupportedException();
+
+    /// <summary>
+    /// Dummy method that calls <c>find_free_member_sid()</c> when used in an EF Core query.
+    /// </summary>
+    public string FindFreeMemberSid() => throw new NotSupportedException();
 }
 
 [SuppressMessage("ReSharper", "UnusedType.Global", Justification = "Used by EF Core's migration generator")]
