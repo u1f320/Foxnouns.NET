@@ -35,8 +35,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 		memberPage = 0;
 	}
 
-	console.log(JSON.stringify(members));
-
 	return json({ user, members, currentPage: memberPage, pageCount });
 };
 

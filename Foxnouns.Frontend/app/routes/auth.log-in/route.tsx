@@ -53,8 +53,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 	const email = body.get("email") as string | null;
 	const password = body.get("password") as string | null;
 
-	console.log(email, password);
-
 	try {
 		const resp = await serverRequest<AuthResponse>("POST", "/auth/email/login", {
 			body: { email, password },

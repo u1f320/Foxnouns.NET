@@ -99,8 +99,6 @@ export function ErrorBoundary() {
 	const error: any = useRouteError();
 	const { t } = useTranslation();
 
-	console.log(error);
-
 	const errorElem =
 		"code" in error && "message" in error ? (
 			<ApiErrorElem error={error as ApiError} />
