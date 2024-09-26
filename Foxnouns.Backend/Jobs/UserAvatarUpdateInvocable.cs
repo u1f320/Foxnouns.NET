@@ -31,8 +31,7 @@ public class UserAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService 
 
         try
         {
-            var image = await newAvatar.ConvertBase64UriToImage(size: 512, crop: true);
-            var hash = Convert.ToHexString(await SHA256.HashDataAsync(image)).ToLower();
+            var (hash, image) = await newAvatar.ConvertBase64UriToImage(size: 512, crop: true);
             image.Seek(0, SeekOrigin.Begin);
             var prevHash = user.Avatar;
 

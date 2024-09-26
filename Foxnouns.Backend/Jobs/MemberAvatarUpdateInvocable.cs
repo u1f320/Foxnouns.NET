@@ -31,9 +31,7 @@ public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageServic
 
         try
         {
-            var image = await newAvatar.ConvertBase64UriToImage(size: 512, crop: true);
-            var hash = Convert.ToHexString(await SHA256.HashDataAsync(image)).ToLower();
-            image.Seek(0, SeekOrigin.Begin);
+            var (hash, image) = await newAvatar.ConvertBase64UriToImage(size: 512, crop: true);
             var prevHash = member.Avatar;
 
             await objectStorageService.PutObjectAsync(Path(id, hash), image, "image/webp");

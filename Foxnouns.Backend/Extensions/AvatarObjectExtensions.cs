@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Services;
@@ -23,7 +24,7 @@ public static class AvatarObjectExtensions
             CancellationToken ct = default) =>
         await objectStorageService.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
 
-    public static async Task<Stream> ConvertBase64UriToImage(this string uri, int size, bool crop)
+    public static async Task<(string Hash, Stream Image)> ConvertBase64UriToImage(this string uri, int size, bool crop)
     {
         if (!uri.StartsWith("data:image/"))
             throw new ArgumentException("Not a data URI", nameof(uri));
@@ -53,6 +54,11 @@ public static class AvatarObjectExtensions
 
         var stream = new MemoryStream(64 * 1024);
         await image.SaveAsync(stream, new WebpEncoder { Quality = 95, NearLossless = false });
-        return stream;
+
+        stream.Seek(0, SeekOrigin.Begin);
+        var hash = Convert.ToHexString(await SHA256.HashDataAsync(stream)).ToLower();
+        stream.Seek(0, SeekOrigin.Begin);
+
+        return (hash, stream);
     }
 }

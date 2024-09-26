@@ -20,11 +20,7 @@ public class CreateFlagInvocable(DatabaseContext db, ObjectStorageService object
 
         try
         {
-            var image = await Payload.ImageData.ConvertBase64UriToImage(size: 256, crop: false);
-            image.Seek(0, SeekOrigin.Begin);
-            var hash = Convert.ToHexString(await SHA256.HashDataAsync(image)).ToLower();
-            image.Seek(0, SeekOrigin.Begin);
-
+            var (hash, image) = await Payload.ImageData.ConvertBase64UriToImage(size: 256, crop: false);
             await objectStorageService.PutObjectAsync(Path(hash), image, "image/webp");
 
             var flag = new PrideFlag
