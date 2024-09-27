@@ -37,7 +37,8 @@ public class MemberRendererService(DatabaseContext db, Config config)
     private UserRendererService.PartialUser RenderPartialUser(User user) =>
         new(user.Id, user.Sid, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
 
-    public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) => new(member.Id, member.Sid, member.Name,
+    public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) => new(member.Id, member.Sid,
+        member.Name,
         member.DisplayName, member.Bio, AvatarUrlFor(member), member.Names, member.Pronouns,
         renderUnlisted ? member.Unlisted : null);
 

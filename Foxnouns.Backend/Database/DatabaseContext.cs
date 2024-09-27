@@ -21,7 +21,7 @@ public class DatabaseContext : DbContext
     public DbSet<Token> Tokens { get; set; }
     public DbSet<Application> Applications { get; set; }
     public DbSet<TemporaryKey> TemporaryKeys { get; set; }
-    
+
     public DbSet<PrideFlag> PrideFlags { get; set; }
     public DbSet<UserFlag> UserFlags { get; set; }
     public DbSet<MemberFlag> MemberFlags { get; set; }

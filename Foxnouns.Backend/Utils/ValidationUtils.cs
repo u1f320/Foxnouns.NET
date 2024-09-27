@@ -99,6 +99,34 @@ public static class ValidationUtils
         };
     }
 
+    private const int MaxLinks = 25;
+    private const int MaxLinkLength = 256;
+
+    public static IEnumerable<(string, ValidationError?)> ValidateLinks(string[]? links)
+    {
+        if (links == null) return [];
+        if (links.Length > MaxLinks)
+            return [("links", ValidationError.LengthError("Too many links", 0, MaxLinks, links.Length))];
+
+        var errors = new List<(string, ValidationError?)>();
+        foreach (var (link, idx) in links.Select((l, i) => (l, i)))
+        {
+            switch (link.Length)
+            {
+                case 0:
+                    errors.Add(($"links.{idx}",
+                        ValidationError.LengthError("Link cannot be empty", 1, 256, 0)));
+                    break;
+                case > MaxLinkLength:
+                    errors.Add(($"links.{idx}",
+                        ValidationError.LengthError("Link is too long", 1, MaxLinkLength, link.Length)));
+                    break;
+            }
+        }
+
+        return errors;
+    }
+
     public static ValidationError? ValidateBio(string? bio)
     {
         return bio?.Length switch

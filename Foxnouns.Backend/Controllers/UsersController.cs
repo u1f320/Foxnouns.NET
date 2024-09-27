@@ -64,7 +64,7 @@ public class UsersController(
 
         if (req.HasProperty(nameof(req.Links)))
         {
-            // TODO: validate link length
+            errors.AddRange(ValidationUtils.ValidateLinks(req.Links));
             user.Links = req.Links ?? [];
         }
 
@@ -238,7 +238,7 @@ public class UsersController(
                 .SetProperty(u => u.Sid, _ => db.FindFreeUserSid())
                 .SetProperty(u => u.LastSidReroll, clock.GetCurrentInstant())
                 .SetProperty(u => u.LastActive, clock.GetCurrentInstant()));
-        
+
         var user = await db.ResolveUserAsync(CurrentUser.Id);
         return Ok(await userRenderer.RenderUserAsync(user, CurrentUser, CurrentToken, renderMembers: false));
     }

@@ -54,7 +54,8 @@ public class MembersController(
             ("avatar", ValidationUtils.ValidateAvatar(req.Avatar)),
             .. ValidationUtils.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
             .. ValidationUtils.ValidateFieldEntries(req.Names?.ToArray(), CurrentUser!.CustomPreferences, "names"),
-            .. ValidationUtils.ValidatePronouns(req.Pronouns?.ToArray(), CurrentUser!.CustomPreferences)
+            .. ValidationUtils.ValidatePronouns(req.Pronouns?.ToArray(), CurrentUser!.CustomPreferences),
+            .. ValidationUtils.ValidateLinks(req.Links)
         ]);
 
         var member = new Member
@@ -64,6 +65,7 @@ public class MembersController(
             Name = req.Name,
             DisplayName = req.DisplayName,
             Bio = req.Bio,
+            Links = req.Links ?? [],
             Fields = req.Fields ?? [],
             Names = req.Names ?? [],
             Pronouns = req.Pronouns ?? [],
@@ -113,6 +115,7 @@ public class MembersController(
         string? Bio,
         string? Avatar,
         bool? Unlisted,
+        string[]? Links,
         List<FieldEntry>? Names,
         List<Pronoun>? Pronouns,
         List<Field>? Fields);
