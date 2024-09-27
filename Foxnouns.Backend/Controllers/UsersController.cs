@@ -86,6 +86,12 @@ public class UsersController(
             user.Fields = req.Fields.ToList();
         }
 
+        if (req.Flags != null)
+        {
+            var flagError = await db.SetUserFlagsAsync(CurrentUser!.Id, req.Flags);
+            if (flagError != null) errors.Add(("flags", flagError));
+        }
+
         if (req.HasProperty(nameof(req.Avatar)))
             errors.Add(("avatar", ValidationUtils.ValidateAvatar(req.Avatar)));
 
@@ -182,6 +188,7 @@ public class UsersController(
         public FieldEntry[]? Names { get; init; }
         public Pronoun[]? Pronouns { get; init; }
         public Field[]? Fields { get; init; }
+        public Snowflake[]? Flags { get; init; }
     }
 
 

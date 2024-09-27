@@ -24,17 +24,17 @@ public class FlagsController(
 
     [HttpGet]
     [Authorize("identify")]
-    [ProducesResponseType<IEnumerable<PrideFlagResponse>>(statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType<IEnumerable<UserRendererService.PrideFlagResponse>>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFlagsAsync(CancellationToken ct = default)
     {
         var flags = await db.PrideFlags.Where(f => f.UserId == CurrentUser!.Id).ToListAsync(ct);
 
-        return Ok(flags.Select(ToResponse));
+        return Ok(flags.Select(userRenderer.RenderPrideFlag));
     }
 
     [HttpPost]
     [Authorize("user.update")]
-    [ProducesResponseType<PrideFlagResponse>(statusCode: StatusCodes.Status202Accepted)]
+    [ProducesResponseType<UserRendererService.PrideFlagResponse>(statusCode: StatusCodes.Status202Accepted)]
     public IActionResult CreateFlag([FromBody] CreateFlagRequest req)
     {
         ValidationUtils.Validate(ValidateFlag(req.Name, req.Description, req.Image));
@@ -68,7 +68,7 @@ public class FlagsController(
         db.Update(flag);
         await db.SaveChangesAsync();
 
-        return Ok(ToResponse(flag));
+        return Ok(userRenderer.RenderPrideFlag(flag));
     }
 
     public class UpdateFlagRequest : PatchRequest
@@ -110,15 +110,6 @@ public class FlagsController(
 
         return NoContent();
     }
-
-    private PrideFlagResponse ToResponse(PrideFlag flag) =>
-        new(flag.Id, userRenderer.ImageUrlFor(flag), flag.Name, flag.Description);
-
-    private record PrideFlagResponse(
-        Snowflake Id,
-        string ImageUrl,
-        string Name,
-        string? Description);
 
     private static List<(string, ValidationError?)> ValidateFlag(string? name, string? description, string? imageData)
     {

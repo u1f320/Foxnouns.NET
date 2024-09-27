@@ -25,9 +25,11 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         renderAuthMethods = renderAuthMethods && tokenPrivileged;
 
         IEnumerable<Member> members =
-            renderMembers ? await db.Members.Where(m => m.UserId == user.Id).ToListAsync(ct) : [];
+            renderMembers ? await db.Members.Where(m => m.UserId == user.Id).OrderBy(m => m.Name).ToListAsync(ct) : [];
         // Unless the user is requesting their own members AND the token can read hidden members, we filter out unlisted members.
         if (!(isSelfUser && tokenCanReadHiddenMembers)) members = members.Where(m => !m.Unlisted);
+
+        var flags = await db.UserFlags.Where(f => f.UserId == user.Id).OrderBy(f => f.Id).ToListAsync(ct);
 
         var authMethods = renderAuthMethods
             ? await db.AuthMethods
@@ -40,6 +42,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
             user.Id, user.Sid, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user),
             user.Links,
             user.Names, user.Pronouns, user.Fields, user.CustomPreferences,
+            flags.Select(f => RenderPrideFlag(f.PrideFlag)),
             renderMembers ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden)) : null,
             renderAuthMethods
                 ? authMethods.Select(a => new AuthenticationMethodResponse(
@@ -58,7 +61,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
 
     private string? AvatarUrlFor(User user) =>
         user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
-    
+
     public string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
     public record UserResponse(
@@ -74,6 +77,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         IEnumerable<Pronoun> Pronouns,
         IEnumerable<Field> Fields,
         Dictionary<Snowflake, User.CustomPreference> CustomPreferences,
+        IEnumerable<PrideFlagResponse> Flags,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         IEnumerable<MemberRendererService.PartialMember>? Members,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -105,4 +109,13 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         string? AvatarUrl,
         Dictionary<Snowflake, User.CustomPreference> CustomPreferences
     );
+
+    public PrideFlagResponse RenderPrideFlag(PrideFlag flag) =>
+        new(flag.Id, ImageUrlFor(flag), flag.Name, flag.Description);
+
+    public record PrideFlagResponse(
+        Snowflake Id,
+        string ImageUrl,
+        string Name,
+        string? Description);
 }
