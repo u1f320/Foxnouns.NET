@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Coravel.Queuing.Interfaces;
+using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Jobs;
@@ -15,11 +16,14 @@ namespace Foxnouns.Backend.Controllers;
 [Route("/api/v2/users")]
 public class UsersController(
     DatabaseContext db,
+    ILogger logger,
     UserRendererService userRenderer,
     ISnowflakeGenerator snowflakeGenerator,
     IQueue queue,
     IClock clock) : ApiControllerBase
 {
+    private readonly ILogger _logger = logger.ForContext<UsersController>();
+
     [HttpGet("{userRef}")]
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
@@ -103,7 +107,17 @@ public class UsersController(
             queue.QueueInvocableWithPayload<UserAvatarUpdateInvocable, AvatarUpdatePayload>(
                 new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar));
 
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (UniqueConstraintException)
+        {
+            _logger.Debug("Could not update user {Id} due to name conflict ({CurrentName} / {NewName})", user.Id,
+                user.Username, req.Username);
+            throw new ApiError.BadRequest("That username is already taken.", "username", req.Username!);
+        }
+
         await tx.CommitAsync(ct);
         return Ok(await userRenderer.RenderUserAsync(user, CurrentUser, renderMembers: false,
             renderAuthMethods: false, ct: ct));

@@ -33,4 +33,25 @@ public static class FlagQueryExtensions
 
         return null;
     }
+
+    public static async Task<ValidationError?> SetMemberFlagsAsync(this DatabaseContext db, Snowflake userId,
+        Snowflake memberId, Snowflake[] flagIds)
+    {
+        var currentFlags = await db.MemberFlags.Where(f => f.MemberId == memberId).ToListAsync();
+        foreach (var flag in currentFlags)
+            db.MemberFlags.Remove(flag);
+
+        if (flagIds.Length == 0) return null;
+        if (flagIds.Length > 100) return ValidationError.LengthError("Too many profile flags", 0, 100, flagIds.Length);
+
+        var flags = await db.GetFlagsAsync(userId);
+        var unknownFlagIds = flagIds.Where(id => flags.All(f => f.Id != id)).ToArray();
+        if (unknownFlagIds.Length != 0)
+            return ValidationError.GenericValidationError("Unknown flag IDs", unknownFlagIds);
+
+        var memberFlags = flagIds.Select(id => new MemberFlag { PrideFlagId = id, MemberId = memberId });
+        db.MemberFlags.AddRange(memberFlags);
+
+        return null;
+    }
 }

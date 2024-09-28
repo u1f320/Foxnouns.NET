@@ -92,6 +92,100 @@ public class MembersController(
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
+    [HttpPatch("/api/v2/users/@me/members/{memberRef}")]
+    [Authorize("member.update")]
+    public async Task<IActionResult> UpdateMemberAsync(string memberRef, [FromBody] UpdateMemberRequest req)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync();
+        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+        var errors = new List<(string, ValidationError?)>();
+
+        if (req.Name != null)
+        {
+            errors.Add(("name", ValidationUtils.ValidateMemberName(req.Name)));
+            member.Name = req.Name;
+        }
+
+        if (req.HasProperty(nameof(req.DisplayName)))
+        {
+            errors.Add(("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)));
+            member.DisplayName = req.DisplayName;
+        }
+
+        if (req.HasProperty(nameof(req.Bio)))
+        {
+            errors.Add(("bio", ValidationUtils.ValidateBio(req.Bio)));
+            member.Bio = req.Bio;
+        }
+
+        if (req.HasProperty(nameof(req.Links)))
+        {
+            errors.AddRange(ValidationUtils.ValidateLinks(req.Links));
+            member.Links = req.Links ?? [];
+        }
+
+        if (req.Names != null)
+        {
+            errors.AddRange(ValidationUtils.ValidateFieldEntries(req.Names, CurrentUser!.CustomPreferences, "names"));
+            member.Names = req.Names.ToList();
+        }
+
+        if (req.Pronouns != null)
+        {
+            errors.AddRange(ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences));
+            member.Pronouns = req.Pronouns.ToList();
+        }
+
+        if (req.Fields != null)
+        {
+            errors.AddRange(ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences));
+            member.Fields = req.Fields.ToList();
+        }
+
+        if (req.Flags != null)
+        {
+            var flagError = await db.SetMemberFlagsAsync(CurrentUser!.Id, member.Id, req.Flags);
+            if (flagError != null) errors.Add(("flags", flagError));
+        }
+
+        if (req.HasProperty(nameof(req.Avatar)))
+            errors.Add(("avatar", ValidationUtils.ValidateAvatar(req.Avatar)));
+
+        ValidationUtils.Validate(errors);
+        // This is fired off regardless of whether the transaction is committed
+        // (atomic operations are hard when combined with background jobs)
+        // so it's in a separate block to the validation above.
+        if (req.HasProperty(nameof(req.Avatar)))
+            queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
+                new AvatarUpdatePayload(member.Id, req.Avatar));
+        try
+        {
+            await db.SaveChangesAsync();
+        }
+        catch (UniqueConstraintException)
+        {
+            _logger.Debug("Could not update member {Id} due to name conflict ({CurrentName} / {NewName})", member.Id,
+                member.Name, req.Name);
+            throw new ApiError.BadRequest("A member with that name already exists", "name", req.Name!);
+        }
+
+        await tx.CommitAsync();
+        return Ok(memberRenderer.RenderMember(member, CurrentToken));
+    }
+
+    public class UpdateMemberRequest : PatchRequest
+    {
+        public string? Name { get; init; }
+        public string? DisplayName { get; init; }
+        public string? Bio { get; init; }
+        public string? Avatar { get; init; }
+        public string[]? Links { get; init; }
+        public FieldEntry[]? Names { get; init; }
+        public Pronoun[]? Pronouns { get; init; }
+        public Field[]? Fields { get; init; }
+        public Snowflake[]? Flags { get; init; }
+    }
+
     [HttpDelete("/api/v2/users/@me/members/{memberRef}")]
     [Authorize("member.update")]
     public async Task<IActionResult> DeleteMemberAsync(string memberRef)
