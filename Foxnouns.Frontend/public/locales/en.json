@@ -42,7 +42,7 @@
   },
   "member": {
     "avatar-alt": "Avatar for {{name}}",
-    "own-profile-alert": "You are currently viewing the <1>public</1> profile of {{memberName}}.<5></5><6>Edit your profile</6>",
+    "own-profile-alert": "You are currently viewing the <1>public</1> profile of {{memberName}}.<5></5><6>Edit profile</6>",
     "back": "Back to {{name}}"
   },
   "log-in": {
