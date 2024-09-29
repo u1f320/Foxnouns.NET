@@ -24,13 +24,14 @@ public class MemberRendererService(DatabaseContext db, Config config)
         return members.Select(m => RenderPartialMember(m, renderUnlisted));
     }
 
-    public MemberResponse RenderMember(Member member, Token? token)
+    public MemberResponse RenderMember(Member member, Token? token = null)
     {
         var renderUnlisted = token?.UserId == member.UserId && token.HasScope("user.read_hidden");
 
         return new MemberResponse(
             member.Id, member.Sid, member.Name, member.DisplayName, member.Bio,
             AvatarUrlFor(member), member.Links, member.Names, member.Pronouns, member.Fields,
+            member.ProfileFlags.Select(f => RenderPrideFlag(f.PrideFlag)),
             RenderPartialUser(member.User), renderUnlisted ? member.Unlisted : null);
     }
 
@@ -49,6 +50,9 @@ public class MemberRendererService(DatabaseContext db, Config config)
         user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
 
     private string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
+
+    private UserRendererService.PrideFlagResponse RenderPrideFlag(PrideFlag flag) =>
+        new(flag.Id, ImageUrlFor(flag), flag.Name, flag.Description);
 
     public record PartialMember(
         Snowflake Id,
@@ -73,6 +77,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
         IEnumerable<FieldEntry> Names,
         IEnumerable<Pronoun> Pronouns,
         IEnumerable<Field> Fields,
+        IEnumerable<UserRendererService.PrideFlagResponse> Flags,
         UserRendererService.PartialUser User,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         bool? Unlisted);

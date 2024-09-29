@@ -71,6 +71,7 @@ public static class DatabaseQueryExtensions
         {
             member = await context.Members
                 .Include(m => m.User)
+                .Include(m => m.ProfileFlags)
                 .Where(m => !m.User.Deleted)
                 .FirstOrDefaultAsync(m => m.Id == snowflake && m.UserId == userId, ct);
             if (member != null) return member;
@@ -78,6 +79,7 @@ public static class DatabaseQueryExtensions
 
         member = await context.Members
             .Include(m => m.User)
+            .Include(m => m.ProfileFlags)
             .Where(m => !m.User.Deleted)
             .FirstOrDefaultAsync(m => m.Name == memberRef && m.UserId == userId, ct);
         if (member != null) return member;
