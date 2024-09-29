@@ -5,7 +5,6 @@ import serverRequest from "~/lib/request.server";
 import { loader as rootLoader } from "~/root";
 import { Alert, Button, Pagination } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
-import { renderMarkdown } from "~/lib/markdown";
 import { PersonPlusFill } from "react-bootstrap-icons";
 import MemberCard from "~/routes/$username/MemberCard";
 import { ReactNode } from "react";
@@ -77,13 +76,13 @@ export default function UserPage() {
 					<Trans t={t} i18nKey="user.own-profile-alert">
 						You are currently viewing your <strong>public</strong> profile.
 						<br />
-						<Link to="/edit/profile">Edit your profile</Link>
+						<Link to="/settings/profile">Edit your profile</Link>
 					</Trans>
 				</Alert>
 			)}
 			<BaseProfile
 				name={user.username}
-				avatarI18nKey={"user.avatar-alt"}
+				userI18nKeys={true}
 				profile={user}
 				customPreferences={user.custom_preferences}
 			/>

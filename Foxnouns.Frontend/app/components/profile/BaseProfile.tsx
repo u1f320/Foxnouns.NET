@@ -10,14 +10,14 @@ import { renderMarkdown } from "~/lib/markdown";
 export type Props = {
 	name: string;
 	fullName?: string;
-	avatarI18nKey: string;
+	userI18nKeys: boolean;
 	profile: User | Member;
 	customPreferences: Record<string, CustomPreference>;
 };
 
 export default function BaseProfile({
 	name,
-	avatarI18nKey,
+	userI18nKeys,
 	fullName,
 	profile,
 	customPreferences,
@@ -30,13 +30,23 @@ export default function BaseProfile({
 			<div className="grid row-gap-3">
 				<div className="row">
 					<div className="col-md-4 text-center">
-						<img
-							src={profile.avatar_url || defaultAvatarUrl}
-							alt={t(avatarI18nKey, { username: name })}
-							width={200}
-							height={200}
-							className="rounded-circle img-fluid"
-						/>
+						{userI18nKeys ? (
+							<img
+								src={profile.avatar_url || defaultAvatarUrl}
+								alt={t("user.avatar-alt", { username: name })}
+								width={200}
+								height={200}
+								className="rounded-circle img-fluid"
+							/>
+						) : (
+							<img
+								src={profile.avatar_url || defaultAvatarUrl}
+								alt={t("member.avatar-alt", { name: name })}
+								width={200}
+								height={200}
+								className="rounded-circle img-fluid"
+							/>
+						)}
 						{profile.flags && profile.bio && (
 							<div className="d-flex flex-wrap m-4">
 								{profile.flags.map((f, i) => (
@@ -46,9 +56,9 @@ export default function BaseProfile({
 						)}
 					</div>
 					<div className="col-md">
-						{profile.display_name ? (
+						{profile.display_name || fullName ? (
 							<>
-								<h2>{profile.display_name}</h2>
+								<h2>{profile.display_name || name}</h2>
 								<p className="fs-5 text-body-secondary">{fullName || `@${name}`}</p>
 							</>
 						) : (
