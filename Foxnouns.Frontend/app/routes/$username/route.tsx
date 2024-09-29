@@ -6,13 +6,10 @@ import { loader as rootLoader } from "~/root";
 import { Alert, Button, Pagination } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
 import { renderMarkdown } from "~/lib/markdown";
-import ProfileLink from "~/components/profile/ProfileLink";
-import ProfileField from "~/components/profile/ProfileField";
 import { PersonPlusFill } from "react-bootstrap-icons";
-import { defaultAvatarUrl } from "~/lib/utils";
 import MemberCard from "~/routes/$username/MemberCard";
 import { ReactNode } from "react";
-import ProfileFlag from "~/components/profile/ProfileFlag";
+import BaseProfile from "~/components/profile/BaseProfile";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	const { user } = data!;
@@ -45,7 +42,6 @@ export default function UserPage() {
 	const { meUser } = useRouteLoaderData<typeof rootLoader>("root") || { meUser: undefined };
 
 	const isMeUser = meUser && meUser.id === user.id;
-	const bio = renderMarkdown(user.bio);
 
 	const paginationItems: ReactNode[] = [];
 	for (let i = 0; i < pageCount; i++) {
@@ -83,85 +79,12 @@ export default function UserPage() {
 					</Trans>
 				</Alert>
 			)}
-			<div className="grid row-gap-3">
-				<div className="row">
-					<div className="col-md-4 text-center">
-						<img
-							src={user.avatar_url || defaultAvatarUrl}
-							alt={t("user.avatar-alt", { username: user.username })}
-							width={200}
-							height={200}
-							className="rounded-circle img-fluid"
-						/>
-						{user.flags && user.bio && (
-							<div className="d-flex flex-wrap m-4">
-								{user.flags.map((f, i) => (
-									<ProfileFlag flag={f} key={i} />
-								))}
-							</div>
-						)}
-					</div>
-					<div className="col-md">
-						{user.display_name ? (
-							<>
-								<h2>{user.display_name}</h2>
-								<p className="fs-5 text-body-secondary">@{user.username}</p>
-							</>
-						) : (
-							<>
-								<h2>@{user.username}</h2>
-							</>
-						)}
-						{bio && (
-							<>
-								<hr />
-								<p dangerouslySetInnerHTML={{ __html: bio }}></p>
-							</>
-						)}
-					</div>
-					{user.links.length > 0 && (
-						<div className="col-md d-flex align-items-center">
-							<ul className="list-unstyled">
-								{user.links.map((l, i) => (
-									<ProfileLink link={l} key={i} />
-								))}
-							</ul>
-						</div>
-					)}
-				</div>
-				<div className="row row-cols-1 row-cols-sm-2 row-cols-md-3">
-					{user.names.length > 0 && (
-						<ProfileField
-							name={t("user.heading.names")}
-							entries={user.names}
-							preferences={user.custom_preferences}
-						/>
-					)}
-					{user.pronouns.length > 0 && (
-						<ProfileField
-							name={t("user.heading.pronouns")}
-							entries={user.pronouns}
-							preferences={user.custom_preferences}
-						/>
-					)}
-					{user.fields.map((f, i) => (
-						<ProfileField
-							name={f.name}
-							entries={f.entries}
-							preferences={user.custom_preferences}
-							key={i}
-						/>
-					))}
-				</div>
-			</div>
-			{/* If a user or member has no bio, flags are displayed in a row below the other profile info, rather than just below the avatar */}
-			{user.flags && !user.bio && (
-				<div className="d-flex flex-wrap m-4">
-					{user.flags.map((f, i) => (
-						<ProfileFlag flag={f} key={i} />
-					))}
-				</div>
-			)}
+			<BaseProfile
+				name={user.username}
+				avatarI18nKey={"user.avatar-alt"}
+				profile={user}
+				customPreferences={user.custom_preferences}
+			/>
 			{(members.length > 0 || isMeUser) && (
 				<>
 					<hr />
