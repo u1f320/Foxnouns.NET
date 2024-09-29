@@ -56,12 +56,14 @@ export default function UserPage() {
 		<Pagination className="justify-content-center">
 			<Pagination.Prev
 				as={Link}
+				// @ts-expect-error using as=Link causes an error here, even though it runs completely fine
 				to={`/@${user.username}?page=${currentPage - 1}`}
 				disabled={currentPage === 0}
 			/>
 			{paginationItems}
 			<Pagination.Next
 				as={Link}
+				// @ts-expect-error using as=Link causes an error here, even though it runs completely fine
 				to={`/@${user.username}?page=${currentPage + 1}`}
 				disabled={currentPage === pageCount - 1}
 			/>

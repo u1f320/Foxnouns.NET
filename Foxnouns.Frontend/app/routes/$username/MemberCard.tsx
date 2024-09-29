@@ -47,7 +47,7 @@ export default function MemberCard({ user, member }: { user: PartialUser; member
 				/>
 			</Link>
 			<p className="m-2">
-				<Link to={`/@${user.username}/${member.name}`}>
+				<Link to={`/@${user.username}/${member.name}`} className="text-reset fs-5 text-break">
 					{member.display_name ?? member.name}
 					{member.unlisted === true && (
 						<>
