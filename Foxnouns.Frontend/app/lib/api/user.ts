@@ -13,6 +13,7 @@ export type User = PartialUser & {
 	names: FieldEntry[];
 	pronouns: Pronoun[];
 	fields: Field[];
+	flags: PrideFlag[];
 };
 
 export type UserWithMembers = User & { members: PartialMember[] };
@@ -48,6 +49,13 @@ export type Pronoun = FieldEntry & { display_text: string | null };
 export type Field = {
 	name: string;
 	entries: FieldEntry[];
+};
+
+export type PrideFlag = {
+	id: string;
+	image_url: string;
+	name: string;
+	description: string | null;
 };
 
 export type CustomPreference = {

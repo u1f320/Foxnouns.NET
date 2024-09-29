@@ -7,8 +7,8 @@ import {
 	Pronoun,
 } from "~/lib/api/user";
 import classNames from "classnames";
-import StatusIcon from "~/components/StatusIcon";
-import PronounLink from "~/components/PronounLink";
+import StatusIcon from "~/components/profile/StatusIcon";
+import PronounLink from "~/components/profile/PronounLink";
 
 export default function StatusLine({
 	entry,

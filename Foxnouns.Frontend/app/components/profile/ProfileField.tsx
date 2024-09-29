@@ -1,5 +1,5 @@
 import { CustomPreference, FieldEntry, Pronoun } from "~/lib/api/user";
-import StatusLine from "~/components/StatusLine";
+import StatusLine from "~/components/profile/StatusLine";
 
 export default function ProfileField({
 	name,

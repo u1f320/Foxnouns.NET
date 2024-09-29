@@ -6,12 +6,13 @@ import { loader as rootLoader } from "~/root";
 import { Alert, Button, Pagination } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
 import { renderMarkdown } from "~/lib/markdown";
-import ProfileLink from "~/components/ProfileLink";
-import ProfileField from "~/components/ProfileField";
+import ProfileLink from "~/components/profile/ProfileLink";
+import ProfileField from "~/components/profile/ProfileField";
 import { PersonPlusFill } from "react-bootstrap-icons";
 import { defaultAvatarUrl } from "~/lib/utils";
 import MemberCard from "~/routes/$username/MemberCard";
 import { ReactNode } from "react";
+import ProfileFlag from "~/components/profile/ProfileFlag";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	const { user } = data!;
@@ -92,6 +93,13 @@ export default function UserPage() {
 							height={200}
 							className="rounded-circle img-fluid"
 						/>
+						{user.flags && user.bio && (
+							<div className="d-flex flex-wrap m-4">
+								{user.flags.map((f, i) => (
+									<ProfileFlag flag={f} key={i} />
+								))}
+							</div>
+						)}
 					</div>
 					<div className="col-md">
 						{user.display_name ? (
@@ -146,6 +154,14 @@ export default function UserPage() {
 					))}
 				</div>
 			</div>
+			{/* If a user or member has no bio, flags are displayed in a row below the other profile info, rather than just below the avatar */}
+			{user.flags && !user.bio && (
+				<div className="d-flex flex-wrap m-4">
+					{user.flags.map((f, i) => (
+						<ProfileFlag flag={f} key={i} />
+					))}
+				</div>
+			)}
 			{(members.length > 0 || isMeUser) && (
 				<>
 					<hr />
