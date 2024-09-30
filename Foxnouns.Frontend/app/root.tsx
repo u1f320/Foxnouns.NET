@@ -13,7 +13,7 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { useChangeLanguage } from "remix-i18next/react";
 import { useTranslation } from "react-i18next";
 
-import serverRequest, { getCookie, writeCookie } from "./lib/request.server";
+import serverRequest, { getToken, writeCookie } from "./lib/request.server";
 import Meta from "./lib/api/meta";
 import Navbar from "./components/nav/Navbar";
 import { User, UserSettings } from "./lib/api/user";
@@ -26,11 +26,12 @@ import { errorCodeDesc } from "./components/ErrorAlert";
 import { Container } from "react-bootstrap";
 import { ReactNode } from "react";
 import BaseNavbar from "~/components/nav/BaseNavbar";
+import { tokenCookieName } from "~/lib/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const meta = await serverRequest<Meta>("GET", "/meta");
 
-	const token = getCookie(request, "pronounscc-token");
+	const token = getToken(request);
 	let setCookie = "";
 
 	let meUser: User | undefined;
@@ -43,7 +44,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 		} catch (e) {
 			// If we get an unauthorized error, clear the token, as it's not valid anymore.
 			if ((e as ApiError).code === ErrorCode.AuthenticationRequired) {
-				setCookie = writeCookie("pronounscc-token", token, 0);
+				setCookie = writeCookie(tokenCookieName, token, 0);
 			}
 		}
 	}

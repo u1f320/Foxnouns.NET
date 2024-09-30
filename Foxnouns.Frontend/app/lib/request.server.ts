@@ -1,6 +1,7 @@
 import { parse as parseCookie, serialize as serializeCookie } from "cookie";
 import { API_BASE } from "~/env.server";
 import { ApiError, ErrorCode } from "./api/error";
+import { tokenCookieName } from "~/lib/utils";
 
 export type RequestParams = {
 	token?: string;
@@ -39,7 +40,7 @@ export default async function serverRequest<T>(
 	return (await resp.json()) as T;
 }
 
-export const getToken = (req: Request) => getCookie(req, "pronounscc-token");
+export const getToken = (req: Request) => getCookie(req, tokenCookieName);
 
 export function getCookie(req: Request, cookieName: string): string | undefined {
 	const header = req.headers.get("Cookie");
@@ -57,4 +58,5 @@ export const writeCookie = (cookieName: string, value: string, maxAge: number | 
 		path: "/",
 		sameSite: "lax",
 		httpOnly: true,
+		secure: true,
 	});

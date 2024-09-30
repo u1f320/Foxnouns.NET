@@ -19,6 +19,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { Form, Button, Alert } from "react-bootstrap";
 import ErrorAlert from "~/components/ErrorAlert";
 import i18n from "~/i18next.server";
+import { tokenCookieName } from "~/lib/utils";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `${data?.meta.title || "Log in"} • pronouns.cc` }];
@@ -53,7 +54,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 			},
 			{
 				headers: {
-					"Set-Cookie": writeCookie("pronounscc-token", resp.token!),
+					"Set-Cookie": writeCookie(tokenCookieName, resp.token!),
 				},
 			},
 		);
@@ -90,7 +91,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 		return redirect("/auth/welcome", {
 			headers: {
-				"Set-Cookie": writeCookie("pronounscc-token", resp.token),
+				"Set-Cookie": writeCookie(tokenCookieName, resp.token),
 			},
 			status: 303,
 		});

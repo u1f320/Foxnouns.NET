@@ -19,6 +19,7 @@ import { AuthResponse, AuthUrls } from "~/lib/api/auth";
 import { ApiError, ErrorCode } from "~/lib/api/error";
 import ErrorAlert from "~/components/ErrorAlert";
 import { User } from "~/lib/api/user";
+import { tokenCookieName } from "~/lib/utils";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `${data?.meta.title || "Log in"} • pronouns.cc` }];
@@ -61,7 +62,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 		return redirect("/", {
 			status: 303,
 			headers: {
-				"Set-Cookie": writeCookie("pronounscc-token", resp.token),
+				"Set-Cookie": writeCookie(tokenCookieName, resp.token),
 			},
 		});
 	} catch (e) {
