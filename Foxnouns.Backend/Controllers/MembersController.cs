@@ -100,7 +100,9 @@ public class MembersController(
         var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
         var errors = new List<(string, ValidationError?)>();
 
-        if (req.Name != null)
+        // We might add extra validations for names later down the line.
+        // These should only take effect when a member's name is changed, not on other changes.
+        if (req.Name != null && req.Name != member.Name)
         {
             errors.Add(("name", ValidationUtils.ValidateMemberName(req.Name)));
             member.Name = req.Name;
