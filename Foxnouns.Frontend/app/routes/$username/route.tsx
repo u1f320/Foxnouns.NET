@@ -93,7 +93,7 @@ export default function UserPage() {
 						{user.member_title || t("user.heading.members")}{" "}
 						{isMeUser && (
 							// @ts-expect-error using as=Link causes an error here, even though it runs completely fine
-							<Button as={Link} to="/settings/members/create" variant="success">
+							<Button as={Link} to="/settings/new-member" variant="success">
 								<PersonPlusFill /> {t("user.create-member-button")}
 							</Button>
 						)}

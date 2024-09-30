@@ -14,12 +14,15 @@ import {
 	useActionData,
 	useLoaderData,
 	ShouldRevalidateFunction,
+	useNavigate,
+	Navigate,
 } from "@remix-run/react";
 import { Trans, useTranslation } from "react-i18next";
 import { Form, Button, Alert } from "react-bootstrap";
 import ErrorAlert from "~/components/ErrorAlert";
 import i18n from "~/i18next.server";
 import { tokenCookieName } from "~/lib/utils";
+import { useEffect } from "react";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `${data?.meta.title || "Log in"} • pronouns.cc` }];
@@ -106,6 +109,16 @@ export default function DiscordCallbackPage() {
 	const { t } = useTranslation();
 	const data = useLoaderData<typeof loader>();
 	const actionData = useActionData<typeof action>();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		setTimeout(() => {
+			if (data.hasAccount) {
+				navigate(`/@${data.user!.username}`);
+			}
+		}, 2000);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	if (data.hasAccount) {
 		const username = data.user!.username;

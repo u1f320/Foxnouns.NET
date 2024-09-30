@@ -41,7 +41,7 @@ export default function MemberPage() {
 					<Trans t={t} i18nKey="member.own-profile-alert" values={{ memberName: member.name }}>
 						You are currently viewing the <strong>public</strong> profile of {{ memberName }}.
 						<br />
-						<Link to={`/settings/profile/${member.id}`}>Edit profile</Link>
+						<Link to={`/settings/members/${member.id}`}>Edit profile</Link>
 					</Trans>
 				</Alert>
 			)}
