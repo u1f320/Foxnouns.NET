@@ -9,3 +9,8 @@ export default interface Meta {
 	};
 	members: number;
 }
+
+export type Limits = {
+	member_count: number;
+	bio_length: number;
+};
