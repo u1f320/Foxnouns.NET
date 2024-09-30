@@ -1,3 +1,4 @@
+using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foxnouns.Backend.Controllers;
@@ -18,14 +19,22 @@ public class MetaController : ApiControllerBase
                 (int)FoxnounsMetrics.UsersActiveMonthCount.Value,
                 (int)FoxnounsMetrics.UsersActiveWeekCount.Value,
                 (int)FoxnounsMetrics.UsersActiveDayCount.Value
-            ))
+            ),
+            new Limits(
+                MemberCount: MembersController.MaxMemberCount,
+                BioLength: ValidationUtils.MaxBioLength))
         );
     }
 
     [HttpGet("/api/v2/coffee")]
     public IActionResult BrewCoffee() => Problem("Sorry, I'm a teapot!", statusCode: StatusCodes.Status418ImATeapot);
 
-    private record MetaResponse(string Repository, string Version, string Hash, int Members, UserInfo Users);
+    private record MetaResponse(string Repository, string Version, string Hash, int Members, UserInfo Users, Limits Limits);
 
     private record UserInfo(int Total, int ActiveMonth, int ActiveWeek, int ActiveDay);
+
+    // All limits that the frontend should know about (for UI purposes)
+    private record Limits(
+        int MemberCount,
+        int BioLength);
 }

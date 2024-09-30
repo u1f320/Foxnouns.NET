@@ -127,12 +127,14 @@ public static class ValidationUtils
         return errors;
     }
 
+    public const int MaxBioLength = 1024;
+    
     public static ValidationError? ValidateBio(string? bio)
     {
         return bio?.Length switch
         {
-            0 => ValidationError.LengthError("Bio is too short", 1, 1024, bio.Length),
-            > 1024 => ValidationError.LengthError("Bio is too long", 1, 1024, bio.Length),
+            0 => ValidationError.LengthError("Bio is too short", 1, MaxBioLength, bio.Length),
+            > MaxBioLength => ValidationError.LengthError("Bio is too long", 1, MaxBioLength, bio.Length),
             _ => null
         };
     }

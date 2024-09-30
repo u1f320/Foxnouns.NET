@@ -41,6 +41,8 @@ public class MembersController(
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
+    public const int MaxMemberCount = 500;
+
     [HttpPost("/api/v2/users/@me/members")]
     [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
     [Authorize("member.create")]
@@ -57,6 +59,10 @@ public class MembersController(
             .. ValidationUtils.ValidatePronouns(req.Pronouns?.ToArray(), CurrentUser!.CustomPreferences),
             .. ValidationUtils.ValidateLinks(req.Links)
         ]);
+
+        var memberCount = await db.Members.CountAsync(m => m.UserId == CurrentUser.Id, ct);
+        if (memberCount >= MaxMemberCount)
+            throw new ApiError.BadRequest("Maximum number of members reached");
 
         var member = new Member
         {
