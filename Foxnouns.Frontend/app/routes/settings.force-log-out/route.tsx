@@ -10,7 +10,7 @@ export const action: ActionFunction = async ({ request }) => {
 			headers: { "Set-Cookie": writeCookie(tokenCookieName, "token", 0) },
 		});
 
-	await fastRequest("POST", "/internal/force-log-out", { token, isInternal: true });
+	await fastRequest("POST", "/auth/force-log-out", { token, isInternal: true });
 
 	return redirect("/", {
 		status: 303,

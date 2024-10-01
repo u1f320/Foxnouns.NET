@@ -27,7 +27,7 @@ public static class AuthUtils
 
     public static string[] ExpandScopes(this string[] scopes)
     {
-        if (scopes.Contains("*")) return Scopes;
+        if (scopes.Contains("*")) return ["*", ..Scopes];
         List<string> expandedScopes = ["identify"];
         if (scopes.Contains("user")) expandedScopes.AddRange(UserScopes);
         if (scopes.Contains("member")) expandedScopes.AddRange(MemberScopes);

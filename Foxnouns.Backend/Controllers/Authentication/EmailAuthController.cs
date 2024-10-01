@@ -1,6 +1,7 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
+using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using JetBrains.Annotations;
@@ -10,7 +11,7 @@ using NodaTime;
 
 namespace Foxnouns.Backend.Controllers.Authentication;
 
-[Route("/api/v2/auth/email")]
+[Route("/api/internal/auth/email")]
 public class EmailAuthController(
     [UsedImplicitly] Config config,
     DatabaseContext db,
@@ -122,6 +123,17 @@ public class EmailAuthController(
             token.ExpiresAt
         ));
     }
+
+    [HttpPost("add")]
+    [Authorize("*")]
+    public async Task<IActionResult> AddEmailAddressAsync()
+    {
+        _logger.Information("beep");
+
+        return NoContent();
+    }
+
+    public record AddEmailAddressRequest(string Email, string Password);
 
     private void CheckRequirements()
     {

@@ -41,7 +41,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 		}
 	}
 
-	const urls = await serverRequest<AuthUrls>("POST", "/auth/urls");
+	const urls = await serverRequest<AuthUrls>("POST", "/auth/urls", { isInternal: true });
 
 	return json({
 		meta: { title: t("log-in.title") },
@@ -57,6 +57,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 	try {
 		const resp = await serverRequest<AuthResponse>("POST", "/auth/email/login", {
 			body: { email, password },
+			isInternal: true,
 		});
 
 		return redirect("/", {

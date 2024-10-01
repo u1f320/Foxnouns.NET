@@ -16,7 +16,7 @@ async function requestInternal(
 	path: string,
 	params: RequestParams = {},
 ): Promise<Response> {
-	const base = params.isInternal ? INTERNAL_API_BASE : API_BASE + "/v2";
+	const base = params.isInternal ? INTERNAL_API_BASE + "/internal" : API_BASE + "/v2";
 
 	const url = `${base}${path}`;
 	const resp = await fetch(url, {

@@ -43,6 +43,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	const resp = await serverRequest<CallbackResponse>("POST", "/auth/discord/callback", {
 		body: { code, state },
+		isInternal: true,
 	});
 
 	if (resp.has_account) {
@@ -89,6 +90,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 	try {
 		const resp = await serverRequest<AuthResponse>("POST", "/auth/discord/register", {
 			body: { username, ticket },
+			isInternal: true,
 		});
 
 		return redirect("/auth/welcome", {

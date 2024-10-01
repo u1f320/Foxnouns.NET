@@ -10,7 +10,7 @@ using NodaTime;
 
 namespace Foxnouns.Backend.Controllers.Authentication;
 
-[Route("/api/v2/auth/discord")]
+[Route("/api/internal/auth/discord")]
 public class DiscordAuthController(
     [UsedImplicitly] Config config,
     ILogger logger,

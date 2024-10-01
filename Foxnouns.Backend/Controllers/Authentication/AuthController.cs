@@ -1,14 +1,18 @@
 using System.Web;
+using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Extensions;
+using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
 
 namespace Foxnouns.Backend.Controllers.Authentication;
 
-[Route("/api/v2/auth")]
-public class AuthController(Config config, KeyCacheService keyCache, ILogger logger) : ApiControllerBase
+[Route("/api/internal/auth")]
+public class AuthController(Config config, DatabaseContext db, KeyCacheService keyCache, ILogger logger)
+    : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<AuthController>();
 
@@ -61,4 +65,15 @@ public class AuthController(Config config, KeyCacheService keyCache, ILogger log
     public record OauthRegisterRequest(string Ticket, string Username);
 
     public record CallbackRequest(string Code, string State);
+
+    [HttpPost("force-log-out")]
+    [Authorize("identify")]
+    public async Task<IActionResult> ForceLogoutAsync()
+    {
+        _logger.Information("Invalidating all tokens for user {UserId}", CurrentUser!.Id);
+        await db.Tokens.Where(t => t.UserId == CurrentUser.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.ManuallyExpired, true));
+
+        return NoContent();
+    }
 }
