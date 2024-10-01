@@ -96,6 +96,8 @@
 			"change-username": "Change username",
 			"username-change-hint": "Changing your username will make any existing links to your or your members' profiles invalid.\nYour username must be unique, be at most 40 characters long, and only contain letters from the basic English alphabet, dashes, underscores, and periods. Your username is used as part of your profile link, you can set a separate display name.",
 			"log-out-everywhere": "Log out everywhere",
+			"log-out-everywhere-hint": "If you think one of your tokens might have been compromised, you can log out on all devices by clicking this button.",
+			"force-log-out-button": "Force log out",
 			"table-header": "General account information",
 			"id": "Your user ID",
 			"created": "Account created at",

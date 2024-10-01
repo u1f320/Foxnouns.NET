@@ -1,17 +1,35 @@
 using System.Text.RegularExpressions;
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foxnouns.Backend.Controllers;
 
 [ApiController]
 [Route("/api/internal")]
-public partial class InternalController(DatabaseContext db) : ControllerBase
+public partial class InternalController(ILogger logger, DatabaseContext db) : ControllerBase
 {
+    private readonly ILogger _logger = logger.ForContext<InternalController>();
+
+    [HttpPost("force-log-out")]
+    [Authenticate]
+    [Authorize("identify")]
+    public async Task<IActionResult> ForceLogoutAsync()
+    {
+        var user = HttpContext.GetUser()!;
+
+        _logger.Information("Invalidating all tokens for user {UserId}", user.Id);
+        await db.Tokens.Where(t => t.UserId == user.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.ManuallyExpired, true));
+
+        return NoContent();
+    }
+
     [GeneratedRegex(@"(\{\w+\})")]
     private static partial Regex PathVarRegex();
 

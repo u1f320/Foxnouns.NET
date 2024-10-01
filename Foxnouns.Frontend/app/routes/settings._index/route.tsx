@@ -1,6 +1,6 @@
 import { Button, Form, InputGroup, Table } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import { Form as RemixForm, useActionData, useRouteLoaderData } from "@remix-run/react";
+import { Form as RemixForm, useActionData, useFetcher, useRouteLoaderData } from "@remix-run/react";
 import { loader as settingsLoader } from "../settings/route";
 import { loader as rootLoader } from "../../root";
 import { DateTime } from "luxon";
@@ -43,6 +43,7 @@ export default function SettingsIndex() {
 	const actionData = useActionData<typeof action>();
 	const { meta } = useRouteLoaderData<typeof rootLoader>("root")!;
 	const { t } = useTranslation();
+	const fetcher = useFetcher();
 
 	const createdAt = idTimestamp(user.id);
 
@@ -55,13 +56,7 @@ export default function SettingsIndex() {
 							<Form.Group className="mb-3" controlId="username">
 								<Form.Label>{t("settings.general.username")}</Form.Label>
 								<InputGroup className="m-1 w-75">
-									<Form.Control
-										defaultValue={user.username}
-										id="username"
-										name="username"
-										type="text"
-										required
-									/>
+									<Form.Control defaultValue={user.username} name="username" type="text" required />
 									<Button variant="secondary" type="submit">
 										{t("settings.general.change-username")}
 									</Button>
@@ -85,9 +80,14 @@ export default function SettingsIndex() {
 			</div>
 			<div>
 				<h4>{t("settings.general.log-out-everywhere")}</h4>
-				<p></p>
+				<p>{t("settings.general.log-out-everywhere-hint")}</p>
+				<fetcher.Form method="POST" action="/settings/force-log-out">
+					<Button type="submit" variant="danger">
+						{t("settings.general.force-log-out-button")}
+					</Button>
+				</fetcher.Form>
 			</div>
-			<h4>{t("settings.general.table-header")}</h4>
+			<h4 className="mt-2">{t("settings.general.table-header")}</h4>
 			<Table striped bordered hover>
 				<tbody>
 					<tr>

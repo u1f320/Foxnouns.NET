@@ -18,6 +18,7 @@ services:
     build: ./Foxnouns.Frontend
     environment:
       - "API_BASE=http://rate:5003/api"
+      - "INTERNAL_API_BASE=http://backend:5000/api"
     restart: unless-stopped
     volumes:
       - ./docker/frontend.env:/app/.env

@@ -1,5 +1,5 @@
 import { parse as parseCookie, serialize as serializeCookie } from "cookie";
-import { API_BASE } from "~/env.server";
+import { API_BASE, INTERNAL_API_BASE } from "~/env.server";
 import { ApiError, ErrorCode } from "./api/error";
 import { tokenCookieName } from "~/lib/utils";
 
@@ -8,14 +8,17 @@ export type RequestParams = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	body?: any;
 	headers?: Record<string, string>;
+	isInternal?: boolean;
 };
 
-export default async function serverRequest<T>(
+async function requestInternal(
 	method: string,
 	path: string,
 	params: RequestParams = {},
-) {
-	const url = `${API_BASE}/v2${path}`;
+): Promise<Response> {
+	const base = params.isInternal ? INTERNAL_API_BASE : API_BASE + "/v2";
+
+	const url = `${base}${path}`;
 	const resp = await fetch(url, {
 		method,
 		body: params.body ? JSON.stringify(params.body) : undefined,
@@ -37,6 +40,19 @@ export default async function serverRequest<T>(
 	}
 
 	if (resp.status < 200 || resp.status >= 400) throw (await resp.json()) as ApiError;
+	return resp;
+}
+
+export async function fastRequest(method: string, path: string, params: RequestParams = {}) {
+	await requestInternal(method, path, params);
+}
+
+export default async function serverRequest<T>(
+	method: string,
+	path: string,
+	params: RequestParams = {},
+) {
+	const resp = await requestInternal(method, path, params);
 	return (await resp.json()) as T;
 }
 
