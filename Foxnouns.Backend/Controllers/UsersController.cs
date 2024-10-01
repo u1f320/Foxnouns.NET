@@ -20,7 +20,8 @@ public class UsersController(
     UserRendererService userRenderer,
     ISnowflakeGenerator snowflakeGenerator,
     IQueue queue,
-    IClock clock) : ApiControllerBase
+    IClock clock
+) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<UsersController>();
 
@@ -29,20 +30,25 @@ public class UsersController(
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
     {
         var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
-        return Ok(await userRenderer.RenderUserAsync(
-            user,
-            selfUser: CurrentUser,
-            token: CurrentToken,
-            renderMembers: true,
-            renderAuthMethods: true,
-            ct: ct
-        ));
+        return Ok(
+            await userRenderer.RenderUserAsync(
+                user,
+                selfUser: CurrentUser,
+                token: CurrentToken,
+                renderMembers: true,
+                renderAuthMethods: true,
+                ct: ct
+            )
+        );
     }
 
     [HttpPatch("@me")]
     [Authorize("user.update")]
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserRequest req, CancellationToken ct = default)
+    public async Task<IActionResult> UpdateUserAsync(
+        [FromBody] UpdateUserRequest req,
+        CancellationToken ct = default
+    )
     {
         await using var tx = await db.Database.BeginTransactionAsync(ct);
         var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
@@ -74,26 +80,37 @@ public class UsersController(
 
         if (req.Names != null)
         {
-            errors.AddRange(ValidationUtils.ValidateFieldEntries(req.Names, CurrentUser!.CustomPreferences, "names"));
+            errors.AddRange(
+                ValidationUtils.ValidateFieldEntries(
+                    req.Names,
+                    CurrentUser!.CustomPreferences,
+                    "names"
+                )
+            );
             user.Names = req.Names.ToList();
         }
 
         if (req.Pronouns != null)
         {
-            errors.AddRange(ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences));
+            errors.AddRange(
+                ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences)
+            );
             user.Pronouns = req.Pronouns.ToList();
         }
 
         if (req.Fields != null)
         {
-            errors.AddRange(ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences));
+            errors.AddRange(
+                ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences)
+            );
             user.Fields = req.Fields.ToList();
         }
 
         if (req.Flags != null)
         {
             var flagError = await db.SetUserFlagsAsync(CurrentUser!.Id, req.Flags);
-            if (flagError != null) errors.Add(("flags", flagError));
+            if (flagError != null)
+                errors.Add(("flags", flagError));
         }
 
         if (req.HasProperty(nameof(req.Avatar)))
@@ -105,7 +122,8 @@ public class UsersController(
         // so it's in a separate block to the validation above.
         if (req.HasProperty(nameof(req.Avatar)))
             queue.QueueInvocableWithPayload<UserAvatarUpdateInvocable, AvatarUpdatePayload>(
-                new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar));
+                new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar)
+            );
 
         try
         {
@@ -113,26 +131,45 @@ public class UsersController(
         }
         catch (UniqueConstraintException)
         {
-            _logger.Debug("Could not update user {Id} due to name conflict ({CurrentName} / {NewName})", user.Id,
-                user.Username, req.Username);
-            throw new ApiError.BadRequest("That username is already taken.", "username", req.Username!);
+            _logger.Debug(
+                "Could not update user {Id} due to name conflict ({CurrentName} / {NewName})",
+                user.Id,
+                user.Username,
+                req.Username
+            );
+            throw new ApiError.BadRequest(
+                "That username is already taken.",
+                "username",
+                req.Username!
+            );
         }
 
         await tx.CommitAsync(ct);
-        return Ok(await userRenderer.RenderUserAsync(user, CurrentUser, renderMembers: false,
-            renderAuthMethods: false, ct: ct));
+        return Ok(
+            await userRenderer.RenderUserAsync(
+                user,
+                CurrentUser,
+                renderMembers: false,
+                renderAuthMethods: false,
+                ct: ct
+            )
+        );
     }
 
     [HttpPatch("@me/custom-preferences")]
     [Authorize("user.update")]
     [ProducesResponseType<Dictionary<Snowflake, User.CustomPreference>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateCustomPreferencesAsync([FromBody] List<CustomPreferencesUpdateRequest> req,
-        CancellationToken ct = default)
+    public async Task<IActionResult> UpdateCustomPreferencesAsync(
+        [FromBody] List<CustomPreferencesUpdateRequest> req,
+        CancellationToken ct = default
+    )
     {
         ValidationUtils.Validate(ValidateCustomPreferences(req));
 
         var user = await db.ResolveUserAsync(CurrentUser!.Id, ct);
-        var preferences = user.CustomPreferences.Where(x => req.Any(r => r.Id == x.Key)).ToDictionary();
+        var preferences = user
+            .CustomPreferences.Where(x => req.Any(r => r.Id == x.Key))
+            .ToDictionary();
 
         foreach (var r in req)
         {
@@ -144,7 +181,7 @@ public class UsersController(
                     Icon = r.Icon,
                     Muted = r.Muted,
                     Size = r.Size,
-                    Tooltip = r.Tooltip
+                    Tooltip = r.Tooltip,
                 };
             }
             else
@@ -155,7 +192,7 @@ public class UsersController(
                     Icon = r.Icon,
                     Muted = r.Muted,
                     Size = r.Size,
-                    Tooltip = r.Tooltip
+                    Tooltip = r.Tooltip,
                 };
             }
         }
@@ -180,15 +217,25 @@ public class UsersController(
     public const int MaxCustomPreferences = 25;
 
     private static List<(string, ValidationError?)> ValidateCustomPreferences(
-        List<CustomPreferencesUpdateRequest> preferences)
+        List<CustomPreferencesUpdateRequest> preferences
+    )
     {
         var errors = new List<(string, ValidationError?)>();
 
         if (preferences.Count > MaxCustomPreferences)
-            errors.Add(("custom_preferences",
-                ValidationError.LengthError("Too many custom preferences", 0, MaxCustomPreferences,
-                    preferences.Count)));
-        if (preferences.Count > 50) return errors;
+            errors.Add(
+                (
+                    "custom_preferences",
+                    ValidationError.LengthError(
+                        "Too many custom preferences",
+                        0,
+                        MaxCustomPreferences,
+                        preferences.Count
+                    )
+                )
+            );
+        if (preferences.Count > 50)
+            return errors;
 
         // TODO: validate individual preferences
 
@@ -208,7 +255,6 @@ public class UsersController(
         public Snowflake[]? Flags { get; init; }
     }
 
-
     [HttpGet("@me/settings")]
     [Authorize("user.read_hidden")]
     [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
@@ -221,8 +267,10 @@ public class UsersController(
     [HttpPatch("@me/settings")]
     [Authorize("user.read_hidden", "user.update")]
     [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateUserSettingsAsync([FromBody] UpdateUserSettingsRequest req,
-        CancellationToken ct = default)
+    public async Task<IActionResult> UpdateUserSettingsAsync(
+        [FromBody] UpdateUserSettingsRequest req,
+        CancellationToken ct = default
+    )
     {
         var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
 
@@ -250,13 +298,22 @@ public class UsersController(
             throw new ApiError.BadRequest("Cannot reroll short ID yet");
 
         // Using ExecuteUpdateAsync here as the new short ID is generated by the database
-        await db.Users.Where(u => u.Id == CurrentUser.Id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(u => u.Sid, _ => db.FindFreeUserSid())
-                .SetProperty(u => u.LastSidReroll, clock.GetCurrentInstant())
-                .SetProperty(u => u.LastActive, clock.GetCurrentInstant()));
+        await db
+            .Users.Where(u => u.Id == CurrentUser.Id)
+            .ExecuteUpdateAsync(s =>
+                s.SetProperty(u => u.Sid, _ => db.FindFreeUserSid())
+                    .SetProperty(u => u.LastSidReroll, clock.GetCurrentInstant())
+                    .SetProperty(u => u.LastActive, clock.GetCurrentInstant())
+            );
 
         var user = await db.ResolveUserAsync(CurrentUser.Id);
-        return Ok(await userRenderer.RenderUserAsync(user, CurrentUser, CurrentToken, renderMembers: false));
+        return Ok(
+            await userRenderer.RenderUserAsync(
+                user,
+                CurrentUser,
+                CurrentToken,
+                renderMembers: false
+            )
+        );
     }
 }

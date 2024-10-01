@@ -19,15 +19,14 @@ namespace Foxnouns.Backend.Database.Migrations
                 table: "users",
                 type: "jsonb",
                 nullable: false,
-                defaultValueSql: "'{}'");
+                defaultValueSql: "'{}'"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "settings",
-                table: "users");
+            migrationBuilder.DropColumn(name: "settings", table: "users");
         }
     }
 }

@@ -16,8 +16,12 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// Creates a new user with the given email address and password.
     /// This method does <i>not</i> save the resulting user, the caller must still call <see cref="M:Microsoft.EntityFrameworkCore.DbContext.SaveChanges" />.
     /// </summary>
-    public async Task<User> CreateUserWithPasswordAsync(string username, string email, string password,
-        CancellationToken ct = default)
+    public async Task<User> CreateUserWithPasswordAsync(
+        string username,
+        string email,
+        string password,
+        CancellationToken ct = default
+    )
     {
         var user = new User
         {
@@ -26,9 +30,13 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
             AuthMethods =
             {
                 new AuthMethod
-                    { Id = snowflakeGenerator.GenerateSnowflake(), AuthType = AuthType.Email, RemoteId = email }
+                {
+                    Id = snowflakeGenerator.GenerateSnowflake(),
+                    AuthType = AuthType.Email,
+                    RemoteId = email,
+                },
             },
-            LastActive = clock.GetCurrentInstant()
+            LastActive = clock.GetCurrentInstant(),
         };
 
         db.Add(user);
@@ -42,8 +50,14 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// To create a user with email authentication, use <see cref="CreateUserWithPasswordAsync" />
     /// This method does <i>not</i> save the resulting user, the caller must still call <see cref="M:Microsoft.EntityFrameworkCore.DbContext.SaveChanges" />.
     /// </summary>
-    public async Task<User> CreateUserWithRemoteAuthAsync(string username, AuthType authType, string remoteId,
-        string remoteUsername, FediverseApplication? instance = null, CancellationToken ct = default)
+    public async Task<User> CreateUserWithRemoteAuthAsync(
+        string username,
+        AuthType authType,
+        string remoteId,
+        string remoteUsername,
+        FediverseApplication? instance = null,
+        CancellationToken ct = default
+    )
     {
         AssertValidAuthType(authType, instance);
 
@@ -58,11 +72,14 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
             {
                 new AuthMethod
                 {
-                    Id = snowflakeGenerator.GenerateSnowflake(), AuthType = authType, RemoteId = remoteId,
-                    RemoteUsername = remoteUsername, FediverseApplication = instance
-                }
+                    Id = snowflakeGenerator.GenerateSnowflake(),
+                    AuthType = authType,
+                    RemoteId = remoteId,
+                    RemoteUsername = remoteUsername,
+                    FediverseApplication = instance,
+                },
             },
-            LastActive = clock.GetCurrentInstant()
+            LastActive = clock.GetCurrentInstant(),
         };
 
         db.Add(user);
@@ -78,19 +95,31 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// <returns>A tuple of the authenticated user and whether multi-factor authentication is required</returns>
     /// <exception cref="ApiError.NotFound">Thrown if the email address is not associated with any user
     /// or if the password is incorrect</exception>
-    public async Task<(User, EmailAuthenticationResult)> AuthenticateUserAsync(string email, string password,
-        CancellationToken ct = default)
+    public async Task<(User, EmailAuthenticationResult)> AuthenticateUserAsync(
+        string email,
+        string password,
+        CancellationToken ct = default
+    )
     {
-        var user = await db.Users.FirstOrDefaultAsync(u =>
-            u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email), ct);
+        var user = await db.Users.FirstOrDefaultAsync(
+            u => u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email),
+            ct
+        );
         if (user == null)
-            throw new ApiError.NotFound("No user with that email address found, or password is incorrect",
-                ErrorCode.UserNotFound);
+            throw new ApiError.NotFound(
+                "No user with that email address found, or password is incorrect",
+                ErrorCode.UserNotFound
+            );
 
-        var pwResult = await Task.Run(() => _passwordHasher.VerifyHashedPassword(user, user.Password!, password), ct);
+        var pwResult = await Task.Run(
+            () => _passwordHasher.VerifyHashedPassword(user, user.Password!, password),
+            ct
+        );
         if (pwResult == PasswordVerificationResult.Failed) // TODO: this seems to fail on some valid passwords?
-            throw new ApiError.NotFound("No user with that email address found, or password is incorrect",
-                ErrorCode.UserNotFound);
+            throw new ApiError.NotFound(
+                "No user with that email address found, or password is incorrect",
+                ErrorCode.UserNotFound
+            );
         if (pwResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
@@ -117,19 +146,33 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
     /// <returns>A user object, or null if the remote account isn't linked to any user.</returns>
     /// <exception cref="FoxnounsError">Thrown if <c>instance</c> is passed when not required,
     /// or not passed when required</exception>
-    public async Task<User?> AuthenticateUserAsync(AuthType authType, string remoteId,
-        FediverseApplication? instance = null, CancellationToken ct = default)
+    public async Task<User?> AuthenticateUserAsync(
+        AuthType authType,
+        string remoteId,
+        FediverseApplication? instance = null,
+        CancellationToken ct = default
+    )
     {
         AssertValidAuthType(authType, instance);
 
-        return await db.Users.FirstOrDefaultAsync(u =>
-            u.AuthMethods.Any(a =>
-                a.AuthType == authType && a.RemoteId == remoteId && a.FediverseApplication == instance), ct);
+        return await db.Users.FirstOrDefaultAsync(
+            u =>
+                u.AuthMethods.Any(a =>
+                    a.AuthType == authType
+                    && a.RemoteId == remoteId
+                    && a.FediverseApplication == instance
+                ),
+            ct
+        );
     }
 
-    public async Task<AuthMethod> AddAuthMethodAsync(Snowflake userId, AuthType authType, string remoteId,
+    public async Task<AuthMethod> AddAuthMethodAsync(
+        Snowflake userId,
+        AuthType authType,
+        string remoteId,
         string? remoteUsername = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         AssertValidAuthType(authType, null);
 
@@ -139,7 +182,7 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
             AuthType = authType,
             RemoteId = remoteId,
             RemoteUsername = remoteUsername,
-            UserId = userId
+            UserId = userId,
         };
 
         db.Add(authMethod);
@@ -147,21 +190,33 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
         return authMethod;
     }
 
-    public (string, Token) GenerateToken(User user, Application application, string[] scopes, Instant expires)
+    public (string, Token) GenerateToken(
+        User user,
+        Application application,
+        string[] scopes,
+        Instant expires
+    )
     {
         if (!AuthUtils.ValidateScopes(application, scopes))
-            throw new ApiError.BadRequest("Invalid scopes requested for this token", "scopes", scopes);
+            throw new ApiError.BadRequest(
+                "Invalid scopes requested for this token",
+                "scopes",
+                scopes
+            );
 
         var (token, hash) = GenerateToken();
-        return (token, new Token
-        {
-            Id = snowflakeGenerator.GenerateSnowflake(),
-            Hash = hash,
-            Application = application,
-            User = user,
-            ExpiresAt = expires,
-            Scopes = scopes
-        });
+        return (
+            token,
+            new Token
+            {
+                Id = snowflakeGenerator.GenerateSnowflake(),
+                Hash = hash,
+                Application = application,
+                User = user,
+                ExpiresAt = expires,
+                Scopes = scopes,
+            }
+        );
     }
 
     private static (string, byte[]) GenerateToken()

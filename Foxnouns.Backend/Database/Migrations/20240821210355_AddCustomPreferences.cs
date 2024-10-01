@@ -1,7 +1,7 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Collections.Generic;
 using Foxnouns.Backend.Database.Models;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -21,15 +21,14 @@ namespace Foxnouns.Backend.Database.Migrations
                 table: "users",
                 type: "jsonb",
                 nullable: false,
-                defaultValueSql: "'{}'");
+                defaultValueSql: "'{}'"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "custom_preferences",
-                table: "users");
+            migrationBuilder.DropColumn(name: "custom_preferences", table: "users");
         }
     }
 }

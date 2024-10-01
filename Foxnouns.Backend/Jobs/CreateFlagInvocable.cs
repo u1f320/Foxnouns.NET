@@ -6,20 +6,30 @@ using Foxnouns.Backend.Services;
 
 namespace Foxnouns.Backend.Jobs;
 
-public class CreateFlagInvocable(DatabaseContext db, ObjectStorageService objectStorageService, ILogger logger)
-    : IInvocable, IInvocableWithPayload<CreateFlagPayload>
+public class CreateFlagInvocable(
+    DatabaseContext db,
+    ObjectStorageService objectStorageService,
+    ILogger logger
+) : IInvocable, IInvocableWithPayload<CreateFlagPayload>
 {
     private readonly ILogger _logger = logger.ForContext<CreateFlagInvocable>();
     public required CreateFlagPayload Payload { get; set; }
 
     public async Task Invoke()
     {
-        _logger.Information("Creating flag {FlagId} for user {UserId} with image data length {DataLength}", Payload.Id,
-            Payload.UserId, Payload.ImageData.Length);
+        _logger.Information(
+            "Creating flag {FlagId} for user {UserId} with image data length {DataLength}",
+            Payload.Id,
+            Payload.UserId,
+            Payload.ImageData.Length
+        );
 
         try
         {
-            var (hash, image) = await Payload.ImageData.ConvertBase64UriToImage(size: 256, crop: false);
+            var (hash, image) = await Payload.ImageData.ConvertBase64UriToImage(
+                size: 256,
+                crop: false
+            );
             await objectStorageService.PutObjectAsync(Path(hash), image, "image/webp");
 
             var flag = new PrideFlag
@@ -28,7 +38,7 @@ public class CreateFlagInvocable(DatabaseContext db, ObjectStorageService object
                 UserId = Payload.UserId,
                 Hash = hash,
                 Name = Payload.Name,
-                Description = Payload.Description
+                Description = Payload.Description,
             };
             db.Add(flag);
 

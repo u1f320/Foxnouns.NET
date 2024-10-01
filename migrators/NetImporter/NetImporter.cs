@@ -19,7 +19,10 @@ internal static class NetImporter
             .Enrich.FromLogContext()
             .MinimumLevel.Debug()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Information)
+            .MinimumLevel.Override(
+                "Microsoft.EntityFrameworkCore.Database.Command",
+                LogEventLevel.Information
+            )
             .WriteTo.Console()
             .CreateLogger();
 
@@ -47,16 +50,11 @@ internal static class NetImporter
     internal static async Task<DatabaseContext> GetContextAsync()
     {
         var connString = Environment.GetEnvironmentVariable("DATABASE");
-        if (connString == null) throw new Exception("$DATABASE not set, must be an ADO.NET connection string");
+        if (connString == null)
+            throw new Exception("$DATABASE not set, must be an ADO.NET connection string");
 
         var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
-        var config = new Config
-        {
-            Database = new Config.DatabaseConfig
-            {
-                Url = connString
-            }
-        };
+        var config = new Config { Database = new Config.DatabaseConfig { Url = connString } };
 
         var db = new DatabaseContext(config, loggerFactory);
 
@@ -70,13 +68,17 @@ internal static class NetImporter
 
     private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
     {
-        ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() }
+        ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy(),
+        },
     }.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 
     internal static Input<T> ReadFromFile<T>(string path)
     {
         var data = File.ReadAllText(path);
-        return JsonConvert.DeserializeObject<Input<T>>(data, Settings) ?? throw new Exception("Invalid input file");
+        return JsonConvert.DeserializeObject<Input<T>>(data, Settings)
+            ?? throw new Exception("Invalid input file");
     }
 }
 

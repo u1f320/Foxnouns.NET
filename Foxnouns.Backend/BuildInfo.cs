@@ -8,19 +8,24 @@ public static class BuildInfo
     public static async Task ReadBuildInfo()
     {
         await using var stream = typeof(BuildInfo).Assembly.GetManifestResourceStream("version");
-        if (stream == null) return;
+        if (stream == null)
+            return;
 
         using var reader = new StreamReader(stream);
         var data = (await reader.ReadToEndAsync()).Trim().Split("\n");
-        if (data.Length < 3) return;
+        if (data.Length < 3)
+            return;
 
         Hash = data[0];
         var dirty = data[2] == "dirty";
 
         var versionData = data[1].Split("-");
-        if (versionData.Length < 3) return;
+        if (versionData.Length < 3)
+            return;
         Version = versionData[0];
-        if (versionData[1] != "0" || dirty) Version += $"+{versionData[2]}";
-        if (dirty) Version += ".dirty";
+        if (versionData[1] != "0" || dirty)
+            Version += $"+{versionData[2]}";
+        if (dirty)
+            Version += ".dirty";
     }
 }

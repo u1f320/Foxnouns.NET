@@ -6,16 +6,21 @@ using Foxnouns.Backend.Services;
 
 namespace Foxnouns.Backend.Jobs;
 
-public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService objectStorageService, ILogger logger)
-    : IInvocable, IInvocableWithPayload<AvatarUpdatePayload>
+public class MemberAvatarUpdateInvocable(
+    DatabaseContext db,
+    ObjectStorageService objectStorageService,
+    ILogger logger
+) : IInvocable, IInvocableWithPayload<AvatarUpdatePayload>
 {
     private readonly ILogger _logger = logger.ForContext<UserAvatarUpdateInvocable>();
     public required AvatarUpdatePayload Payload { get; set; }
 
     public async Task Invoke()
     {
-        if (Payload.NewAvatar != null) await UpdateMemberAvatarAsync(Payload.Id, Payload.NewAvatar);
-        else await ClearMemberAvatarAsync(Payload.Id);
+        if (Payload.NewAvatar != null)
+            await UpdateMemberAvatarAsync(Payload.Id, Payload.NewAvatar);
+        else
+            await ClearMemberAvatarAsync(Payload.Id);
     }
 
     private async Task UpdateMemberAvatarAsync(Snowflake id, string newAvatar)
@@ -25,7 +30,10 @@ public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageServic
         var member = await db.Members.FindAsync(id);
         if (member == null)
         {
-            _logger.Warning("Update avatar job queued for {MemberId} but no member with that ID exists", id);
+            _logger.Warning(
+                "Update avatar job queued for {MemberId} but no member with that ID exists",
+                id
+            );
             return;
         }
 
@@ -46,7 +54,11 @@ public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageServic
         }
         catch (ArgumentException ae)
         {
-            _logger.Warning("Invalid data URI for new avatar for member {MemberId}: {Reason}", id, ae.Message);
+            _logger.Warning(
+                "Invalid data URI for new avatar for member {MemberId}: {Reason}",
+                id,
+                ae.Message
+            );
         }
     }
 
@@ -57,7 +69,10 @@ public class MemberAvatarUpdateInvocable(DatabaseContext db, ObjectStorageServic
         var member = await db.Members.FindAsync(id);
         if (member == null)
         {
-            _logger.Warning("Clear avatar job queued for {MemberId} but no member with that ID exists", id);
+            _logger.Warning(
+                "Clear avatar job queued for {MemberId} but no member with that ID exists",
+                id
+            );
             return;
         }
 

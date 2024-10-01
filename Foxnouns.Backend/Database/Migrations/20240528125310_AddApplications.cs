@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -18,14 +18,16 @@ namespace Foxnouns.Backend.Database.Migrations
                 table: "tokens",
                 type: "bigint",
                 nullable: false,
-                defaultValue: 0L);
+                defaultValue: 0L
+            );
 
             migrationBuilder.AddColumn<byte[]>(
                 name: "hash",
                 table: "tokens",
                 type: "bytea",
                 nullable: false,
-                defaultValue: new byte[0]);
+                defaultValue: new byte[0]
+            );
 
             migrationBuilder.CreateTable(
                 name: "applications",
@@ -36,17 +38,19 @@ namespace Foxnouns.Backend.Database.Migrations
                     client_secret = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     scopes = table.Column<string[]>(type: "text[]", nullable: false),
-                    redirect_uris = table.Column<string[]>(type: "text[]", nullable: false)
+                    redirect_uris = table.Column<string[]>(type: "text[]", nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_applications", x => x.id);
-                });
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_tokens_application_id",
                 table: "tokens",
-                column: "application_id");
+                column: "application_id"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "fk_tokens_applications_application_id",
@@ -54,7 +58,8 @@ namespace Foxnouns.Backend.Database.Migrations
                 column: "application_id",
                 principalTable: "applications",
                 principalColumn: "id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
 
         /// <inheritdoc />
@@ -62,22 +67,16 @@ namespace Foxnouns.Backend.Database.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "fk_tokens_applications_application_id",
-                table: "tokens");
+                table: "tokens"
+            );
 
-            migrationBuilder.DropTable(
-                name: "applications");
+            migrationBuilder.DropTable(name: "applications");
 
-            migrationBuilder.DropIndex(
-                name: "ix_tokens_application_id",
-                table: "tokens");
+            migrationBuilder.DropIndex(name: "ix_tokens_application_id", table: "tokens");
 
-            migrationBuilder.DropColumn(
-                name: "application_id",
-                table: "tokens");
+            migrationBuilder.DropColumn(name: "application_id", table: "tokens");
 
-            migrationBuilder.DropColumn(
-                name: "hash",
-                table: "tokens");
+            migrationBuilder.DropColumn(name: "hash", table: "tokens");
         }
     }
 }

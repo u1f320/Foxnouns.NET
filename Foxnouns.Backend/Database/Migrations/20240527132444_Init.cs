@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NodaTime;
 
 #nullable disable
@@ -22,12 +22,13 @@ namespace Foxnouns.Backend.Database.Migrations
                     domain = table.Column<string>(type: "text", nullable: false),
                     client_id = table.Column<string>(type: "text", nullable: false),
                     client_secret = table.Column<string>(type: "text", nullable: false),
-                    instance_type = table.Column<int>(type: "integer", nullable: false)
+                    instance_type = table.Column<int>(type: "integer", nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_fediverse_applications", x => x.id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "users",
@@ -43,12 +44,13 @@ namespace Foxnouns.Backend.Database.Migrations
                     role = table.Column<int>(type: "integer", nullable: false),
                     fields = table.Column<string>(type: "jsonb", nullable: false),
                     names = table.Column<string>(type: "jsonb", nullable: false),
-                    pronouns = table.Column<string>(type: "jsonb", nullable: false)
+                    pronouns = table.Column<string>(type: "jsonb", nullable: false),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_users", x => x.id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "auth_methods",
@@ -59,7 +61,7 @@ namespace Foxnouns.Backend.Database.Migrations
                     remote_id = table.Column<string>(type: "text", nullable: false),
                     remote_username = table.Column<string>(type: "text", nullable: true),
                     user_id = table.Column<long>(type: "bigint", nullable: false),
-                    fediverse_application_id = table.Column<long>(type: "bigint", nullable: true)
+                    fediverse_application_id = table.Column<long>(type: "bigint", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -68,14 +70,17 @@ namespace Foxnouns.Backend.Database.Migrations
                         name: "fk_auth_methods_fediverse_applications_fediverse_application_id",
                         column: x => x.fediverse_application_id,
                         principalTable: "fediverse_applications",
-                        principalColumn: "id");
+                        principalColumn: "id"
+                    );
                     table.ForeignKey(
                         name: "fk_auth_methods_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "members",
@@ -91,7 +96,7 @@ namespace Foxnouns.Backend.Database.Migrations
                     user_id = table.Column<long>(type: "bigint", nullable: false),
                     fields = table.Column<string>(type: "jsonb", nullable: false),
                     names = table.Column<string>(type: "jsonb", nullable: false),
-                    pronouns = table.Column<string>(type: "jsonb", nullable: false)
+                    pronouns = table.Column<string>(type: "jsonb", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -101,18 +106,23 @@ namespace Foxnouns.Backend.Database.Migrations
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "tokens",
                 columns: table => new
                 {
                     id = table.Column<long>(type: "bigint", nullable: false),
-                    expires_at = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    expires_at = table.Column<Instant>(
+                        type: "timestamp with time zone",
+                        nullable: false
+                    ),
                     scopes = table.Column<string[]>(type: "text[]", nullable: false),
                     manually_expired = table.Column<bool>(type: "boolean", nullable: false),
-                    user_id = table.Column<long>(type: "bigint", nullable: false)
+                    user_id = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -122,53 +132,56 @@ namespace Foxnouns.Backend.Database.Migrations
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_auth_methods_fediverse_application_id",
                 table: "auth_methods",
-                column: "fediverse_application_id");
+                column: "fediverse_application_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_auth_methods_user_id",
                 table: "auth_methods",
-                column: "user_id");
+                column: "user_id"
+            );
 
             // EF Core doesn't support creating indexes on arbitrary expressions, so we have to create it manually.
             // Due to historical reasons (I made a mistake while writing the initial migration for the Go version)
             // only members have case-insensitive names.
-            migrationBuilder.Sql("CREATE UNIQUE INDEX ix_members_user_id_name ON members (user_id, lower(name))");
+            migrationBuilder.Sql(
+                "CREATE UNIQUE INDEX ix_members_user_id_name ON members (user_id, lower(name))"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_tokens_user_id",
                 table: "tokens",
-                column: "user_id");
+                column: "user_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_users_username",
                 table: "users",
                 column: "username",
-                unique: true);
+                unique: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "auth_methods");
+            migrationBuilder.DropTable(name: "auth_methods");
 
-            migrationBuilder.DropTable(
-                name: "members");
+            migrationBuilder.DropTable(name: "members");
 
-            migrationBuilder.DropTable(
-                name: "tokens");
+            migrationBuilder.DropTable(name: "tokens");
 
-            migrationBuilder.DropTable(
-                name: "fediverse_applications");
+            migrationBuilder.DropTable(name: "fediverse_applications");
 
-            migrationBuilder.DropTable(
-                name: "users");
+            migrationBuilder.DropTable(name: "users");
         }
     }
 }

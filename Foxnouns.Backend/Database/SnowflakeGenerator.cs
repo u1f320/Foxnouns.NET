@@ -32,13 +32,19 @@ public class SnowflakeGenerator : ISnowflakeGenerator
         var threadId = Environment.CurrentManagedThreadId % 32;
         var timestamp = time.Value.ToUnixTimeMilliseconds() - Snowflake.Epoch;
 
-        return (timestamp << 22) | (uint)(_processId << 17) | (uint)(threadId << 12) | (increment % 4096);
+        return (timestamp << 22)
+            | (uint)(_processId << 17)
+            | (uint)(threadId << 12)
+            | (increment % 4096);
     }
 }
 
 public static class SnowflakeGeneratorServiceExtensions
 {
-    public static IServiceCollection AddSnowflakeGenerator(this IServiceCollection services, int? processId = null)
+    public static IServiceCollection AddSnowflakeGenerator(
+        this IServiceCollection services,
+        int? processId = null
+    )
     {
         return services.AddSingleton<ISnowflakeGenerator>(new SnowflakeGenerator(processId));
     }

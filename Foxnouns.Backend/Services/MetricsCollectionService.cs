@@ -6,10 +6,7 @@ using Prometheus;
 
 namespace Foxnouns.Backend.Services;
 
-public class MetricsCollectionService(
-    ILogger logger,
-    IServiceProvider services,
-    IClock clock)
+public class MetricsCollectionService(ILogger logger, IServiceProvider services, IClock clock)
 {
     private readonly ILogger _logger = logger.ForContext<MetricsCollectionService>();
 
@@ -31,8 +28,10 @@ public class MetricsCollectionService(
         FoxnounsMetrics.UsersActiveWeekCount.Set(users.Count(i => i > now - Week));
         FoxnounsMetrics.UsersActiveDayCount.Set(users.Count(i => i > now - Day));
 
-        var memberCount = await db.Members.Include(m => m.User)
-            .Where(m => !m.Unlisted && !m.User.ListHidden && !m.User.Deleted).CountAsync(ct);
+        var memberCount = await db
+            .Members.Include(m => m.User)
+            .Where(m => !m.Unlisted && !m.User.ListHidden && !m.User.Deleted)
+            .CountAsync(ct);
         FoxnounsMetrics.MemberCount.Set(memberCount);
 
         var process = Process.GetCurrentProcess();
@@ -42,13 +41,17 @@ public class MetricsCollectionService(
         FoxnounsMetrics.ProcessThreads.Set(process.Threads.Count);
         FoxnounsMetrics.ProcessHandles.Set(process.HandleCount);
 
-        _logger.Information("Collected metrics in {DurationMilliseconds} ms",
-            timer.ObserveDuration().TotalMilliseconds);
+        _logger.Information(
+            "Collected metrics in {DurationMilliseconds} ms",
+            timer.ObserveDuration().TotalMilliseconds
+        );
     }
 }
 
-public class BackgroundMetricsCollectionService(ILogger logger, MetricsCollectionService metricsCollectionService)
-    : BackgroundService
+public class BackgroundMetricsCollectionService(
+    ILogger logger,
+    MetricsCollectionService metricsCollectionService
+) : BackgroundService
 {
     private readonly ILogger _logger = logger.ForContext<BackgroundMetricsCollectionService>();
 

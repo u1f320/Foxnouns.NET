@@ -7,12 +7,28 @@ public static class AuthUtils
 {
     public const string ClientCredentials = "client_credentials";
     public const string AuthorizationCode = "authorization_code";
-    private static readonly string[] ForbiddenSchemes = ["javascript", "file", "data", "mailto", "tel"];
+    private static readonly string[] ForbiddenSchemes =
+    [
+        "javascript",
+        "file",
+        "data",
+        "mailto",
+        "tel",
+    ];
 
     public static readonly string[] UserScopes =
-        ["user.read_hidden", "user.read_privileged", "user.update"];
+    [
+        "user.read_hidden",
+        "user.read_privileged",
+        "user.update",
+    ];
 
-    public static readonly string[] MemberScopes = ["member.read", "member.update", "member.create"];
+    public static readonly string[] MemberScopes =
+    [
+        "member.read",
+        "member.update",
+        "member.create",
+    ];
 
     /// <summary>
     /// All scopes endpoints can be secured by. This does *not* include the catch-all token scopes.
@@ -27,10 +43,13 @@ public static class AuthUtils
 
     public static string[] ExpandScopes(this string[] scopes)
     {
-        if (scopes.Contains("*")) return ["*", ..Scopes];
+        if (scopes.Contains("*"))
+            return ["*", .. Scopes];
         List<string> expandedScopes = ["identify"];
-        if (scopes.Contains("user")) expandedScopes.AddRange(UserScopes);
-        if (scopes.Contains("member")) expandedScopes.AddRange(MemberScopes);
+        if (scopes.Contains("user"))
+            expandedScopes.AddRange(UserScopes);
+        if (scopes.Contains("member"))
+            expandedScopes.AddRange(MemberScopes);
 
         return expandedScopes.ToArray();
     }
@@ -41,8 +60,10 @@ public static class AuthUtils
     private static string[] ExpandAppScopes(this string[] scopes)
     {
         var expandedScopes = scopes.ExpandScopes().ToList();
-        if (scopes.Contains("user")) expandedScopes.Add("user");
-        if (scopes.Contains("member")) expandedScopes.Add("member");
+        if (scopes.Contains("user"))
+            expandedScopes.Add("user");
+        if (scopes.Contains("member"))
+            expandedScopes.Add("member");
         return expandedScopes.ToArray();
     }
 
@@ -84,7 +105,8 @@ public static class AuthUtils
     {
         rawToken = [];
 
-        if (string.IsNullOrWhiteSpace(input)) return false;
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
         if (input.StartsWith("bearer ", StringComparison.InvariantCultureIgnoreCase))
             input = input["bearer ".Length..];
 

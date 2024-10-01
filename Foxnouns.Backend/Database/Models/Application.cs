@@ -11,20 +11,30 @@ public class Application : BaseModel
     public required string[] Scopes { get; init; }
     public required string[] RedirectUris { get; init; }
 
-    public static Application Create(ISnowflakeGenerator snowflakeGenerator, string name, string[] scopes,
-        string[] redirectUrls)
+    public static Application Create(
+        ISnowflakeGenerator snowflakeGenerator,
+        string name,
+        string[] scopes,
+        string[] redirectUrls
+    )
     {
         var clientId = RandomNumberGenerator.GetHexString(32, true);
         var clientSecret = AuthUtils.RandomToken();
 
         if (scopes.Except(AuthUtils.ApplicationScopes).Any())
         {
-            throw new ArgumentException("Invalid scopes passed to Application.Create", nameof(scopes));
+            throw new ArgumentException(
+                "Invalid scopes passed to Application.Create",
+                nameof(scopes)
+            );
         }
 
         if (redirectUrls.Any(s => !AuthUtils.ValidateRedirectUri(s)))
         {
-            throw new ArgumentException("Invalid redirect URLs passed to Application.Create", nameof(redirectUrls));
+            throw new ArgumentException(
+                "Invalid redirect URLs passed to Application.Create",
+                nameof(redirectUrls)
+            );
         }
 
         return new Application
@@ -34,7 +44,7 @@ public class Application : BaseModel
             ClientSecret = clientSecret,
             Name = name,
             Scopes = scopes,
-            RedirectUris = redirectUrls
+            RedirectUris = redirectUrls,
         };
     }
 }

@@ -8,9 +8,10 @@
       "pathMode": "absolute"
     },
     {
-      "name": "dotnet-format",
+      "name": "run-csharpier",
       "command": "dotnet",
-      "args": ["format"]
+      "args": [ "csharpier", "${staged}" ],
+      "include": [ "**/*.cs" ]
     }
   ]
 }

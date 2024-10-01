@@ -14,21 +14,35 @@ public static class AvatarObjectExtensions
 {
     private static readonly string[] ValidContentTypes = ["image/png", "image/webp", "image/jpeg"];
 
-    public static async Task
-        DeleteMemberAvatarAsync(this ObjectStorageService objectStorageService, Snowflake id, string hash,
-            CancellationToken ct = default) =>
-        await objectStorageService.RemoveObjectAsync(MemberAvatarUpdateInvocable.Path(id, hash), ct);
+    public static async Task DeleteMemberAvatarAsync(
+        this ObjectStorageService objectStorageService,
+        Snowflake id,
+        string hash,
+        CancellationToken ct = default
+    ) =>
+        await objectStorageService.RemoveObjectAsync(
+            MemberAvatarUpdateInvocable.Path(id, hash),
+            ct
+        );
 
-    public static async Task
-        DeleteUserAvatarAsync(this ObjectStorageService objectStorageService, Snowflake id, string hash,
-            CancellationToken ct = default) =>
-        await objectStorageService.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
+    public static async Task DeleteUserAvatarAsync(
+        this ObjectStorageService objectStorageService,
+        Snowflake id,
+        string hash,
+        CancellationToken ct = default
+    ) => await objectStorageService.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
 
-    public static async Task DeleteFlagAsync(this ObjectStorageService objectStorageService, string hash,
-        CancellationToken ct = default) =>
-        await objectStorageService.RemoveObjectAsync(CreateFlagInvocable.Path(hash), ct);
+    public static async Task DeleteFlagAsync(
+        this ObjectStorageService objectStorageService,
+        string hash,
+        CancellationToken ct = default
+    ) => await objectStorageService.RemoveObjectAsync(CreateFlagInvocable.Path(hash), ct);
 
-    public static async Task<(string Hash, Stream Image)> ConvertBase64UriToImage(this string uri, int size, bool crop)
+    public static async Task<(string Hash, Stream Image)> ConvertBase64UriToImage(
+        this string uri,
+        int size,
+        bool crop
+    )
     {
         if (!uri.StartsWith("data:image/"))
             throw new ArgumentException("Not a data URI", nameof(uri));
@@ -49,7 +63,7 @@ public static class AvatarObjectExtensions
             {
                 Size = new Size(size),
                 Mode = crop ? ResizeMode.Crop : ResizeMode.Max,
-                Position = AnchorPositionMode.Center
+                Position = AnchorPositionMode.Center,
             },
             image.Size
         );

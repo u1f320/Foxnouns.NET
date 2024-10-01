@@ -45,11 +45,12 @@ public class DatabaseContext : DbContext
         _loggerFactory = loggerFactory;
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+        optionsBuilder
             .ConfigureWarnings(c =>
                 c.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning)
-                    .Ignore(CoreEventId.SaveChangesFailed))
+                    .Ignore(CoreEventId.SaveChangesFailed)
+            )
             .UseNpgsql(_dataSource, o => o.UseNodaTime())
             .UseSnakeCaseNamingConvention()
             .UseLoggerFactory(_loggerFactory)
@@ -76,7 +77,10 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<User>().Property(u => u.CustomPreferences).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.Settings).HasColumnType("jsonb");
 
-        modelBuilder.Entity<Member>().Property(m => m.Sid).HasDefaultValueSql("find_free_member_sid()");
+        modelBuilder
+            .Entity<Member>()
+            .Property(m => m.Sid)
+            .HasDefaultValueSql("find_free_member_sid()");
         modelBuilder.Entity<Member>().Property(m => m.Fields).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Names).HasColumnType("jsonb");
         modelBuilder.Entity<Member>().Property(m => m.Pronouns).HasColumnType("jsonb");
@@ -84,10 +88,12 @@ public class DatabaseContext : DbContext
         modelBuilder.Entity<UserFlag>().Navigation(f => f.PrideFlag).AutoInclude();
         modelBuilder.Entity<MemberFlag>().Navigation(f => f.PrideFlag).AutoInclude();
 
-        modelBuilder.HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeUserSid))!)
+        modelBuilder
+            .HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeUserSid))!)
             .HasName("find_free_user_sid");
 
-        modelBuilder.HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeMemberSid))!)
+        modelBuilder
+            .HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeMemberSid))!)
             .HasName("find_free_member_sid");
     }
 
@@ -102,17 +108,22 @@ public class DatabaseContext : DbContext
     public string FindFreeMemberSid() => throw new NotSupportedException();
 }
 
-[SuppressMessage("ReSharper", "UnusedType.Global", Justification = "Used by EF Core's migration generator")]
+[SuppressMessage(
+    "ReSharper",
+    "UnusedType.Global",
+    Justification = "Used by EF Core's migration generator"
+)]
 public class DesignTimeDatabaseContextFactory : IDesignTimeDbContextFactory<DatabaseContext>
 {
     public DatabaseContext CreateDbContext(string[] args)
     {
         // Read the configuration file
-        var config = new ConfigurationBuilder()
-            .AddConfiguration()
-            .Build()
-            // Get the configuration as our config class
-            .Get<Config>() ?? new();
+        var config =
+            new ConfigurationBuilder()
+                .AddConfiguration()
+                .Build()
+                // Get the configuration as our config class
+                .Get<Config>() ?? new();
 
         return new DatabaseContext(config, null);
     }

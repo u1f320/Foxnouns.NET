@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NodaTime;
 
 #nullable disable
@@ -19,35 +19,32 @@ namespace Foxnouns.Backend.Database.Migrations
                 table: "users",
                 type: "boolean",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
 
             migrationBuilder.AddColumn<Instant>(
                 name: "deleted_at",
                 table: "users",
                 type: "timestamp with time zone",
-                nullable: true);
+                nullable: true
+            );
 
             migrationBuilder.AddColumn<long>(
                 name: "deleted_by",
                 table: "users",
                 type: "bigint",
-                nullable: true);
+                nullable: true
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "deleted",
-                table: "users");
+            migrationBuilder.DropColumn(name: "deleted", table: "users");
 
-            migrationBuilder.DropColumn(
-                name: "deleted_at",
-                table: "users");
+            migrationBuilder.DropColumn(name: "deleted_at", table: "users");
 
-            migrationBuilder.DropColumn(
-                name: "deleted_by",
-                table: "users");
+            migrationBuilder.DropColumn(name: "deleted_by", table: "users");
         }
     }
 }

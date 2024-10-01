@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -22,7 +22,7 @@ namespace Foxnouns.Backend.Database.Migrations
                     user_id = table.Column<long>(type: "bigint", nullable: false),
                     hash = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: true)
+                    description = table.Column<string>(type: "text", nullable: true),
                 },
                 constraints: table =>
                 {
@@ -32,17 +32,23 @@ namespace Foxnouns.Backend.Database.Migrations
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "member_flags",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table
+                        .Column<long>(type: "bigint", nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
+                        ),
                     member_id = table.Column<long>(type: "bigint", nullable: false),
-                    pride_flag_id = table.Column<long>(type: "bigint", nullable: false)
+                    pride_flag_id = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -52,23 +58,30 @@ namespace Foxnouns.Backend.Database.Migrations
                         column: x => x.member_id,
                         principalTable: "members",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "fk_member_flags_pride_flags_pride_flag_id",
                         column: x => x.pride_flag_id,
                         principalTable: "pride_flags",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "user_flags",
                 columns: table => new
                 {
-                    id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    id = table
+                        .Column<long>(type: "bigint", nullable: false)
+                        .Annotation(
+                            "Npgsql:ValueGenerationStrategy",
+                            NpgsqlValueGenerationStrategy.IdentityByDefaultColumn
+                        ),
                     user_id = table.Column<long>(type: "bigint", nullable: false),
-                    pride_flag_id = table.Column<long>(type: "bigint", nullable: false)
+                    pride_flag_id = table.Column<long>(type: "bigint", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -78,52 +91,57 @@ namespace Foxnouns.Backend.Database.Migrations
                         column: x => x.pride_flag_id,
                         principalTable: "pride_flags",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "fk_user_flags_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_member_flags_member_id",
                 table: "member_flags",
-                column: "member_id");
+                column: "member_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_member_flags_pride_flag_id",
                 table: "member_flags",
-                column: "pride_flag_id");
+                column: "pride_flag_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_pride_flags_user_id",
                 table: "pride_flags",
-                column: "user_id");
+                column: "user_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_flags_pride_flag_id",
                 table: "user_flags",
-                column: "pride_flag_id");
+                column: "pride_flag_id"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_flags_user_id",
                 table: "user_flags",
-                column: "user_id");
+                column: "user_id"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "member_flags");
+            migrationBuilder.DropTable(name: "member_flags");
 
-            migrationBuilder.DropTable(
-                name: "user_flags");
+            migrationBuilder.DropTable(name: "user_flags");
 
-            migrationBuilder.DropTable(
-                name: "pride_flags");
+            migrationBuilder.DropTable(name: "pride_flags");
         }
     }
 }

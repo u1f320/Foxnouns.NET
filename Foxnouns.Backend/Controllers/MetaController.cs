@@ -12,23 +12,30 @@ public class MetaController : ApiControllerBase
     [ProducesResponseType<MetaResponse>(StatusCodes.Status200OK)]
     public IActionResult GetMeta()
     {
-        return Ok(new MetaResponse(
-            Repository, BuildInfo.Version, BuildInfo.Hash, (int)FoxnounsMetrics.MemberCount.Value,
-            new UserInfo(
-                (int)FoxnounsMetrics.UsersCount.Value,
-                (int)FoxnounsMetrics.UsersActiveMonthCount.Value,
-                (int)FoxnounsMetrics.UsersActiveWeekCount.Value,
-                (int)FoxnounsMetrics.UsersActiveDayCount.Value
-            ),
-            new Limits(
-                MemberCount: MembersController.MaxMemberCount,
-                BioLength: ValidationUtils.MaxBioLength,
-                CustomPreferences: UsersController.MaxCustomPreferences))
+        return Ok(
+            new MetaResponse(
+                Repository,
+                BuildInfo.Version,
+                BuildInfo.Hash,
+                (int)FoxnounsMetrics.MemberCount.Value,
+                new UserInfo(
+                    (int)FoxnounsMetrics.UsersCount.Value,
+                    (int)FoxnounsMetrics.UsersActiveMonthCount.Value,
+                    (int)FoxnounsMetrics.UsersActiveWeekCount.Value,
+                    (int)FoxnounsMetrics.UsersActiveDayCount.Value
+                ),
+                new Limits(
+                    MemberCount: MembersController.MaxMemberCount,
+                    BioLength: ValidationUtils.MaxBioLength,
+                    CustomPreferences: UsersController.MaxCustomPreferences
+                )
+            )
         );
     }
 
     [HttpGet("/api/v2/coffee")]
-    public IActionResult BrewCoffee() => Problem("Sorry, I'm a teapot!", statusCode: StatusCodes.Status418ImATeapot);
+    public IActionResult BrewCoffee() =>
+        Problem("Sorry, I'm a teapot!", statusCode: StatusCodes.Status418ImATeapot);
 
     private record MetaResponse(
         string Repository,
@@ -36,13 +43,11 @@ public class MetaController : ApiControllerBase
         string Hash,
         int Members,
         UserInfo Users,
-        Limits Limits);
+        Limits Limits
+    );
 
     private record UserInfo(int Total, int ActiveMonth, int ActiveWeek, int ActiveDay);
 
     // All limits that the frontend should know about (for UI purposes)
-    private record Limits(
-        int MemberCount,
-        int BioLength,
-        int CustomPreferences);
+    private record Limits(int MemberCount, int BioLength, int CustomPreferences);
 }

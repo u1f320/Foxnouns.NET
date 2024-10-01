@@ -1,5 +1,4 @@
 using Foxnouns.Backend;
-using Serilog;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
@@ -8,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Prometheus;
 using Sentry.Extensibility;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +15,8 @@ var config = builder.AddConfiguration();
 
 builder.AddSerilog();
 
-builder.WebHost
-    .UseSentry(opts =>
+builder
+    .WebHost.UseSentry(opts =>
     {
         opts.Dsn = config.Logging.SentryUrl;
         opts.TracesSampleRate = config.Logging.SentryTracesSampleRate;
@@ -30,13 +30,13 @@ builder.WebHost
         opts.Limits.MaxRequestBodySize = 2 * 1024 * 1024;
     });
 
-builder.Services
-    .AddControllers()
+builder
+    .Services.AddControllers()
     .AddNewtonsoftJson(options =>
     {
         options.SerializerSettings.ContractResolver = new PatchRequestContractResolver
         {
-            NamingStrategy = new SnakeCaseNamingStrategy()
+            NamingStrategy = new SnakeCaseNamingStrategy(),
         };
     })
     .ConfigureApiBehaviorOptions(options =>
@@ -47,18 +47,16 @@ builder.Services
     });
 
 // Set the default converter to snake case as we use it in a couple places.
-JsonConvert.DefaultSettings = () => new JsonSerializerSettings
-{
-    ContractResolver = new DefaultContractResolver
+JsonConvert.DefaultSettings = () =>
+    new JsonSerializerSettings
     {
-        NamingStrategy = new SnakeCaseNamingStrategy()
-    }
-};
+        ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy(),
+        },
+    };
 
-builder.AddServices(config)
-    .AddCustomMiddleware()
-    .AddEndpointsApiExplorer()
-    .AddSwaggerGen();
+builder.AddServices(config).AddCustomMiddleware().AddEndpointsApiExplorer().AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -66,9 +64,11 @@ await app.Initialize(args);
 
 app.UseSerilogRequestLogging();
 app.UseRouting();
+
 // Not all environments will want tracing (from experience, it's expensive to use in production, even with a low sample rate),
 // so it's locked behind a config option.
-if (config.Logging.SentryTracing) app.UseSentryTracing();
+if (config.Logging.SentryTracing)
+    app.UseSentryTracing();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors();
@@ -80,7 +80,8 @@ app.Urls.Add(config.Address);
 
 // Make sure metrics are updated whenever Prometheus scrapes them
 Metrics.DefaultRegistry.AddBeforeCollectCallback(async ct =>
-    await app.Services.GetRequiredService<MetricsCollectionService>().CollectMetricsAsync(ct));
+    await app.Services.GetRequiredService<MetricsCollectionService>().CollectMetricsAsync(ct)
+);
 
 app.Run();
 Log.CloseAndFlush();

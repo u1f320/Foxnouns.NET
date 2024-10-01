@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NodaTime;
 
 #nullable disable
@@ -22,7 +22,8 @@ namespace Foxnouns.Backend.Database.Migrations
                 defaultValueSql: "find_free_user_sid()",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "sid",
@@ -32,7 +33,8 @@ namespace Foxnouns.Backend.Database.Migrations
                 defaultValueSql: "find_free_member_sid()",
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldNullable: true);
+                oldNullable: true
+            );
         }
 
         /// <inheritdoc />
@@ -45,7 +47,8 @@ namespace Foxnouns.Backend.Database.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldDefaultValueSql: "find_free_user_sid()");
+                oldDefaultValueSql: "find_free_user_sid()"
+            );
 
             migrationBuilder.AlterColumn<string>(
                 name: "sid",
@@ -54,7 +57,8 @@ namespace Foxnouns.Backend.Database.Migrations
                 nullable: true,
                 oldClrType: typeof(string),
                 oldType: "text",
-                oldDefaultValueSql: "find_free_member_sid()");
+                oldDefaultValueSql: "find_free_member_sid()"
+            );
         }
     }
 }

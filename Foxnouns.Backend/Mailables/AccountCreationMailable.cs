@@ -7,9 +7,7 @@ public class AccountCreationMailable(Config config, AccountCreationMailableView 
 {
     public override void Build()
     {
-        To(view.To)
-            .From(config.EmailAuth.From!)
-            .View("~/Views/Mail/AccountCreation.cshtml", view);
+        To(view.To).From(config.EmailAuth.From!).View("~/Views/Mail/AccountCreation.cshtml", view);
     }
 }
 

@@ -10,17 +10,17 @@ public class MemberRendererService(DatabaseContext db, Config config)
 {
     public async Task<IEnumerable<PartialMember>> RenderUserMembersAsync(User user, Token? token)
     {
-        var canReadHiddenMembers = token != null && token.UserId == user.Id && token.HasScope("member.read");
-        var renderUnlisted = token != null && token.UserId == user.Id && token.HasScope("user.read_hidden");
+        var canReadHiddenMembers =
+            token != null && token.UserId == user.Id && token.HasScope("member.read");
+        var renderUnlisted =
+            token != null && token.UserId == user.Id && token.HasScope("user.read_hidden");
         var canReadMemberList = !user.ListHidden || canReadHiddenMembers;
 
         IEnumerable<Member> members = canReadMemberList
-            ? await db.Members
-                .Where(m => m.UserId == user.Id)
-                .OrderBy(m => m.Name)
-                .ToListAsync()
+            ? await db.Members.Where(m => m.UserId == user.Id).OrderBy(m => m.Name).ToListAsync()
             : [];
-        if (!canReadHiddenMembers) members = members.Where(m => !m.Unlisted);
+        if (!canReadHiddenMembers)
+            members = members.Where(m => !m.Unlisted);
         return members.Select(m => RenderPartialMember(m, renderUnlisted));
     }
 
@@ -29,25 +29,54 @@ public class MemberRendererService(DatabaseContext db, Config config)
         var renderUnlisted = token?.UserId == member.UserId && token.HasScope("user.read_hidden");
 
         return new MemberResponse(
-            member.Id, member.Sid, member.Name, member.DisplayName, member.Bio,
-            AvatarUrlFor(member), member.Links, member.Names, member.Pronouns, member.Fields,
+            member.Id,
+            member.Sid,
+            member.Name,
+            member.DisplayName,
+            member.Bio,
+            AvatarUrlFor(member),
+            member.Links,
+            member.Names,
+            member.Pronouns,
+            member.Fields,
             member.ProfileFlags.Select(f => RenderPrideFlag(f.PrideFlag)),
-            RenderPartialUser(member.User), renderUnlisted ? member.Unlisted : null);
+            RenderPartialUser(member.User),
+            renderUnlisted ? member.Unlisted : null
+        );
     }
 
     private UserRendererService.PartialUser RenderPartialUser(User user) =>
-        new(user.Id, user.Sid, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
+        new(
+            user.Id,
+            user.Sid,
+            user.Username,
+            user.DisplayName,
+            AvatarUrlFor(user),
+            user.CustomPreferences
+        );
 
-    public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) => new(member.Id, member.Sid,
-        member.Name,
-        member.DisplayName, member.Bio, AvatarUrlFor(member), member.Names, member.Pronouns,
-        renderUnlisted ? member.Unlisted : null);
+    public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) =>
+        new(
+            member.Id,
+            member.Sid,
+            member.Name,
+            member.DisplayName,
+            member.Bio,
+            AvatarUrlFor(member),
+            member.Names,
+            member.Pronouns,
+            renderUnlisted ? member.Unlisted : null
+        );
 
     private string? AvatarUrlFor(Member member) =>
-        member.Avatar != null ? $"{config.MediaBaseUrl}/members/{member.Id}/avatars/{member.Avatar}.webp" : null;
+        member.Avatar != null
+            ? $"{config.MediaBaseUrl}/members/{member.Id}/avatars/{member.Avatar}.webp"
+            : null;
 
     private string? AvatarUrlFor(User user) =>
-        user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
+        user.Avatar != null
+            ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp"
+            : null;
 
     private string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
@@ -63,8 +92,8 @@ public class MemberRendererService(DatabaseContext db, Config config)
         string? AvatarUrl,
         IEnumerable<FieldEntry> Names,
         IEnumerable<Pronoun> Pronouns,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        bool? Unlisted);
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? Unlisted
+    );
 
     public record MemberResponse(
         Snowflake Id,
@@ -79,6 +108,6 @@ public class MemberRendererService(DatabaseContext db, Config config)
         IEnumerable<Field> Fields,
         IEnumerable<UserRendererService.PrideFlagResponse> Flags,
         UserRendererService.PartialUser User,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        bool? Unlisted);
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? Unlisted
+    );
 }

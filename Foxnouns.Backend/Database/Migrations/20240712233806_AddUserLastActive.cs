@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NodaTime;
 
 #nullable disable
@@ -19,15 +19,14 @@ namespace Foxnouns.Backend.Database.Migrations
                 table: "users",
                 type: "timestamp with time zone",
                 nullable: false,
-                defaultValueSql: "now()");
+                defaultValueSql: "now()"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "last_active",
-                table: "users");
+            migrationBuilder.DropColumn(name: "last_active", table: "users");
         }
     }
 }

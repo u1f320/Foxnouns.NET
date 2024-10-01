@@ -15,7 +15,8 @@ public class ObjectStorageService(ILogger logger, Config config, IMinioClient mi
         {
             await minioClient.RemoveObjectAsync(
                 new RemoveObjectArgs().WithBucket(config.Storage.Bucket).WithObject(path),
-                ct);
+                ct
+            );
         }
         catch (InvalidObjectNameException)
         {
@@ -23,17 +24,28 @@ public class ObjectStorageService(ILogger logger, Config config, IMinioClient mi
         }
     }
 
-    public async Task PutObjectAsync(string path, Stream data, string contentType, CancellationToken ct = default)
+    public async Task PutObjectAsync(
+        string path,
+        Stream data,
+        string contentType,
+        CancellationToken ct = default
+    )
     {
-        _logger.Debug("Putting object at path {Path} with length {Length} and content type {ContentType}", path,
-            data.Length, contentType);
+        _logger.Debug(
+            "Putting object at path {Path} with length {Length} and content type {ContentType}",
+            path,
+            data.Length,
+            contentType
+        );
 
-        await minioClient.PutObjectAsync(new PutObjectArgs()
+        await minioClient.PutObjectAsync(
+            new PutObjectArgs()
                 .WithBucket(config.Storage.Bucket)
                 .WithObject(path)
                 .WithObjectSize(data.Length)
                 .WithStreamData(data)
-                .WithContentType(contentType), ct
+                .WithContentType(contentType),
+            ct
         );
     }
 }

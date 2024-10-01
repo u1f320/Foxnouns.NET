@@ -7,48 +7,73 @@ using NodaTime;
 
 namespace Foxnouns.Backend.Services;
 
-public class UserRendererService(DatabaseContext db, MemberRendererService memberRenderer, Config config)
+public class UserRendererService(
+    DatabaseContext db,
+    MemberRendererService memberRenderer,
+    Config config
+)
 {
-    public async Task<UserResponse> RenderUserAsync(User user, User? selfUser = null,
+    public async Task<UserResponse> RenderUserAsync(
+        User user,
+        User? selfUser = null,
         Token? token = null,
         bool renderMembers = true,
         bool renderAuthMethods = false,
-        CancellationToken ct = default)
+        CancellationToken ct = default
+    )
     {
         var isSelfUser = selfUser?.Id == user.Id;
         var tokenCanReadHiddenMembers = token.HasScope("member.read") && isSelfUser;
         var tokenHidden = token.HasScope("user.read_hidden") && isSelfUser;
         var tokenPrivileged = token.HasScope("user.read_privileged") && isSelfUser;
 
-        renderMembers = renderMembers &&
-                        (!user.ListHidden || tokenCanReadHiddenMembers);
+        renderMembers = renderMembers && (!user.ListHidden || tokenCanReadHiddenMembers);
         renderAuthMethods = renderAuthMethods && tokenPrivileged;
 
-        IEnumerable<Member> members =
-            renderMembers ? await db.Members.Where(m => m.UserId == user.Id).OrderBy(m => m.Name).ToListAsync(ct) : [];
+        IEnumerable<Member> members = renderMembers
+            ? await db.Members.Where(m => m.UserId == user.Id).OrderBy(m => m.Name).ToListAsync(ct)
+            : [];
         // Unless the user is requesting their own members AND the token can read hidden members, we filter out unlisted members.
-        if (!(isSelfUser && tokenCanReadHiddenMembers)) members = members.Where(m => !m.Unlisted);
+        if (!(isSelfUser && tokenCanReadHiddenMembers))
+            members = members.Where(m => !m.Unlisted);
 
-        var flags = await db.UserFlags.Where(f => f.UserId == user.Id).OrderBy(f => f.Id).ToListAsync(ct);
+        var flags = await db
+            .UserFlags.Where(f => f.UserId == user.Id)
+            .OrderBy(f => f.Id)
+            .ToListAsync(ct);
 
         var authMethods = renderAuthMethods
-            ? await db.AuthMethods
-                .Where(a => a.UserId == user.Id)
+            ? await db
+                .AuthMethods.Where(a => a.UserId == user.Id)
                 .Include(a => a.FediverseApplication)
                 .ToListAsync(ct)
             : [];
 
         return new UserResponse(
-            user.Id, user.Sid, user.Username, user.DisplayName, user.Bio, user.MemberTitle, AvatarUrlFor(user),
+            user.Id,
+            user.Sid,
+            user.Username,
+            user.DisplayName,
+            user.Bio,
+            user.MemberTitle,
+            AvatarUrlFor(user),
             user.Links,
-            user.Names, user.Pronouns, user.Fields, user.CustomPreferences,
+            user.Names,
+            user.Pronouns,
+            user.Fields,
+            user.CustomPreferences,
             flags.Select(f => RenderPrideFlag(f.PrideFlag)),
             user.Role,
-            renderMembers ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden)) : null,
+            renderMembers
+                ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden))
+                : null,
             renderAuthMethods
                 ? authMethods.Select(a => new AuthenticationMethodResponse(
-                    a.Id, a.AuthType, a.RemoteId,
-                    a.RemoteUsername, a.FediverseApplication?.Domain
+                    a.Id,
+                    a.AuthType,
+                    a.RemoteId,
+                    a.RemoteUsername,
+                    a.FediverseApplication?.Domain
                 ))
                 : null,
             tokenHidden ? user.ListHidden : null,
@@ -58,10 +83,19 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
     }
 
     public PartialUser RenderPartialUser(User user) =>
-        new(user.Id, user.Sid, user.Username, user.DisplayName, AvatarUrlFor(user), user.CustomPreferences);
+        new(
+            user.Id,
+            user.Sid,
+            user.Username,
+            user.DisplayName,
+            AvatarUrlFor(user),
+            user.CustomPreferences
+        );
 
     private string? AvatarUrlFor(User user) =>
-        user.Avatar != null ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp" : null;
+        user.Avatar != null
+            ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp"
+            : null;
 
     public string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
@@ -79,29 +113,26 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         IEnumerable<Field> Fields,
         Dictionary<Snowflake, User.CustomPreference> CustomPreferences,
         IEnumerable<PrideFlagResponse> Flags,
-        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
-        UserRole Role,
+        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] UserRole Role,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        IEnumerable<MemberRendererService.PartialMember>? Members,
+            IEnumerable<MemberRendererService.PartialMember>? Members,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        IEnumerable<AuthenticationMethodResponse>? AuthMethods,
+            IEnumerable<AuthenticationMethodResponse>? AuthMethods,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        bool? MemberListHidden,
+            bool? MemberListHidden,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? LastActive,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        Instant? LastActive,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        Instant? LastSidReroll
+            Instant? LastSidReroll
     );
 
     public record AuthenticationMethodResponse(
         Snowflake Id,
-        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
-        AuthType Type,
+        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] AuthType Type,
         string RemoteId,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        string? RemoteUsername,
+            string? RemoteUsername,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        string? FediverseInstance
+            string? FediverseInstance
     );
 
     public record PartialUser(
@@ -120,5 +151,6 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         Snowflake Id,
         string ImageUrl,
         string Name,
-        string? Description);
+        string? Description
+    );
 }

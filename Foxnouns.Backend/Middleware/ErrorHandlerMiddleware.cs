@@ -21,19 +21,26 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
 
             if (ctx.Response.HasStarted)
             {
-                logger.Error(e, "Error in {ClassName} ({Path}) after response started being sent", typeName,
-                    ctx.Request.Path);
+                logger.Error(
+                    e,
+                    "Error in {ClassName} ({Path}) after response started being sent",
+                    typeName,
+                    ctx.Request.Path
+                );
 
-                sentry.CaptureException(e, scope =>
-                {
-                    var user = ctx.GetUser();
-                    if (user != null)
-                        scope.User = new SentryUser
-                        {
-                            Id = user.Id.ToString(),
-                            Username = user.Username
-                        };
-                });
+                sentry.CaptureException(
+                    e,
+                    scope =>
+                    {
+                        var user = ctx.GetUser();
+                        if (user != null)
+                            scope.User = new SentryUser
+                            {
+                                Id = user.Id.ToString(),
+                                Username = user.Username,
+                            };
+                    }
+                );
 
                 return;
             }
@@ -45,13 +52,17 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
                 ctx.Response.ContentType = "application/json; charset=utf-8";
                 if (ae is ApiError.Forbidden fe)
                 {
-                    await ctx.Response.WriteAsync(JsonConvert.SerializeObject(new HttpApiError
-                    {
-                        Status = (int)fe.StatusCode,
-                        Code = ErrorCode.Forbidden,
-                        Message = fe.Message,
-                        Scopes = fe.Scopes.Length > 0 ? fe.Scopes : null
-                    }));
+                    await ctx.Response.WriteAsync(
+                        JsonConvert.SerializeObject(
+                            new HttpApiError
+                            {
+                                Status = (int)fe.StatusCode,
+                                Code = ErrorCode.Forbidden,
+                                Message = fe.Message,
+                                Scopes = fe.Scopes.Length > 0 ? fe.Scopes : null,
+                            }
+                        )
+                    );
                     return;
                 }
 
@@ -61,45 +72,61 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
                     return;
                 }
 
-                await ctx.Response.WriteAsync(JsonConvert.SerializeObject(new HttpApiError
-                {
-                    Status = (int)ae.StatusCode,
-                    Code = ae.ErrorCode,
-                    Message = ae.Message,
-                }));
+                await ctx.Response.WriteAsync(
+                    JsonConvert.SerializeObject(
+                        new HttpApiError
+                        {
+                            Status = (int)ae.StatusCode,
+                            Code = ae.ErrorCode,
+                            Message = ae.Message,
+                        }
+                    )
+                );
                 return;
             }
 
             if (e is FoxnounsError fce)
             {
-                logger.Error(fce.Inner ?? fce, "Exception in {ClassName} ({Path})", typeName, ctx.Request.Path);
+                logger.Error(
+                    fce.Inner ?? fce,
+                    "Exception in {ClassName} ({Path})",
+                    typeName,
+                    ctx.Request.Path
+                );
             }
             else
             {
                 logger.Error(e, "Exception in {ClassName} ({Path})", typeName, ctx.Request.Path);
             }
 
-            var errorId = sentry.CaptureException(e, scope =>
-            {
-                var user = ctx.GetUser();
-                if (user != null)
-                    scope.User = new SentryUser
-                    {
-                        Id = user.Id.ToString(),
-                        Username = user.Username
-                    };
-            });
+            var errorId = sentry.CaptureException(
+                e,
+                scope =>
+                {
+                    var user = ctx.GetUser();
+                    if (user != null)
+                        scope.User = new SentryUser
+                        {
+                            Id = user.Id.ToString(),
+                            Username = user.Username,
+                        };
+                }
+            );
 
             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             ctx.Response.Headers.RequestId = ctx.TraceIdentifier;
             ctx.Response.ContentType = "application/json; charset=utf-8";
-            await ctx.Response.WriteAsync(JsonConvert.SerializeObject(new HttpApiError
-            {
-                Status = (int)HttpStatusCode.InternalServerError,
-                Code = ErrorCode.InternalServerError,
-                ErrorId = errorId.ToString(),
-                Message = "Internal server error",
-            }));
+            await ctx.Response.WriteAsync(
+                JsonConvert.SerializeObject(
+                    new HttpApiError
+                    {
+                        Status = (int)HttpStatusCode.InternalServerError,
+                        Code = ErrorCode.InternalServerError,
+                        ErrorId = errorId.ToString(),
+                        Message = "Internal server error",
+                    }
+                )
+            );
         }
     }
 }

@@ -13,7 +13,9 @@ namespace Foxnouns.Backend.Utils;
 public abstract class PatchRequest
 {
     private readonly HashSet<string> _properties = [];
+
     public bool HasProperty(string propertyName) => _properties.Contains(propertyName);
+
     public void SetHasProperty(string propertyName) => _properties.Add(propertyName);
 }
 
@@ -23,13 +25,17 @@ public abstract class PatchRequest
 /// </summary>
 public class PatchRequestContractResolver : DefaultContractResolver
 {
-    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    protected override JsonProperty CreateProperty(
+        MemberInfo member,
+        MemberSerialization memberSerialization
+    )
     {
         var prop = base.CreateProperty(member, memberSerialization);
 
         prop.SetIsSpecified += (o, _) =>
         {
-            if (o is not PatchRequest patchRequest) return;
+            if (o is not PatchRequest patchRequest)
+                return;
             patchRequest.SetHasProperty(prop.UnderlyingName!);
         };
 

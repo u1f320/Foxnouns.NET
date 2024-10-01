@@ -11,5 +11,5 @@ public class FediverseApplication : BaseModel
 public enum FediverseInstanceType
 {
     MastodonApi,
-    MisskeyApi
+    MisskeyApi,
 }

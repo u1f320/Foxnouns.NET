@@ -17,7 +17,9 @@ public class AuthenticationMiddleware(DatabaseContext db) : IMiddleware
             return;
         }
 
-        if (!AuthUtils.TryParseToken(ctx.Request.Headers.Authorization.ToString(), out var rawToken))
+        if (
+            !AuthUtils.TryParseToken(ctx.Request.Headers.Authorization.ToString(), out var rawToken)
+        )
         {
             await next(ctx);
             return;
@@ -40,6 +42,7 @@ public static class HttpContextExtensions
     private const string Key = "token";
 
     public static void SetToken(this HttpContext ctx, Token token) => ctx.Items.Add(Key, token);
+
     public static User? GetUser(this HttpContext ctx) => ctx.GetToken()?.User;
 
     public static User GetUserOrThrow(this HttpContext ctx) =>

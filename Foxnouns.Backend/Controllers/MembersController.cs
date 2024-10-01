@@ -21,12 +21,15 @@ public class MembersController(
     ISnowflakeGenerator snowflakeGenerator,
     ObjectStorageService objectStorageService,
     IQueue queue,
-    IClock clock) : ApiControllerBase
+    IClock clock
+) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<MembersController>();
 
     [HttpGet]
-    [ProducesResponseType<IEnumerable<MemberRendererService.PartialMember>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<IEnumerable<MemberRendererService.PartialMember>>(
+        StatusCodes.Status200OK
+    )]
     public async Task<IActionResult> GetMembersAsync(string userRef, CancellationToken ct = default)
     {
         var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
@@ -35,7 +38,11 @@ public class MembersController(
 
     [HttpGet("{memberRef}")]
     [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMemberAsync(string userRef, string memberRef, CancellationToken ct = default)
+    public async Task<IActionResult> GetMemberAsync(
+        string userRef,
+        string memberRef,
+        CancellationToken ct = default
+    )
     {
         var member = await db.ResolveMemberAsync(userRef, memberRef, CurrentToken, ct);
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
@@ -46,19 +53,30 @@ public class MembersController(
     [HttpPost("/api/v2/users/@me/members")]
     [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
     [Authorize("member.create")]
-    public async Task<IActionResult> CreateMemberAsync([FromBody] CreateMemberRequest req,
-        CancellationToken ct = default)
+    public async Task<IActionResult> CreateMemberAsync(
+        [FromBody] CreateMemberRequest req,
+        CancellationToken ct = default
+    )
     {
-        ValidationUtils.Validate([
-            ("name", ValidationUtils.ValidateMemberName(req.Name)),
-            ("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)),
-            ("bio", ValidationUtils.ValidateBio(req.Bio)),
-            ("avatar", ValidationUtils.ValidateAvatar(req.Avatar)),
-            .. ValidationUtils.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
-            .. ValidationUtils.ValidateFieldEntries(req.Names?.ToArray(), CurrentUser!.CustomPreferences, "names"),
-            .. ValidationUtils.ValidatePronouns(req.Pronouns?.ToArray(), CurrentUser!.CustomPreferences),
-            .. ValidationUtils.ValidateLinks(req.Links)
-        ]);
+        ValidationUtils.Validate(
+            [
+                ("name", ValidationUtils.ValidateMemberName(req.Name)),
+                ("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)),
+                ("bio", ValidationUtils.ValidateBio(req.Bio)),
+                ("avatar", ValidationUtils.ValidateAvatar(req.Avatar)),
+                .. ValidationUtils.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
+                .. ValidationUtils.ValidateFieldEntries(
+                    req.Names?.ToArray(),
+                    CurrentUser!.CustomPreferences,
+                    "names"
+                ),
+                .. ValidationUtils.ValidatePronouns(
+                    req.Pronouns?.ToArray(),
+                    CurrentUser!.CustomPreferences
+                ),
+                .. ValidationUtils.ValidateLinks(req.Links),
+            ]
+        );
 
         var memberCount = await db.Members.CountAsync(m => m.UserId == CurrentUser.Id, ct);
         if (memberCount >= MaxMemberCount)
@@ -75,11 +93,16 @@ public class MembersController(
             Fields = req.Fields ?? [],
             Names = req.Names ?? [],
             Pronouns = req.Pronouns ?? [],
-            Unlisted = req.Unlisted ?? false
+            Unlisted = req.Unlisted ?? false,
         };
         db.Add(member);
 
-        _logger.Debug("Creating member {MemberName} ({Id}) for {UserId}", member.Name, member.Id, CurrentUser!.Id);
+        _logger.Debug(
+            "Creating member {MemberName} ({Id}) for {UserId}",
+            member.Name,
+            member.Id,
+            CurrentUser!.Id
+        );
 
         try
         {
@@ -88,19 +111,27 @@ public class MembersController(
         catch (UniqueConstraintException)
         {
             _logger.Debug("Could not create member {Id} due to name conflict", member.Id);
-            throw new ApiError.BadRequest("A member with that name already exists", "name", req.Name);
+            throw new ApiError.BadRequest(
+                "A member with that name already exists",
+                "name",
+                req.Name
+            );
         }
 
         if (req.Avatar != null)
             queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
-                new AvatarUpdatePayload(member.Id, req.Avatar));
+                new AvatarUpdatePayload(member.Id, req.Avatar)
+            );
 
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
     [HttpPatch("/api/v2/users/@me/members/{memberRef}")]
     [Authorize("member.update")]
-    public async Task<IActionResult> UpdateMemberAsync(string memberRef, [FromBody] UpdateMemberRequest req)
+    public async Task<IActionResult> UpdateMemberAsync(
+        string memberRef,
+        [FromBody] UpdateMemberRequest req
+    )
     {
         await using var tx = await db.Database.BeginTransactionAsync();
         var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
@@ -134,26 +165,37 @@ public class MembersController(
 
         if (req.Names != null)
         {
-            errors.AddRange(ValidationUtils.ValidateFieldEntries(req.Names, CurrentUser!.CustomPreferences, "names"));
+            errors.AddRange(
+                ValidationUtils.ValidateFieldEntries(
+                    req.Names,
+                    CurrentUser!.CustomPreferences,
+                    "names"
+                )
+            );
             member.Names = req.Names.ToList();
         }
 
         if (req.Pronouns != null)
         {
-            errors.AddRange(ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences));
+            errors.AddRange(
+                ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences)
+            );
             member.Pronouns = req.Pronouns.ToList();
         }
 
         if (req.Fields != null)
         {
-            errors.AddRange(ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences));
+            errors.AddRange(
+                ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences)
+            );
             member.Fields = req.Fields.ToList();
         }
 
         if (req.Flags != null)
         {
             var flagError = await db.SetMemberFlagsAsync(CurrentUser!.Id, member.Id, req.Flags);
-            if (flagError != null) errors.Add(("flags", flagError));
+            if (flagError != null)
+                errors.Add(("flags", flagError));
         }
 
         if (req.HasProperty(nameof(req.Avatar)))
@@ -165,16 +207,25 @@ public class MembersController(
         // so it's in a separate block to the validation above.
         if (req.HasProperty(nameof(req.Avatar)))
             queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
-                new AvatarUpdatePayload(member.Id, req.Avatar));
+                new AvatarUpdatePayload(member.Id, req.Avatar)
+            );
         try
         {
             await db.SaveChangesAsync();
         }
         catch (UniqueConstraintException)
         {
-            _logger.Debug("Could not update member {Id} due to name conflict ({CurrentName} / {NewName})", member.Id,
-                member.Name, req.Name);
-            throw new ApiError.BadRequest("A member with that name already exists", "name", req.Name!);
+            _logger.Debug(
+                "Could not update member {Id} due to name conflict ({CurrentName} / {NewName})",
+                member.Id,
+                member.Name,
+                req.Name
+            );
+            throw new ApiError.BadRequest(
+                "A member with that name already exists",
+                "name",
+                req.Name!
+            );
         }
 
         await tx.CommitAsync();
@@ -199,15 +250,20 @@ public class MembersController(
     public async Task<IActionResult> DeleteMemberAsync(string memberRef)
     {
         var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
-        var deleteCount = await db.Members.Where(m => m.UserId == CurrentUser!.Id && m.Id == member.Id)
+        var deleteCount = await db
+            .Members.Where(m => m.UserId == CurrentUser!.Id && m.Id == member.Id)
             .ExecuteDeleteAsync();
         if (deleteCount == 0)
         {
-            _logger.Warning("Successfully resolved member {Id} but could not delete them", member.Id);
+            _logger.Warning(
+                "Successfully resolved member {Id} but could not delete them",
+                member.Id
+            );
             return NoContent();
         }
 
-        if (member.Avatar != null) await objectStorageService.DeleteMemberAvatarAsync(member.Id, member.Avatar);
+        if (member.Avatar != null)
+            await objectStorageService.DeleteMemberAvatarAsync(member.Id, member.Avatar);
         return NoContent();
     }
 
@@ -220,7 +276,8 @@ public class MembersController(
         string[]? Links,
         List<FieldEntry>? Names,
         List<Pronoun>? Pronouns,
-        List<Field>? Fields);
+        List<Field>? Fields
+    );
 
     [HttpPost("/api/v2/users/@me/members/{memberRef}/reroll-sid")]
     [Authorize("member.update")]
@@ -234,14 +291,16 @@ public class MembersController(
             throw new ApiError.BadRequest("Cannot reroll short ID yet");
 
         // Using ExecuteUpdateAsync here as the new short ID is generated by the database
-        await db.Members.Where(m => m.Id == member.Id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(m => m.Sid, _ => db.FindFreeMemberSid()));
+        await db
+            .Members.Where(m => m.Id == member.Id)
+            .ExecuteUpdateAsync(s => s.SetProperty(m => m.Sid, _ => db.FindFreeMemberSid()));
 
-        await db.Users.Where(u => u.Id == CurrentUser.Id)
-            .ExecuteUpdateAsync(s => s
-                .SetProperty(u => u.LastSidReroll, clock.GetCurrentInstant())
-                .SetProperty(u => u.LastActive, clock.GetCurrentInstant()));
+        await db
+            .Users.Where(u => u.Id == CurrentUser.Id)
+            .ExecuteUpdateAsync(s =>
+                s.SetProperty(u => u.LastSidReroll, clock.GetCurrentInstant())
+                    .SetProperty(u => u.LastActive, clock.GetCurrentInstant())
+            );
 
         // Re-fetch member to fetch the new sid
         var updatedMember = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);

@@ -37,7 +37,9 @@ public class User : BaseModel
     public bool Deleted { get; set; }
     public Instant? DeletedAt { get; set; }
     public Snowflake? DeletedBy { get; set; }
-    [NotMapped] public bool? SelfDelete => Deleted ? DeletedBy != null : null;
+
+    [NotMapped]
+    public bool? SelfDelete => Deleted ? DeletedBy != null : null;
 
     public class CustomPreference
     {

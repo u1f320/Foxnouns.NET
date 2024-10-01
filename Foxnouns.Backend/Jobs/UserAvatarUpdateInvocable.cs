@@ -6,16 +6,21 @@ using Foxnouns.Backend.Services;
 
 namespace Foxnouns.Backend.Jobs;
 
-public class UserAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService objectStorageService, ILogger logger)
-    : IInvocable, IInvocableWithPayload<AvatarUpdatePayload>
+public class UserAvatarUpdateInvocable(
+    DatabaseContext db,
+    ObjectStorageService objectStorageService,
+    ILogger logger
+) : IInvocable, IInvocableWithPayload<AvatarUpdatePayload>
 {
     private readonly ILogger _logger = logger.ForContext<UserAvatarUpdateInvocable>();
     public required AvatarUpdatePayload Payload { get; set; }
 
     public async Task Invoke()
     {
-        if (Payload.NewAvatar != null) await UpdateUserAvatarAsync(Payload.Id, Payload.NewAvatar);
-        else await ClearUserAvatarAsync(Payload.Id);
+        if (Payload.NewAvatar != null)
+            await UpdateUserAvatarAsync(Payload.Id, Payload.NewAvatar);
+        else
+            await ClearUserAvatarAsync(Payload.Id);
     }
 
     private async Task UpdateUserAvatarAsync(Snowflake id, string newAvatar)
@@ -25,7 +30,10 @@ public class UserAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService 
         var user = await db.Users.FindAsync(id);
         if (user == null)
         {
-            _logger.Warning("Update avatar job queued for {UserId} but no user with that ID exists", id);
+            _logger.Warning(
+                "Update avatar job queued for {UserId} but no user with that ID exists",
+                id
+            );
             return;
         }
 
@@ -47,7 +55,11 @@ public class UserAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService 
         }
         catch (ArgumentException ae)
         {
-            _logger.Warning("Invalid data URI for new avatar for user {UserId}: {Reason}", id, ae.Message);
+            _logger.Warning(
+                "Invalid data URI for new avatar for user {UserId}: {Reason}",
+                id,
+                ae.Message
+            );
         }
     }
 
@@ -58,7 +70,10 @@ public class UserAvatarUpdateInvocable(DatabaseContext db, ObjectStorageService 
         var user = await db.Users.FindAsync(id);
         if (user == null)
         {
-            _logger.Warning("Clear avatar job queued for {UserId} but no user with that ID exists", id);
+            _logger.Warning(
+                "Clear avatar job queued for {UserId} but no user with that ID exists",
+                id
+            );
             return;
         }
 

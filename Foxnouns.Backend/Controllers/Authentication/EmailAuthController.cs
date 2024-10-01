@@ -20,21 +20,35 @@ public class EmailAuthController(
     KeyCacheService keyCacheService,
     UserRendererService userRenderer,
     IClock clock,
-    ILogger logger) : ApiControllerBase
+    ILogger logger
+) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<EmailAuthController>();
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterRequest req, CancellationToken ct = default)
+    public async Task<IActionResult> RegisterAsync(
+        [FromBody] RegisterRequest req,
+        CancellationToken ct = default
+    )
     {
         CheckRequirements();
 
-        if (!req.Email.Contains('@')) throw new ApiError.BadRequest("Email is invalid", "email", req.Email);
+        if (!req.Email.Contains('@'))
+            throw new ApiError.BadRequest("Email is invalid", "email", req.Email);
 
-        var state = await keyCacheService.GenerateRegisterEmailStateAsync(req.Email, userId: null, ct);
+        var state = await keyCacheService.GenerateRegisterEmailStateAsync(
+            req.Email,
+            userId: null,
+            ct
+        );
 
         // If there's already a user with that email address, pretend we sent an email but actually ignore it
-        if (await db.AuthMethods.AnyAsync(a => a.AuthType == AuthType.Email && a.RemoteId == req.Email, ct))
+        if (
+            await db.AuthMethods.AnyAsync(
+                a => a.AuthType == AuthType.Email && a.RemoteId == req.Email,
+                ct
+            )
+        )
             return NoContent();
 
         mailService.QueueAccountCreationEmail(req.Email, state);
@@ -47,29 +61,48 @@ public class EmailAuthController(
         CheckRequirements();
 
         var state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
-        if (state == null) throw new ApiError.BadRequest("Invalid state", "state", req.State);
+        if (state == null)
+            throw new ApiError.BadRequest("Invalid state", "state", req.State);
 
         // If this callback is for an existing user, add the email address to their auth methods
         if (state.ExistingUserId != null)
         {
-            var authMethod =
-                await authService.AddAuthMethodAsync(state.ExistingUserId.Value, AuthType.Email, state.Email);
-            _logger.Debug("Added email auth {AuthId} for user {UserId}", authMethod.Id, state.ExistingUserId);
+            var authMethod = await authService.AddAuthMethodAsync(
+                state.ExistingUserId.Value,
+                AuthType.Email,
+                state.Email
+            );
+            _logger.Debug(
+                "Added email auth {AuthId} for user {UserId}",
+                authMethod.Id,
+                state.ExistingUserId
+            );
             return NoContent();
         }
 
         var ticket = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync($"email:{ticket}", state.Email, Duration.FromMinutes(20));
 
-        return Ok(new AuthController.CallbackResponse(HasAccount: false, Ticket: ticket, RemoteUsername: state.Email,
-            User: null, Token: null, ExpiresAt: null));
+        return Ok(
+            new AuthController.CallbackResponse(
+                HasAccount: false,
+                Ticket: ticket,
+                RemoteUsername: state.Email,
+                User: null,
+                Token: null,
+                ExpiresAt: null
+            )
+        );
     }
 
     [HttpPost("complete-registration")]
-    public async Task<IActionResult> CompleteRegistrationAsync([FromBody] CompleteRegistrationRequest req)
+    public async Task<IActionResult> CompleteRegistrationAsync(
+        [FromBody] CompleteRegistrationRequest req
+    )
     {
         var email = await keyCacheService.GetKeyAsync($"email:{req.Ticket}");
-        if (email == null) throw new ApiError.BadRequest("Unknown ticket", "ticket", req.Ticket);
+        if (email == null)
+            throw new ApiError.BadRequest("Unknown ticket", "ticket", req.Ticket);
 
         // Check if username is valid at all
         ValidationUtils.Validate([("username", ValidationUtils.ValidateUsername(req.Username))]);
@@ -80,28 +113,41 @@ public class EmailAuthController(
         var user = await authService.CreateUserWithPasswordAsync(req.Username, email, req.Password);
         var frontendApp = await db.GetFrontendApplicationAsync();
 
-        var (tokenStr, token) =
-            authService.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
+        var (tokenStr, token) = authService.GenerateToken(
+            user,
+            frontendApp,
+            ["*"],
+            clock.GetCurrentInstant() + Duration.FromDays(365)
+        );
         db.Add(token);
 
         await db.SaveChangesAsync();
 
         await keyCacheService.DeleteKeyAsync($"email:{req.Ticket}");
 
-        return Ok(new AuthController.AuthResponse(
-            await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false),
-            tokenStr,
-            token.ExpiresAt
-        ));
+        return Ok(
+            new AuthController.AuthResponse(
+                await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false),
+                tokenStr,
+                token.ExpiresAt
+            )
+        );
     }
 
     [HttpPost("login")]
     [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> LoginAsync([FromBody] LoginRequest req, CancellationToken ct = default)
+    public async Task<IActionResult> LoginAsync(
+        [FromBody] LoginRequest req,
+        CancellationToken ct = default
+    )
     {
         CheckRequirements();
 
-        var (user, authenticationResult) = await authService.AuthenticateUserAsync(req.Email, req.Password, ct);
+        var (user, authenticationResult) = await authService.AuthenticateUserAsync(
+            req.Email,
+            req.Password,
+            ct
+        );
         if (authenticationResult == AuthService.EmailAuthenticationResult.MfaRequired)
             throw new NotImplementedException("MFA is not implemented yet");
 
@@ -109,19 +155,30 @@ public class EmailAuthController(
 
         _logger.Debug("Logging user {Id} in with email and password", user.Id);
 
-        var (tokenStr, token) =
-            authService.GenerateToken(user, frontendApp, ["*"], clock.GetCurrentInstant() + Duration.FromDays(365));
+        var (tokenStr, token) = authService.GenerateToken(
+            user,
+            frontendApp,
+            ["*"],
+            clock.GetCurrentInstant() + Duration.FromDays(365)
+        );
         db.Add(token);
 
         _logger.Debug("Generated token {TokenId} for {UserId}", token.Id, user.Id);
 
         await db.SaveChangesAsync(ct);
 
-        return Ok(new AuthController.AuthResponse(
-            await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false, ct: ct),
-            tokenStr,
-            token.ExpiresAt
-        ));
+        return Ok(
+            new AuthController.AuthResponse(
+                await userRenderer.RenderUserAsync(
+                    user,
+                    selfUser: user,
+                    renderMembers: false,
+                    ct: ct
+                ),
+                tokenStr,
+                token.ExpiresAt
+            )
+        );
     }
 
     [HttpPost("add")]

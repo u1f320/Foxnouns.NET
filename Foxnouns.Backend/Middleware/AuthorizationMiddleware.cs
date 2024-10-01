@@ -18,14 +18,26 @@ public class AuthorizationMiddleware : IMiddleware
 
         var token = ctx.GetToken();
         if (token == null)
-            throw new ApiError.Unauthorized("This endpoint requires an authenticated user.",
-                ErrorCode.AuthenticationRequired);
-        if (attribute.Scopes.Length > 0 && attribute.Scopes.Except(token.Scopes.ExpandScopes()).Any())
-            throw new ApiError.Forbidden("This endpoint requires ungranted scopes.",
-                attribute.Scopes.Except(token.Scopes.ExpandScopes()), ErrorCode.MissingScopes);
+            throw new ApiError.Unauthorized(
+                "This endpoint requires an authenticated user.",
+                ErrorCode.AuthenticationRequired
+            );
+        if (
+            attribute.Scopes.Length > 0
+            && attribute.Scopes.Except(token.Scopes.ExpandScopes()).Any()
+        )
+            throw new ApiError.Forbidden(
+                "This endpoint requires ungranted scopes.",
+                attribute.Scopes.Except(token.Scopes.ExpandScopes()),
+                ErrorCode.MissingScopes
+            );
         if (attribute.RequireAdmin && token.User.Role != UserRole.Admin)
             throw new ApiError.Forbidden("This endpoint can only be used by admins.");
-        if (attribute.RequireModerator && token.User.Role != UserRole.Admin && token.User.Role != UserRole.Moderator)
+        if (
+            attribute.RequireModerator
+            && token.User.Role != UserRole.Admin
+            && token.User.Role != UserRole.Moderator
+        )
             throw new ApiError.Forbidden("This endpoint can only be used by moderators.");
 
         await next(ctx);
