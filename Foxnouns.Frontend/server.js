@@ -36,7 +36,7 @@ if (viteDevServer) {
 
 // Only cache locales for a minute, as they can change without the filename changing
 // TODO: figure out how to change the filenames on update?
-app.use(express.static("build/client/locales", { maxAge: "1m" }));
+app.use("/locales", express.static("build/client/locales", { maxAge: "1m" }));
 
 // Everything else (like favicon.ico) is cached for an hour. You may want to be
 // more aggressive with this caching.
