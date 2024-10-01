@@ -186,7 +186,8 @@ public class UsersController(
 
         if (preferences.Count > MaxCustomPreferences)
             errors.Add(("custom_preferences",
-                ValidationError.LengthError("Too many custom preferences", 0, MaxCustomPreferences, preferences.Count)));
+                ValidationError.LengthError("Too many custom preferences", 0, MaxCustomPreferences,
+                    preferences.Count)));
         if (preferences.Count > 50) return errors;
 
         // TODO: validate individual preferences

@@ -125,7 +125,7 @@ public class EmailAuthController(
 
     private void CheckRequirements()
     {
-        if (!config.DiscordAuth.Enabled)
+        if (!config.EmailAuth.Enabled)
             throw new ApiError.BadRequest("Email authentication is not enabled on this instance.");
     }
 

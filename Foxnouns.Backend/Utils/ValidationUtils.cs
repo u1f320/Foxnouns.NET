@@ -289,6 +289,7 @@ public static partial class ValidationUtils
 
     [GeneratedRegex(@"^[a-zA-Z_0-9\-\.]{2,40}$", RegexOptions.IgnoreCase, "en-NL")]
     private static partial Regex UsernameRegex();
+
     [GeneratedRegex("""^[^@'$%&()+<=>^|~`,*!#/\\\[\]""\{\}\?]{1,100}$""", RegexOptions.IgnoreCase, "en-NL")]
     private static partial Regex MemberRegex();
 }
