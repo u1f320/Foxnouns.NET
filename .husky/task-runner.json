@@ -1,0 +1,21 @@
+{
+  "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+  "tasks": [
+    {
+      "name": "run-prettier",
+      "command": "yarn",
+      "args": [
+        "format",
+        "${staged}"
+      ],
+      "pathMode": "absolute"
+    },
+    {
+      "name": "dotnet-format",
+      "command": "dotnet",
+      "args": [
+        "format"
+      ]
+    }
+  ]
+}
