@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs, json, redirect, MetaFunction } from "@remix-run/node";
 import i18n from "~/i18next.server";
 import serverRequest, { getToken } from "~/lib/request.server";
-import { User } from "~/lib/api/user";
+import { MeUser } from "~/lib/api/user";
 import { Link, Outlet, useLocation } from "@remix-run/react";
 import { Nav } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	if (token) {
 		try {
-			const user = await serverRequest<User>("GET", "/users/@me", { token });
+			const user = await serverRequest<MeUser>("GET", "/users/@me", { token });
 			return json({ user, meta: { title: t("settings.title") } });
 		} catch (e) {
 			return redirect("/auth/log-in");

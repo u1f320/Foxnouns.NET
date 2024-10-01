@@ -15,7 +15,6 @@ import {
 	useLoaderData,
 	ShouldRevalidateFunction,
 	useNavigate,
-	Navigate,
 } from "@remix-run/react";
 import { Trans, useTranslation } from "react-i18next";
 import { Form, Button, Alert } from "react-bootstrap";

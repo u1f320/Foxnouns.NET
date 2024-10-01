@@ -14,6 +14,14 @@ export type User = PartialUser & {
 	pronouns: Pronoun[];
 	fields: Field[];
 	flags: PrideFlag[];
+	role: "USER" | "MODERATOR" | "ADMIN";
+};
+
+export type MeUser = UserWithMembers & {
+	auth_methods: AuthMethod[];
+	member_list_hidden: boolean;
+	last_active: string;
+	last_sid_reroll: string;
 };
 
 export type UserWithMembers = User & { members: PartialMember[] };
@@ -56,6 +64,14 @@ export type PrideFlag = {
 	image_url: string;
 	name: string;
 	description: string | null;
+};
+
+export type AuthMethod = {
+	id: string;
+	type: "DISCORD" | "GOOGLE" | "TUMBLR" | "FEDIVERSE" | "EMAIL";
+	remote_id: string;
+	remote_username?: string;
+	fediverse_instance?: string;
 };
 
 export type CustomPreference = {

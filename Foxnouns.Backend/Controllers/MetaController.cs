@@ -22,19 +22,27 @@ public class MetaController : ApiControllerBase
             ),
             new Limits(
                 MemberCount: MembersController.MaxMemberCount,
-                BioLength: ValidationUtils.MaxBioLength))
+                BioLength: ValidationUtils.MaxBioLength,
+                CustomPreferences: UsersController.MaxCustomPreferences))
         );
     }
 
     [HttpGet("/api/v2/coffee")]
     public IActionResult BrewCoffee() => Problem("Sorry, I'm a teapot!", statusCode: StatusCodes.Status418ImATeapot);
 
-    private record MetaResponse(string Repository, string Version, string Hash, int Members, UserInfo Users, Limits Limits);
+    private record MetaResponse(
+        string Repository,
+        string Version,
+        string Hash,
+        int Members,
+        UserInfo Users,
+        Limits Limits);
 
     private record UserInfo(int Total, int ActiveMonth, int ActiveWeek, int ActiveDay);
 
     // All limits that the frontend should know about (for UI purposes)
     private record Limits(
         int MemberCount,
-        int BioLength);
+        int BioLength,
+        int CustomPreferences);
 }

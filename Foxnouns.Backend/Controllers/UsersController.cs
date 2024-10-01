@@ -177,14 +177,16 @@ public class UsersController(
         public bool Favourite { get; set; }
     }
 
+    public const int MaxCustomPreferences = 25;
+
     private static List<(string, ValidationError?)> ValidateCustomPreferences(
         List<CustomPreferencesUpdateRequest> preferences)
     {
         var errors = new List<(string, ValidationError?)>();
 
-        if (preferences.Count > 25)
+        if (preferences.Count > MaxCustomPreferences)
             errors.Add(("custom_preferences",
-                ValidationError.LengthError("Too many custom preferences", 0, 25, preferences.Count)));
+                ValidationError.LengthError("Too many custom preferences", 0, MaxCustomPreferences, preferences.Count)));
         if (preferences.Count > 50) return errors;
 
         // TODO: validate individual preferences

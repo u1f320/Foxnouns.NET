@@ -27,3 +27,8 @@
 	max-width: 200px;
 	border-radius: 3px;
 }
+
+// This is necessary for line breaks in translation strings to show up. Don't ask me why
+.text-has-newline {
+	white-space: pre-line;
+}

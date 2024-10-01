@@ -43,6 +43,7 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
             user.Links,
             user.Names, user.Pronouns, user.Fields, user.CustomPreferences,
             flags.Select(f => RenderPrideFlag(f.PrideFlag)),
+            user.Role,
             renderMembers ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden)) : null,
             renderAuthMethods
                 ? authMethods.Select(a => new AuthenticationMethodResponse(
@@ -78,6 +79,8 @@ public class UserRendererService(DatabaseContext db, MemberRendererService membe
         IEnumerable<Field> Fields,
         Dictionary<Snowflake, User.CustomPreference> CustomPreferences,
         IEnumerable<PrideFlagResponse> Flags,
+        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
+        UserRole Role,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         IEnumerable<MemberRendererService.PartialMember>? Members,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

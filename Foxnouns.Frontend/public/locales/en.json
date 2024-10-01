@@ -92,9 +92,18 @@
 	},
 	"settings": {
 		"general": {
+			"username": "Username",
+			"change-username": "Change username",
+			"username-change-hint": "Changing your username will make any existing links to your or your members' profiles invalid.\nYour username must be unique, be at most 40 characters long, and only contain letters from the basic English alphabet, dashes, underscores, and periods. Your username is used as part of your profile link, you can set a separate display name.",
+			"log-out-everywhere": "Log out everywhere",
+			"table-header": "General account information",
 			"id": "Your user ID",
 			"created": "Account created at",
-			"member-count": "Members"
+			"member-count": "Members",
+			"member-list-hidden": "Member list hidden?",
+			"custom-preferences": "Custom preferences",
+			"role": "Account role",
+			"username-update-error": "Could not update your username as the new username is invalid:\n{{message}}"
 		},
 		"title": "Settings",
 		"nav": {
@@ -104,5 +113,7 @@
 			"authentication": "Authentication",
 			"export": "Export your data"
 		}
-	}
+	},
+	"yes": "Yes",
+	"no": "No"
 }
