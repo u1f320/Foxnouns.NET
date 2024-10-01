@@ -10,6 +10,7 @@ import { defaultAvatarUrl } from "~/lib/utils";
 import { useTranslation } from "react-i18next";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Lock } from "react-bootstrap-icons";
+import AvatarImage from "~/components/profile/AvatarImage";
 
 export default function MemberCard({ user, member }: { user: PartialUser; member: PartialMember }) {
 	const { t } = useTranslation();
@@ -37,13 +38,11 @@ export default function MemberCard({ user, member }: { user: PartialUser; member
 	return (
 		<div className="col">
 			<Link to={`/@${user.username}/${member.name}`}>
-				<img
+				<AvatarImage
 					src={member.avatar_url || defaultAvatarUrl}
-					alt={t("user.member-avatar-alt", { name: member.name })}
 					width={200}
-					height={200}
-					loading="lazy"
-					className="rounded-circle img-fluid"
+					alt={t("user.member-avatar-alt", { name: member.name })}
+					lazyLoad
 				/>
 			</Link>
 			<p className="m-2">

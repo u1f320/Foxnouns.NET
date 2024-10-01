@@ -6,6 +6,7 @@ import ProfileLink from "~/components/profile/ProfileLink";
 import ProfileField from "~/components/profile/ProfileField";
 import { useTranslation } from "react-i18next";
 import { renderMarkdown } from "~/lib/markdown";
+import AvatarImage from "~/components/profile/AvatarImage";
 
 export type Props = {
 	name: string;
@@ -31,20 +32,16 @@ export default function BaseProfile({
 				<div className="row">
 					<div className="col-md-4 text-center">
 						{userI18nKeys ? (
-							<img
+							<AvatarImage
 								src={profile.avatar_url || defaultAvatarUrl}
-								alt={t("user.avatar-alt", { username: name })}
 								width={200}
-								height={200}
-								className="rounded-circle img-fluid"
+								alt={t("user.avatar-alt", { username: name })}
 							/>
 						) : (
-							<img
+							<AvatarImage
 								src={profile.avatar_url || defaultAvatarUrl}
-								alt={t("member.avatar-alt", { name: name })}
 								width={200}
-								height={200}
-								className="rounded-circle img-fluid"
+								alt={t("member.avatar-alt", { name: name })}
 							/>
 						)}
 						{profile.flags && profile.bio && (
