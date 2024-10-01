@@ -7,13 +7,8 @@ namespace Foxnouns.Backend.Utils;
 /// <summary>
 /// Static methods for validating user input (mostly making sure it's not too short or too long)
 /// </summary>
-public static class ValidationUtils
+public static partial class ValidationUtils
 {
-    private static readonly Regex UsernameRegex = new("^[\\w-.]{2,40}$", RegexOptions.IgnoreCase);
-
-    private static readonly Regex MemberRegex =
-        new("^[^@\\?!#/\\\\[\\]\"\\{\\}'$%&()+<=>^|~`,\\*]{1,100}$", RegexOptions.IgnoreCase);
-
     private static readonly string[] InvalidUsernames =
     [
         "..",
@@ -40,7 +35,7 @@ public static class ValidationUtils
 
     public static ValidationError? ValidateUsername(string username)
     {
-        if (!UsernameRegex.IsMatch(username))
+        if (!UsernameRegex().IsMatch(username))
             return username.Length switch
             {
                 < 2 => ValidationError.LengthError("Username is too short", 2, 40, username.Length),
@@ -57,7 +52,7 @@ public static class ValidationUtils
 
     public static ValidationError? ValidateMemberName(string memberName)
     {
-        if (!MemberRegex.IsMatch(memberName))
+        if (!MemberRegex().IsMatch(memberName))
             return memberName.Length switch
             {
                 < 1 => ValidationError.LengthError("Name is too short", 1, 100, memberName.Length),
@@ -128,7 +123,7 @@ public static class ValidationUtils
     }
 
     public const int MaxBioLength = 1024;
-    
+
     public static ValidationError? ValidateBio(string? bio)
     {
         return bio?.Length switch
@@ -291,4 +286,9 @@ public static class ValidationUtils
 
         return errors;
     }
+
+    [GeneratedRegex(@"^[a-zA-Z_0-9\-\.]{2,40}$", RegexOptions.IgnoreCase, "en-NL")]
+    private static partial Regex UsernameRegex();
+    [GeneratedRegex("""^[^@'$%&()+<=>^|~`,*!#/\\\[\]""\{\}\?]{1,100}$""", RegexOptions.IgnoreCase, "en-NL")]
+    private static partial Regex MemberRegex();
 }
