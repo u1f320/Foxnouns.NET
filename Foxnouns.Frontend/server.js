@@ -34,9 +34,13 @@ if (viteDevServer) {
 	app.use("/assets", express.static("build/client/assets", { immutable: true, maxAge: "1y" }));
 }
 
+// Only cache locales for a minute, as they can change without the filename changing
+// TODO: figure out how to change the filenames on update?
+app.use(express.static("build/client/locales", { maxAge: "1m" }));
+
 // Everything else (like favicon.ico) is cached for an hour. You may want to be
 // more aggressive with this caching.
-app.use(express.static("build/client", { maxAge: "1h" }));
+app.use(express.static("build/client", { maxAge: "1d" }));
 
 app.use(morgan("tiny"));
 
