@@ -4,6 +4,6 @@
   },
   "scripts": {
     "dev": "concurrently -n .net,node,rate -c magenta,yellow,blue -i 'cd Foxnouns.Backend && dotnet watch --no-hot-reload' 'cd Foxnouns.Frontend && yarn dev' 'cd rate && go run -v .'",
-    "format": "cd frontend && yarn format -w"
+    "format": "cd Foxnouns.Frontend && yarn format"
   }
 }

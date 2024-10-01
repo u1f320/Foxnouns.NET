@@ -112,12 +112,12 @@ public static class Users
         foreach (var field in oldUser.Fields ?? [])
         {
             var entries = field.Entries.Select(entry => new FieldEntry
-                {
-                    Value = entry.Value,
-                    Status = prefMapping.TryGetValue(entry.Status, out var newStatus)
+            {
+                Value = entry.Value,
+                Status = prefMapping.TryGetValue(entry.Status, out var newStatus)
                         ? newStatus.ToString()
                         : entry.Status,
-                })
+            })
                 .ToList();
 
             user.Fields.Add(new Field

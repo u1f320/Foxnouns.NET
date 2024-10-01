@@ -4,18 +4,13 @@
     {
       "name": "run-prettier",
       "command": "yarn",
-      "args": [
-        "format",
-        "${staged}"
-      ],
+      "args": ["format"],
       "pathMode": "absolute"
     },
     {
       "name": "dotnet-format",
       "command": "dotnet",
-      "args": [
-        "format"
-      ]
+      "args": ["format"]
     }
   ]
 }
