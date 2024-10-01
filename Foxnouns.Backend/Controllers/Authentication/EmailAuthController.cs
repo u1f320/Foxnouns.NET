@@ -183,10 +183,40 @@ public class EmailAuthController(
 
     [HttpPost("add")]
     [Authorize("*")]
-    public async Task<IActionResult> AddEmailAddressAsync()
+    public async Task<IActionResult> AddEmailAddressAsync([FromBody] AddEmailAddressRequest req)
     {
-        _logger.Information("beep");
+        var emails = await db
+            .AuthMethods.Where(m => m.UserId == CurrentUser!.Id && m.AuthType == AuthType.Email)
+            .ToListAsync();
+        if (emails.Count > AuthUtils.MaxAuthMethodsPerType)
+        {
+            throw new ApiError.BadRequest(
+                "Too many email addresses, maximum of 3 per account.",
+                "email",
+                null
+            );
+        }
 
+        var validPassword = await authService.ValidatePasswordAsync(CurrentUser!, req.Password);
+        if (!validPassword)
+        {
+            throw new ApiError.Forbidden("Invalid password");
+        }
+
+        var state = await keyCacheService.GenerateRegisterEmailStateAsync(
+            req.Email,
+            userId: CurrentUser!.Id
+        );
+
+        var emailExists = await db
+            .AuthMethods.Where(m => m.AuthType == AuthType.Email && m.RemoteId == req.Email)
+            .AnyAsync();
+        if (emailExists)
+        {
+            return NoContent();
+        }
+
+        mailService.QueueAddEmailAddressEmail(req.Email, state, CurrentUser.Username);
         return NoContent();
     }
 

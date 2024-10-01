@@ -33,4 +33,31 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
             }
         });
     }
+
+    public void QueueAddEmailAddressEmail(string to, string code, string username)
+    {
+        _logger.Debug("Sending add email address email to {ToEmail}", to);
+        queue.QueueAsyncTask(async () =>
+        {
+            try
+            {
+                await mailer.SendAsync(
+                    new AddEmailMailable(
+                        config,
+                        new AddEmailMailableView
+                        {
+                            BaseUrl = config.BaseUrl,
+                            To = to,
+                            Code = code,
+                            Username = username,
+                        }
+                    )
+                );
+            }
+            catch (Exception exc)
+            {
+                _logger.Error(exc, "Sending add email address email");
+            }
+        });
+    }
 }

@@ -129,6 +129,30 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
         return (user, EmailAuthenticationResult.AuthSuccessful);
     }
 
+    /// <summary>
+    /// Validates a user's password outside an authentication context, for when a password is required for changing
+    /// a setting, such as adding a new email address or changing passwords.
+    /// </summary>
+    public async Task<bool> ValidatePasswordAsync(
+        User user,
+        string password,
+        CancellationToken ct = default
+    )
+    {
+        if (user.Password == null)
+        {
+            throw new FoxnounsError("Password for user supplied to ValidatePasswordAsync was null");
+        }
+
+        var pwResult = await Task.Run(
+            () => _passwordHasher.VerifyHashedPassword(user, user.Password!, password),
+            ct
+        );
+        return pwResult
+            is PasswordVerificationResult.SuccessRehashNeeded
+                or PasswordVerificationResult.Success;
+    }
+
     public enum EmailAuthenticationResult
     {
         AuthSuccessful,

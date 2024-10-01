@@ -42,7 +42,7 @@ public class ApiError(
         IReadOnlyDictionary<string, IEnumerable<ValidationError>>? errors = null
     ) : ApiError(message, statusCode: HttpStatusCode.BadRequest)
     {
-        public BadRequest(string message, string field, object actualValue)
+        public BadRequest(string message, string field, object? actualValue)
             : this(
                 "Error validating input",
                 new Dictionary<string, IEnumerable<ValidationError>>
