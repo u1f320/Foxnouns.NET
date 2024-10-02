@@ -39,10 +39,10 @@ public class AuthController(
                 + $"&prompt=none&state={state}"
                 + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/discord")}";
 
-        return Ok(new UrlsResponse(discord, null, null));
+        return Ok(new UrlsResponse(config.EmailAuth.Enabled, discord, null, null));
     }
 
-    private record UrlsResponse(string? Discord, string? Google, string? Tumblr);
+    private record UrlsResponse(bool EmailEnabled, string? Discord, string? Google, string? Tumblr);
 
     public record AuthResponse(
         UserRendererService.UserResponse User,

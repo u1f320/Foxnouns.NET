@@ -11,7 +11,7 @@ import {
 	useActionData,
 	useLoaderData,
 } from "@remix-run/react";
-import { Form, Button, ButtonGroup, ListGroup, Row, Col } from "react-bootstrap";
+import { Form, Button, ButtonGroup, ListGroup } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import i18n from "~/i18next.server";
 import serverRequest, { getToken, writeCookie } from "~/lib/request.server";
@@ -78,33 +78,36 @@ export default function LoginPage() {
 
 	return (
 		<>
-			<Row>
-				<Col md className="mb-4">
-					<h2>{t("log-in.form-title")}</h2>
-					{actionData?.error && <LoginError error={actionData.error} />}
-					<RemixForm action="/auth/log-in" method="POST">
-						<Form as="div">
-							<Form.Group className="mb-3" controlId="email">
-								<Form.Label>{t("log-in.email")}</Form.Label>
-								<Form.Control name="email" type="email" required />
-							</Form.Group>
-							<Form.Group className="mb-3" controlId="password">
-								<Form.Label>{t("log-in.password")}</Form.Label>
-								<Form.Control name="password" type="password" required />
-							</Form.Group>
+			<div className="row">
+				{!urls.email_enabled && <div className="col-lg-3"></div>}
+				{urls.email_enabled && (
+					<div className="col col-md mb-4">
+						<h2>{t("log-in.form-title")}</h2>
+						{actionData?.error && <LoginError error={actionData.error} />}
+						<RemixForm action="/auth/log-in" method="POST">
+							<Form as="div">
+								<Form.Group className="mb-3" controlId="email">
+									<Form.Label>{t("log-in.email")}</Form.Label>
+									<Form.Control name="email" type="email" required />
+								</Form.Group>
+								<Form.Group className="mb-3" controlId="password">
+									<Form.Label>{t("log-in.password")}</Form.Label>
+									<Form.Control name="password" type="password" required />
+								</Form.Group>
 
-							<ButtonGroup>
-								<Button variant="primary" type="submit">
-									{t("log-in.log-in-button")}
-								</Button>
-								<Button as="a" href="/auth/register" variant="secondary">
-									{t("log-in.register-with-email")}
-								</Button>
-							</ButtonGroup>
-						</Form>
-					</RemixForm>
-				</Col>
-				<Col md>
+								<ButtonGroup>
+									<Button variant="primary" type="submit">
+										{t("log-in.log-in-button")}
+									</Button>
+									<Button as="a" href="/auth/register" variant="secondary">
+										{t("log-in.register-with-email")}
+									</Button>
+								</ButtonGroup>
+							</Form>
+						</RemixForm>
+					</div>
+				)}
+				<div className="col col-md">
 					<h2>{t("log-in.3rd-party.title")}</h2>
 					<p>{t("log-in.3rd-party.desc")}</p>
 					<ListGroup>
@@ -124,8 +127,9 @@ export default function LoginPage() {
 							</ListGroup.Item>
 						)}
 					</ListGroup>
-				</Col>
-			</Row>
+				</div>
+				{!urls.email_enabled && <div className="col-lg-3"></div>}
+			</div>
 		</>
 	);
 }

@@ -100,6 +100,8 @@ public class EmailAuthController(
         [FromBody] CompleteRegistrationRequest req
     )
     {
+        CheckRequirements();
+
         var email = await keyCacheService.GetKeyAsync($"email:{req.Ticket}");
         if (email == null)
             throw new ApiError.BadRequest("Unknown ticket", "ticket", req.Ticket);
@@ -185,6 +187,8 @@ public class EmailAuthController(
     [Authorize("*")]
     public async Task<IActionResult> AddEmailAddressAsync([FromBody] AddEmailAddressRequest req)
     {
+        CheckRequirements();
+
         var emails = await db
             .AuthMethods.Where(m => m.UserId == CurrentUser!.Id && m.AuthType == AuthType.Email)
             .ToListAsync();

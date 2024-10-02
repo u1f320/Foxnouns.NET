@@ -16,6 +16,7 @@ export type CallbackResponse = {
 };
 
 export type AuthUrls = {
+	email_enabled: boolean;
 	discord?: string;
 	google?: string;
 	tumblr?: string;

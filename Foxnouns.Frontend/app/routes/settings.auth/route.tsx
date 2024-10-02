@@ -1,10 +1,12 @@
 import i18n from "~/i18next.server";
 import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Link, useRouteLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useRouteLoaderData } from "@remix-run/react";
 import { Button, ListGroup } from "react-bootstrap";
 import { loader as settingsLoader } from "~/routes/settings/route";
 import { useTranslation } from "react-i18next";
 import { AuthMethod, MeUser } from "~/lib/api/user";
+import serverRequest from "~/lib/request.server";
+import { AuthUrls } from "~/lib/api/auth";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `${data?.meta.title || "Authentication"} • pronouns.cc` }];
@@ -12,17 +14,16 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const t = await i18n.getFixedT(request);
-	return { meta: { title: t("settings.auth.title") } };
+	const urls = await serverRequest<AuthUrls>("POST", "/auth/urls", { isInternal: true });
+
+	return { urls, meta: { title: t("settings.auth.title") } };
 };
 
 export default function AuthSettings() {
+	const { urls } = useLoaderData<typeof loader>();
 	const { user } = useRouteLoaderData<typeof settingsLoader>("routes/settings")!;
 
-	return (
-		<div className="px-md-5">
-			<EmailSettings user={user} />
-		</div>
-	);
+	return <div className="px-md-5">{urls.email_enabled && <EmailSettings user={user} />}</div>;
 }
 
 function EmailSettings({ user }: { user: MeUser }) {
