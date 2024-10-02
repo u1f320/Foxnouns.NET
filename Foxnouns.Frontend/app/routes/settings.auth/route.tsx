@@ -44,7 +44,7 @@ function EmailSettings({ user }: { user: MeUser }) {
 			)}
 			{emails.length < 3 && (
 				<p>
-					{/* @ts-expect-error using as=Link causes an error here, even though it runs completely fine */}
+					{/* @ts-expect-error as=Link */}
 					<Button variant="primary" as={Link} to="/settings/auth/add-email">
 						{emails.length === 0
 							? t("settings.auth.form.add-first-email")

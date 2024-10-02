@@ -105,7 +105,8 @@
 			"member-list-hidden": "Member list hidden?",
 			"custom-preferences": "Custom preferences",
 			"role": "Account role",
-			"username-update-error": "Could not update your username as the new username is invalid:\n{{message}}"
+			"username-update-error": "Could not update your username as the new username is invalid:\n{{message}}",
+			"log-out-everywhere-confirm": "Are you sure you want to log out everywhere?\nPlease double check your authentication methods before doing so, as it might lock you out of your account."
 		},
 		"auth": {
 			"title": "Authentication",

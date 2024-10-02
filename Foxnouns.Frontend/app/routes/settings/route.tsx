@@ -30,30 +30,35 @@ export default function SettingsLayout() {
 	const { t } = useTranslation();
 	const { pathname } = useLocation();
 
+	const isActive = (matches: string[] | string, startsWith: boolean = false) =>
+		startsWith
+			? typeof matches === "string"
+				? pathname.startsWith(matches)
+				: matches.some((m) => pathname.startsWith(m))
+			: typeof matches === "string"
+				? matches === pathname
+				: matches.includes(pathname);
+
 	return (
 		<>
 			<Nav variant="pills" justify fill className="flex-column flex-md-row">
-				<Nav.Link active={pathname === "/settings"} as={Link} to="/settings">
+				<Nav.Link
+					active={isActive(["/settings", "/settings/force-log-out"])}
+					as={Link}
+					to="/settings"
+				>
 					{t("settings.nav.general-information")}
 				</Nav.Link>
-				<Nav.Link
-					active={pathname.startsWith("/settings/profile")}
-					as={Link}
-					to="/settings/profile"
-				>
+				<Nav.Link active={isActive("/settings/profile", true)} as={Link} to="/settings/profile">
 					{t("settings.nav.profile")}
 				</Nav.Link>
-				<Nav.Link
-					active={pathname.startsWith("/settings/members")}
-					as={Link}
-					to="/settings/members"
-				>
+				<Nav.Link active={isActive("/settings/members", true)} as={Link} to="/settings/members">
 					{t("settings.nav.members")}
 				</Nav.Link>
-				<Nav.Link active={pathname.startsWith("/settings/auth")} as={Link} to="/settings/auth">
+				<Nav.Link active={isActive("/settings/auth", true)} as={Link} to="/settings/auth">
 					{t("settings.nav.authentication")}
 				</Nav.Link>
-				<Nav.Link active={pathname === "/settings/export"} as={Link} to="/settings/export">
+				<Nav.Link active={isActive("/settings/export")} as={Link} to="/settings/export">
 					{t("settings.nav.export")}
 				</Nav.Link>
 			</Nav>

@@ -1,5 +1,5 @@
 import { parse as parseCookie, serialize as serializeCookie } from "cookie";
-import { API_BASE, INTERNAL_API_BASE } from "~/env.server";
+import { INTERNAL_API_BASE } from "~/env.server";
 import { ApiError, ErrorCode } from "./api/error";
 import { tokenCookieName } from "~/lib/utils";
 
@@ -16,7 +16,7 @@ export async function baseRequest(
 	path: string,
 	params: RequestParams = {},
 ): Promise<Response> {
-	const base = params.isInternal ? INTERNAL_API_BASE + "/internal" : API_BASE + "/v2";
+	const base = params.isInternal ? INTERNAL_API_BASE + "/internal" : INTERNAL_API_BASE + "/v2";
 
 	const url = `${base}${path}`;
 	const resp = await fetch(url, {
