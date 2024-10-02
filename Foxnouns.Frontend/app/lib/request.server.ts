@@ -11,7 +11,7 @@ export type RequestParams = {
 	isInternal?: boolean;
 };
 
-async function requestInternal(
+export async function baseRequest(
 	method: string,
 	path: string,
 	params: RequestParams = {},
@@ -44,7 +44,7 @@ async function requestInternal(
 }
 
 export async function fastRequest(method: string, path: string, params: RequestParams = {}) {
-	await requestInternal(method, path, params);
+	await baseRequest(method, path, params);
 }
 
 export default async function serverRequest<T>(
@@ -52,7 +52,7 @@ export default async function serverRequest<T>(
 	path: string,
 	params: RequestParams = {},
 ) {
-	const resp = await requestInternal(method, path, params);
+	const resp = await baseRequest(method, path, params);
 	return (await resp.json()) as T;
 }
 

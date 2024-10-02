@@ -129,6 +129,12 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
         return (user, EmailAuthenticationResult.AuthSuccessful);
     }
 
+    public enum EmailAuthenticationResult
+    {
+        AuthSuccessful,
+        MfaRequired,
+    }
+
     /// <summary>
     /// Validates a user's password outside an authentication context, for when a password is required for changing
     /// a setting, such as adding a new email address or changing passwords.
@@ -153,10 +159,17 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
                 or PasswordVerificationResult.Success;
     }
 
-    public enum EmailAuthenticationResult
+    /// <summary>
+    /// Sets or updates a password for the given user. This method does <i>not</i> save the updated password automatically.
+    /// </summary>
+    public async Task SetUserPasswordAsync(
+        User user,
+        string password,
+        CancellationToken ct = default
+    )
     {
-        AuthSuccessful,
-        MfaRequired,
+        user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
+        db.Update(user);
     }
 
     /// <summary>

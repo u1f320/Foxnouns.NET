@@ -107,6 +107,23 @@
 			"role": "Account role",
 			"username-update-error": "Could not update your username as the new username is invalid:\n{{message}}"
 		},
+		"auth": {
+			"title": "Authentication",
+			"form": {
+				"add-first-email": "Set an email address",
+				"add-extra-email": "Add another email address",
+				"email-address": "Email address",
+				"password-1": "Password",
+				"password-2": "Confirm password",
+				"add-email-button": "Add email address"
+			},
+			"no-email": "You haven't linked any email addresses yet. You can add one using this form.",
+			"new-email-pending": "Email address added! Click the link in your inbox to confirm.",
+			"email-link-success": "Email successfully linked",
+			"redirect-to-auth-hint": "You will be redirected back to the authentication page in a few seconds.",
+			"email-addresses": "Email addresses",
+			"remove-auth-method": "Remove"
+		},
 		"title": "Settings",
 		"nav": {
 			"general-information": "General information",

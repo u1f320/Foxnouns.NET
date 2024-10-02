@@ -197,10 +197,18 @@ public class EmailAuthController(
             );
         }
 
-        var validPassword = await authService.ValidatePasswordAsync(CurrentUser!, req.Password);
-        if (!validPassword)
+        if (emails.Count != 0)
         {
-            throw new ApiError.Forbidden("Invalid password");
+            var validPassword = await authService.ValidatePasswordAsync(CurrentUser!, req.Password);
+            if (!validPassword)
+            {
+                throw new ApiError.Forbidden("Invalid password");
+            }
+        }
+        else
+        {
+            await authService.SetUserPasswordAsync(CurrentUser!, req.Password);
+            await db.SaveChangesAsync();
         }
 
         var state = await keyCacheService.GenerateRegisterEmailStateAsync(
