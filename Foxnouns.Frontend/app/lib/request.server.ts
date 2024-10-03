@@ -1,5 +1,5 @@
 import { parse as parseCookie, serialize as serializeCookie } from "cookie";
-import { INTERNAL_API_BASE } from "~/env.server";
+import { API_BASE, INTERNAL_API_BASE } from "~/env.server";
 import { ApiError, ErrorCode } from "./api/error";
 import { tokenCookieName } from "~/lib/utils";
 
@@ -11,12 +11,17 @@ export type RequestParams = {
 	isInternal?: boolean;
 };
 
+export type RequestMethod = "GET" | "POST" | "PATCH" | "DELETE";
+
 export async function baseRequest(
-	method: string,
+	method: RequestMethod,
 	path: string,
 	params: RequestParams = {},
 ): Promise<Response> {
-	const base = params.isInternal ? INTERNAL_API_BASE + "/internal" : INTERNAL_API_BASE + "/v2";
+	// Internal requests, unauthenticated requests, and GET requests bypass the rate limiting proxy.
+	// All other requests go through the proxy, and are rate limited.
+	let base = params.isInternal || !params.token || method === "GET" ? INTERNAL_API_BASE : API_BASE;
+	base += params.isInternal ? "/internal" : "/v2";
 
 	const url = `${base}${path}`;
 	const resp = await fetch(url, {
@@ -43,12 +48,12 @@ export async function baseRequest(
 	return resp;
 }
 
-export async function fastRequest(method: string, path: string, params: RequestParams = {}) {
+export async function fastRequest(method: RequestMethod, path: string, params: RequestParams = {}) {
 	await baseRequest(method, path, params);
 }
 
 export default async function serverRequest<T>(
-	method: string,
+	method: RequestMethod,
 	path: string,
 	params: RequestParams = {},
 ) {

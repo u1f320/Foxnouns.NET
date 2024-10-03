@@ -5,7 +5,6 @@ import {
 	Link,
 	Outlet,
 	useActionData,
-	useFetcher,
 	useRouteLoaderData,
 } from "@remix-run/react";
 import { loader as settingsLoader } from "../settings/route";
