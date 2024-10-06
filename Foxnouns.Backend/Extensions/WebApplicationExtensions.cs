@@ -101,6 +101,7 @@ public static class WebApplicationExtensions
                     .AddScoped<AuthService>()
                     .AddScoped<KeyCacheService>()
                     .AddScoped<RemoteAuthService>()
+                    .AddScoped<FediverseAuthService>()
                     .AddScoped<ObjectStorageService>()
                     // Background services
                     .AddHostedService<PeriodicTasksService>()

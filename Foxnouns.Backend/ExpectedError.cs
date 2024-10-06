@@ -14,6 +14,15 @@ public class FoxnounsError(string message, Exception? inner = null) : Exception(
 
     public class UnknownEntityError(Type entityType, Exception? inner = null)
         : DatabaseError($"Entity of type {entityType.Name} not found", inner);
+
+    public class RemoteAuthError(string message, string? errorBody = null, Exception? inner = null)
+        : FoxnounsError(message, inner)
+    {
+        public string? ErrorBody => errorBody;
+
+        public override string ToString() =>
+            $"{Message}: {ErrorBody} {(Inner != null ? $"({Inner})" : "")}";
+    }
 }
 
 public class ApiError(
