@@ -56,7 +56,11 @@ internal static class NetImporter
         var loggerFactory = new LoggerFactory().AddSerilog(Log.Logger);
         var config = new Config { Database = new Config.DatabaseConfig { Url = connString } };
 
-        var db = new DatabaseContext(config, loggerFactory);
+        var dataSource = DatabaseContext.BuildDataSource(config);
+        var options = DatabaseContext
+            .BuildOptions(new DbContextOptionsBuilder(), dataSource, loggerFactory)
+            .Options;
+        var db = new DatabaseContext(options);
 
         if ((await db.Database.GetPendingMigrationsAsync()).Any())
         {

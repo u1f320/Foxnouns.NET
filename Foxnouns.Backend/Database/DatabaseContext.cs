@@ -9,10 +9,42 @@ using Npgsql;
 
 namespace Foxnouns.Backend.Database;
 
-public class DatabaseContext : DbContext
+public class DatabaseContext(DbContextOptions options) : DbContext(options)
 {
-    private readonly NpgsqlDataSource _dataSource;
-    private readonly ILoggerFactory? _loggerFactory;
+    private static string GenerateConnectionString(Config.DatabaseConfig config)
+    {
+        return new NpgsqlConnectionStringBuilder(config.Url)
+        {
+            Pooling = config.EnablePooling ?? true,
+            Timeout = config.Timeout ?? 5,
+            MaxPoolSize = config.MaxPoolSize ?? 50,
+            MinPoolSize = 0,
+            ConnectionPruningInterval = 10,
+            ConnectionIdleLifetime = 10,
+        }.ConnectionString;
+    }
+
+    public static NpgsqlDataSource BuildDataSource(Config config)
+    {
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(
+            GenerateConnectionString(config.Database)
+        );
+        dataSourceBuilder.UseNodaTime();
+        dataSourceBuilder.UseJsonNet();
+        return dataSourceBuilder.Build();
+    }
+
+    public static DbContextOptionsBuilder BuildOptions(
+        DbContextOptionsBuilder options,
+        NpgsqlDataSource dataSource,
+        ILoggerFactory? loggerFactory
+    ) =>
+        options
+            .ConfigureWarnings(c => c.Ignore(CoreEventId.SaveChangesFailed))
+            .UseNpgsql(dataSource, o => o.UseNodaTime())
+            .UseLoggerFactory(loggerFactory)
+            .UseSnakeCaseNamingConvention()
+            .UseExceptionProcessor();
 
     public DbSet<User> Users { get; set; }
     public DbSet<Member> Members { get; set; }
@@ -25,36 +57,6 @@ public class DatabaseContext : DbContext
     public DbSet<PrideFlag> PrideFlags { get; set; }
     public DbSet<UserFlag> UserFlags { get; set; }
     public DbSet<MemberFlag> MemberFlags { get; set; }
-
-    public DatabaseContext(Config config, ILoggerFactory? loggerFactory)
-    {
-        var connString = new NpgsqlConnectionStringBuilder(config.Database.Url)
-        {
-            Pooling = config.Database.EnablePooling ?? true,
-            Timeout = config.Database.Timeout ?? 5,
-            MaxPoolSize = config.Database.MaxPoolSize ?? 50,
-            MinPoolSize = 0,
-            ConnectionPruningInterval = 10,
-            ConnectionIdleLifetime = 10,
-        }.ConnectionString;
-
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connString);
-        dataSourceBuilder.UseNodaTime();
-        dataSourceBuilder.UseJsonNet();
-        _dataSource = dataSourceBuilder.Build();
-        _loggerFactory = loggerFactory;
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
-        optionsBuilder
-            .ConfigureWarnings(c =>
-                c.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning)
-                    .Ignore(CoreEventId.SaveChangesFailed)
-            )
-            .UseNpgsql(_dataSource, o => o.UseNodaTime())
-            .UseSnakeCaseNamingConvention()
-            .UseLoggerFactory(_loggerFactory)
-            .UseExceptionProcessor();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -125,6 +127,12 @@ public class DesignTimeDatabaseContextFactory : IDesignTimeDbContextFactory<Data
                 // Get the configuration as our config class
                 .Get<Config>() ?? new();
 
-        return new DatabaseContext(config, null);
+        var dataSource = DatabaseContext.BuildDataSource(config);
+
+        var options = DatabaseContext
+            .BuildOptions(new DbContextOptionsBuilder(), dataSource, null)
+            .Options;
+
+        return new DatabaseContext(options);
     }
 }

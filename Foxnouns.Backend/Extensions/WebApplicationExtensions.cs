@@ -85,7 +85,7 @@ public static class WebApplicationExtensions
                 services
                     .AddQueue()
                     .AddSmtpMailer(ctx.Configuration)
-                    .AddDbContext<DatabaseContext>()
+                    .AddFoxnounsDatabase(config)
                     .AddMetricServer(o => o.Port = config.Logging.MetricsPort)
                     .AddMinio(c =>
                         c.WithEndpoint(config.Storage.Endpoint)
