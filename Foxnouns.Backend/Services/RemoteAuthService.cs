@@ -13,7 +13,6 @@ public class RemoteAuthService(Config config, ILogger logger)
 
     public async Task<RemoteUser> RequestDiscordTokenAsync(
         string code,
-        string state,
         CancellationToken ct = default
     )
     {

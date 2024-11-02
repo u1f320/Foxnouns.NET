@@ -28,18 +28,15 @@ public class DiscordAuthController(
     // TODO: duplicating attribute doesn't work, find another way to mark both as possible response
     // leaving it here for documentation purposes
     [ProducesResponseType<AuthController.CallbackResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> CallbackAsync(
-        [FromBody] AuthController.CallbackRequest req,
-        CancellationToken ct = default
-    )
+    public async Task<IActionResult> CallbackAsync([FromBody] AuthController.CallbackRequest req)
     {
         CheckRequirements();
-        await keyCacheService.ValidateAuthStateAsync(req.State, ct);
+        await keyCacheService.ValidateAuthStateAsync(req.State);
 
-        var remoteUser = await remoteAuthService.RequestDiscordTokenAsync(req.Code, req.State, ct);
-        var user = await authService.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id, ct: ct);
+        var remoteUser = await remoteAuthService.RequestDiscordTokenAsync(req.Code);
+        var user = await authService.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id);
         if (user != null)
-            return Ok(await GenerateUserTokenAsync(user, ct));
+            return Ok(await GenerateUserTokenAsync(user));
 
         _logger.Debug(
             "Discord user {Username} ({Id}) authenticated with no local account",
@@ -51,8 +48,7 @@ public class DiscordAuthController(
         await keyCacheService.SetKeyAsync(
             $"discord:{ticket}",
             remoteUser,
-            Duration.FromMinutes(20),
-            ct
+            Duration.FromMinutes(20)
         );
 
         return Ok(
