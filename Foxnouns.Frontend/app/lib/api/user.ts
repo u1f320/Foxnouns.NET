@@ -71,7 +71,6 @@ export type AuthMethod = {
 	type: "DISCORD" | "GOOGLE" | "TUMBLR" | "FEDIVERSE" | "EMAIL";
 	remote_id: string;
 	remote_username?: string;
-	fediverse_instance?: string;
 };
 
 export type CustomPreference = {

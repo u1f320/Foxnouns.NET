@@ -1,5 +1,6 @@
 using System.Web;
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
@@ -48,6 +49,15 @@ public class AuthController(
         UserRendererService.UserResponse User,
         string Token,
         Instant ExpiresAt
+    );
+
+    public record SingleUrlResponse(string Url);
+
+    public record AddOauthAccountResponse(
+        Snowflake Id,
+        AuthType Type,
+        string RemoteId,
+        string? RemoteUsername
     );
 
     public record OauthRegisterRequest(string Ticket, string Username);

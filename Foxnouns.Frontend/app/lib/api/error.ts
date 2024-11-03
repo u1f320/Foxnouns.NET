@@ -16,6 +16,7 @@ export enum ErrorCode {
 	GenericApiError = "GENERIC_API_ERROR",
 	UserNotFound = "USER_NOT_FOUND",
 	MemberNotFound = "MEMBER_NOT_FOUND",
+	AccountAlreadyLinked = "ACCOUNT_ALREADY_LINKED",
 }
 
 export type ValidationError = {

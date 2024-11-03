@@ -16,7 +16,8 @@
 			"generic-error": "An unknown error occurred.",
 			"internal-server-error": "Server experienced an internal error, please try again later.",
 			"member-not-found": "Member not found, please check your spelling and try again.",
-			"user-not-found": "User not found, please check your spelling and try again."
+			"user-not-found": "User not found, please check your spelling and try again.",
+			"account-already-linked": "This account is already linked with a pronouns.cc account."
 		},
 		"title": "An error occurred",
 		"more-info": "Click here for a more detailed error"
@@ -51,11 +52,15 @@
 			"invalid-username": "Invalid username",
 			"username-taken": "That username is already taken, please try something else.",
 			"title": {
+				"discord-link": "Link a new Discord account",
 				"discord-success": "Log in with Discord",
 				"discord-register": "Register with Discord",
 				"fediverse-success": "Log in with a Fediverse account",
 				"fediverse-register": "Register with a Fediverse account"
 			},
+			"link-error": "Could not link account",
+			"discord-link-success": "Linked a new Discord account!",
+			"discord-link-success-hint": "Successfully linked the Discord account {{username}} with your pronouns.cc account. You can now close this page.",
 			"success": "Successfully logged in!",
 			"success-link": "Welcome back, <1>@{{username}}</1>!",
 			"redirect-hint": "If you're not redirected to your profile in a few seconds, press the link above.",
@@ -126,14 +131,20 @@
 				"email-address": "Email address",
 				"password-1": "Password",
 				"password-2": "Confirm password",
-				"add-email-button": "Add email address"
+				"add-email-button": "Add email address",
+				"add-first-discord-account": "Link a Discord account",
+				"add-extra-discord-account": "Link another Discord account",
+				"add-first-fediverse-account": "Link a Fediverse account",
+				"add-extra-fediverse-account": "Link another Fediverse account"
 			},
 			"no-email": "You haven't linked any email addresses yet. You can add one using this form.",
 			"new-email-pending": "Email address added! Click the link in your inbox to confirm.",
 			"email-link-success": "Email successfully linked",
 			"redirect-to-auth-hint": "You will be redirected back to the authentication page in a few seconds.",
 			"email-addresses": "Email addresses",
-			"remove-auth-method": "Remove"
+			"remove-auth-method": "Remove",
+			"discord-accounts": "Linked Discord accounts",
+			"fediverse-accounts": "Linked Fediverse accounts"
 		},
 		"title": "Settings",
 		"nav": {

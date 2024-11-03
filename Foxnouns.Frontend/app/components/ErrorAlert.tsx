@@ -140,6 +140,8 @@ export const errorCodeDesc = (t: TFunction, code: ErrorCode) => {
 			return t("error.errors.member-not-found");
 		case ErrorCode.UserNotFound:
 			return t("error.errors.user-not-found");
+		case ErrorCode.AccountAlreadyLinked:
+			return t("error.errors.account-already-linked");
 	}
 
 	return t("error.errors.generic-error");

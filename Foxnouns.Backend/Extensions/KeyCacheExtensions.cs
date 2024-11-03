@@ -1,4 +1,5 @@
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Newtonsoft.Json;
@@ -57,9 +58,39 @@ public static class KeyCacheExtensions
             delete: true,
             ct
         );
+
+    public static async Task<string> GenerateAddExtraAccountStateAsync(
+        this KeyCacheService keyCacheService,
+        AuthType authType,
+        Snowflake userId,
+        CancellationToken ct = default
+    )
+    {
+        var state = AuthUtils.RandomToken();
+        await keyCacheService.SetKeyAsync(
+            $"add_account:{state}",
+            new AddExtraAccountState(authType, userId),
+            Duration.FromDays(1),
+            ct
+        );
+        return state;
+    }
+
+    public static async Task<AddExtraAccountState?> GetAddExtraAccountStateAsync(
+        this KeyCacheService keyCacheService,
+        string state,
+        CancellationToken ct = default
+    ) =>
+        await keyCacheService.GetKeyAsync<AddExtraAccountState>(
+            $"add_account:{state}",
+            delete: true,
+            ct
+        );
 }
 
 public record RegisterEmailState(
     string Email,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Snowflake? ExistingUserId
 );
+
+public record AddExtraAccountState(AuthType AuthType, Snowflake UserId);

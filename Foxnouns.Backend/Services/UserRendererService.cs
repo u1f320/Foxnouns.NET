@@ -72,8 +72,9 @@ public class UserRendererService(
                     a.Id,
                     a.AuthType,
                     a.RemoteId,
-                    a.RemoteUsername,
-                    a.FediverseApplication?.Domain
+                    a.FediverseApplication != null
+                        ? $"@{a.RemoteUsername}@{a.FediverseApplication.Domain}"
+                        : a.RemoteUsername
                 ))
                 : null,
             tokenHidden ? user.ListHidden : null,
@@ -130,9 +131,7 @@ public class UserRendererService(
         [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] AuthType Type,
         string RemoteId,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            string? RemoteUsername,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            string? FediverseInstance
+            string? RemoteUsername
     );
 
     public record PartialUser(

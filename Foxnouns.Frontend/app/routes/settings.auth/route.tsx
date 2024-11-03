@@ -23,7 +23,13 @@ export default function AuthSettings() {
 	const { urls } = useLoaderData<typeof loader>();
 	const { user } = useRouteLoaderData<typeof settingsLoader>("routes/settings")!;
 
-	return <div className="px-md-5">{urls.email_enabled && <EmailSettings user={user} />}</div>;
+	return (
+		<div className="px-md-5">
+			{urls.email_enabled && <EmailSettings user={user} />}
+			{urls.discord && <DiscordSettings user={user} />}
+			<FediverseSettings user={user} />
+		</div>
+	);
 }
 
 function EmailSettings({ user }: { user: MeUser }) {
@@ -67,6 +73,89 @@ function EmailRow({ email, disabled }: { email: AuthMethod; disabled: boolean })
 				{!disabled && (
 					<div className="col text-end">
 						<Link to={`/settings/auth/remove-method/${email.id}`}>
+							{t("settings.auth.remove-auth-method")}
+						</Link>
+					</div>
+				)}
+			</div>
+		</ListGroup.Item>
+	);
+}
+
+function DiscordSettings({ user }: { user: MeUser }) {
+	const { t } = useTranslation();
+	const oneAuthMethod = user.auth_methods.length === 1;
+	const discordAccounts = user.auth_methods.filter((m) => m.type === "DISCORD");
+
+	return (
+		<>
+			<h3>{t("settings.auth.discord-accounts")}</h3>
+			{discordAccounts.length > 0 && (
+				<>
+					<ListGroup className="pt-2 pb-3">
+						{discordAccounts.map((a) => (
+							<NonEmailRow account={a} key={a.id} disabled={oneAuthMethod} />
+						))}
+					</ListGroup>
+				</>
+			)}
+			{discordAccounts.length < 3 && (
+				<p>
+					{/* @ts-expect-error as=Link */}
+					<Button variant="primary" as={Link} to="/settings/auth/add-discord-account">
+						{discordAccounts.length === 0
+							? t("settings.auth.form.add-first-discord-account")
+							: t("settings.auth.form.add-extra-discord-account")}
+					</Button>
+				</p>
+			)}
+		</>
+	);
+}
+
+function FediverseSettings({ user }: { user: MeUser }) {
+	const { t } = useTranslation();
+	const oneAuthMethod = user.auth_methods.length === 1;
+	const fediAccounts = user.auth_methods.filter((m) => m.type === "FEDIVERSE");
+
+	return (
+		<>
+			<h3>{t("settings.auth.fediverse-accounts")}</h3>
+			{fediAccounts.length > 0 && (
+				<>
+					<ListGroup className="pt-2 pb-3">
+						{fediAccounts.map((a) => (
+							<NonEmailRow account={a} key={a.id} disabled={oneAuthMethod} />
+						))}
+					</ListGroup>
+				</>
+			)}
+			{fediAccounts.length < 3 && (
+				<p>
+					{/* @ts-expect-error as=Link */}
+					<Button variant="primary" as={Link} to="/settings/auth/add-fediverse-account">
+						{fediAccounts.length === 0
+							? t("settings.auth.form.add-first-fediverse-account")
+							: t("settings.auth.form.add-extra-fediverse-account")}
+					</Button>
+				</p>
+			)}
+		</>
+	);
+}
+
+function NonEmailRow({ account, disabled }: { account: AuthMethod; disabled: boolean }) {
+	const { t } = useTranslation();
+
+	return (
+		<ListGroup.Item>
+			<div className="row">
+				<div className="col">
+					{account.remote_username} {account.type !== "FEDIVERSE" && <>({account.remote_id})</>}
+				</div>
+				{!disabled && (
+					<div className="col text-end">
+						<Link to={`/settings/auth/remove-method/${account.id}`}>
 							{t("settings.auth.remove-auth-method")}
 						</Link>
 					</div>

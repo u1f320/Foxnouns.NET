@@ -147,6 +147,7 @@ public enum ErrorCode
     GenericApiError,
     UserNotFound,
     MemberNotFound,
+    AccountAlreadyLinked,
 }
 
 public class ValidationError
