@@ -97,7 +97,7 @@ public class UserRendererService(
             ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp"
             : null;
 
-    public string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
+    private string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
     public record UserResponse(
         Snowflake Id,

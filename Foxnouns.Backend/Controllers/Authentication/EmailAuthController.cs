@@ -3,6 +3,7 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Services.Auth;
 using Foxnouns.Backend.Utils;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
@@ -84,7 +85,7 @@ public class EmailAuthController(
         await keyCacheService.SetKeyAsync($"email:{ticket}", state.Email, Duration.FromMinutes(20));
 
         return Ok(
-            new AuthController.CallbackResponse(
+            new CallbackResponse(
                 HasAccount: false,
                 Ticket: ticket,
                 RemoteUsername: state.Email,

@@ -2,6 +2,7 @@ using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Services.Auth;
 using Foxnouns.Backend.Utils;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
@@ -14,20 +15,16 @@ namespace Foxnouns.Backend.Controllers.Authentication;
 public class DiscordAuthController(
     [UsedImplicitly] Config config,
     ILogger logger,
-    IClock clock,
     DatabaseContext db,
     KeyCacheService keyCacheService,
     AuthService authService,
-    RemoteAuthService remoteAuthService,
-    UserRendererService userRenderer
+    RemoteAuthService remoteAuthService
 ) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<DiscordAuthController>();
 
     [HttpPost("callback")]
-    // TODO: duplicating attribute doesn't work, find another way to mark both as possible response
-    // leaving it here for documentation purposes
-    [ProducesResponseType<AuthController.CallbackResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<CallbackResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CallbackAsync([FromBody] AuthController.CallbackRequest req)
     {
         CheckRequirements();
@@ -36,7 +33,7 @@ public class DiscordAuthController(
         var remoteUser = await remoteAuthService.RequestDiscordTokenAsync(req.Code);
         var user = await authService.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id);
         if (user != null)
-            return Ok(await GenerateUserTokenAsync(user));
+            return Ok(await authService.GenerateUserTokenAsync(user));
 
         _logger.Debug(
             "Discord user {Username} ({Id}) authenticated with no local account",
@@ -52,7 +49,7 @@ public class DiscordAuthController(
         );
 
         return Ok(
-            new AuthController.CallbackResponse(
+            new CallbackResponse(
                 HasAccount: false,
                 Ticket: ticket,
                 RemoteUsername: remoteUser.Username,
@@ -94,42 +91,7 @@ public class DiscordAuthController(
             remoteUser.Username
         );
 
-        return Ok(await GenerateUserTokenAsync(user));
-    }
-
-    private async Task<AuthController.CallbackResponse> GenerateUserTokenAsync(
-        User user,
-        CancellationToken ct = default
-    )
-    {
-        var frontendApp = await db.GetFrontendApplicationAsync(ct);
-        _logger.Debug("Logging user {Id} in with Discord", user.Id);
-
-        var (tokenStr, token) = authService.GenerateToken(
-            user,
-            frontendApp,
-            ["*"],
-            clock.GetCurrentInstant() + Duration.FromDays(365)
-        );
-        db.Add(token);
-
-        _logger.Debug("Generated token {TokenId} for {UserId}", user.Id, token.Id);
-
-        await db.SaveChangesAsync(ct);
-
-        return new AuthController.CallbackResponse(
-            HasAccount: true,
-            Ticket: null,
-            RemoteUsername: null,
-            User: await userRenderer.RenderUserAsync(
-                user,
-                selfUser: user,
-                renderMembers: false,
-                ct: ct
-            ),
-            Token: tokenStr,
-            ExpiresAt: token.ExpiresAt
-        );
+        return Ok(await authService.GenerateUserTokenAsync(user));
     }
 
     private void CheckRequirements()

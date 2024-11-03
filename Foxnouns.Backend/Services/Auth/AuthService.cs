@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Foxnouns.Backend.Controllers.Authentication;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
@@ -6,10 +7,17 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
-namespace Foxnouns.Backend.Services;
+namespace Foxnouns.Backend.Services.Auth;
 
-public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator snowflakeGenerator)
+public class AuthService(
+    IClock clock,
+    ILogger logger,
+    DatabaseContext db,
+    ISnowflakeGenerator snowflakeGenerator,
+    UserRendererService userRenderer
+)
 {
+    private readonly ILogger _logger = logger.ForContext<AuthService>();
     private readonly PasswordHasher<User> _passwordHasher = new();
 
     /// <summary>
@@ -253,6 +261,45 @@ public class AuthService(IClock clock, DatabaseContext db, ISnowflakeGenerator s
                 ExpiresAt = expires,
                 Scopes = scopes,
             }
+        );
+    }
+
+    /// <summary>
+    /// Generates a token for the given user and adds it to the database, returning a fully formed auth response for the user.
+    /// This method is always called at the end of an endpoint method, so the resulting token
+    /// (and user, if this is a registration request) is also saved to the database.
+    /// </summary>
+    public async Task<CallbackResponse> GenerateUserTokenAsync(
+        User user,
+        CancellationToken ct = default
+    )
+    {
+        var frontendApp = await db.GetFrontendApplicationAsync(ct);
+
+        var (tokenStr, token) = GenerateToken(
+            user,
+            frontendApp,
+            ["*"],
+            clock.GetCurrentInstant() + Duration.FromDays(365)
+        );
+        db.Add(token);
+
+        _logger.Debug("Generated token {TokenId} for {UserId}", user.Id, token.Id);
+
+        await db.SaveChangesAsync(ct);
+
+        return new CallbackResponse(
+            HasAccount: true,
+            Ticket: null,
+            RemoteUsername: null,
+            User: await userRenderer.RenderUserAsync(
+                user,
+                selfUser: user,
+                renderMembers: false,
+                ct: ct
+            ),
+            Token: tokenStr,
+            ExpiresAt: token.ExpiresAt
         );
     }
 

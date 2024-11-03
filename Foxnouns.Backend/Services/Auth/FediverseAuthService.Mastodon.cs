@@ -5,12 +5,12 @@ using Foxnouns.Backend.Database.Models;
 using Duration = NodaTime.Duration;
 using J = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
-namespace Foxnouns.Backend.Services;
+namespace Foxnouns.Backend.Services.Auth;
 
 public partial class FediverseAuthService
 {
     private string MastodonRedirectUri(string instance) =>
-        $"{_config.BaseUrl}/auth/login/mastodon/{instance}";
+        $"{_config.BaseUrl}/auth/callback/mastodon/{instance}";
 
     private async Task<FediverseApplication> CreateMastodonApplicationAsync(
         string instance,

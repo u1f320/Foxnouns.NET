@@ -126,6 +126,9 @@ export default function LoginPage() {
 								{t("log-in.3rd-party.tumblr")}
 							</ListGroup.Item>
 						)}
+						<ListGroup.Item action href="/auth/log-in/fediverse">
+							{t("log-in.3rd-party.fediverse")}
+						</ListGroup.Item>
 					</ListGroup>
 				</div>
 				{!urls.email_enabled && <div className="col-lg-3"></div>}

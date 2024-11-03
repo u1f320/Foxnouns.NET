@@ -30,7 +30,7 @@ export async function baseRequest(
 		headers: {
 			...params.headers,
 			...(params.token ? { Authorization: params.token } : {}),
-			"Content-Type": "application/json",
+			...(params.body ? { "Content-Type": "application/json" } : {}),
 		},
 	});
 

@@ -47,22 +47,31 @@
 	},
 	"log-in": {
 		"callback": {
+			"invalid-ticket": "Invalid ticket (it might have been too long since you logged in), please <2>try again</2>.",
+			"invalid-username": "Invalid username",
+			"username-taken": "That username is already taken, please try something else.",
 			"title": {
 				"discord-success": "Log in with Discord",
-				"discord-register": "Register with Discord"
+				"discord-register": "Register with Discord",
+				"fediverse-success": "Log in with a Fediverse account",
+				"fediverse-register": "Register with a Fediverse account"
 			},
 			"success": "Successfully logged in!",
 			"success-link": "Welcome back, <1>@{{username}}</1>!",
 			"redirect-hint": "If you're not redirected to your profile in a few seconds, press the link above.",
 			"remote-username": {
-				"discord": "Your discord username"
+				"discord": "Your Discord username",
+				"fediverse": "Your Fediverse account"
 			},
 			"username": "Username",
-			"sign-up-button": "Sign up",
-			"invalid-ticket": "Invalid ticket (it might have been too long since you logged in with Discord), please <2>try again</2>.",
-			"invalid-username": "Invalid username",
-			"username-taken": "That username is already taken, please try something else."
+			"sign-up-button": "Sign up"
 		},
+		"fediverse": {
+			"choose-title": "Log in with a Fediverse account",
+			"choose-form-title": "Choose a Fediverse instance"
+		},
+		"fediverse-instance-label": "Your Fediverse instance",
+		"fediverse-log-in-button": "Log in",
 		"title": "Log in",
 		"form-title": "Log in with email",
 		"email": "Email address",
@@ -74,7 +83,8 @@
 			"desc": "If you prefer, you can also log in with one of these services:",
 			"discord": "Log in with Discord",
 			"google": "Log in with Google",
-			"tumblr": "Log in with Tumblr"
+			"tumblr": "Log in with Tumblr",
+			"fediverse": "Log in with the Fediverse"
 		},
 		"invalid-credentials": "Invalid email address or password, please check your spelling and try again."
 	},

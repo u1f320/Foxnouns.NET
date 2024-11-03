@@ -22,6 +22,7 @@ import ErrorAlert from "~/components/ErrorAlert";
 import i18n from "~/i18next.server";
 import { tokenCookieName } from "~/lib/utils";
 import { useEffect } from "react";
+import RegisterError from "~/components/RegisterError";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
 	return [{ title: `${data?.meta.title || "Log in"} • pronouns.cc` }];
@@ -162,35 +163,4 @@ export default function DiscordCallbackPage() {
 			</Form>
 		</RemixForm>
 	);
-}
-
-function RegisterError({ error }: { error: ApiError }) {
-	const { t } = useTranslation();
-
-	// TODO: maybe turn these messages into their own error codes?
-	const ticketMessage = firstErrorFor(error, "ticket")?.message;
-	const usernameMessage = firstErrorFor(error, "username")?.message;
-
-	if (ticketMessage === "Invalid ticket") {
-		return (
-			<Alert variant="danger">
-				<Alert.Heading as="h4">{t("error.heading")}</Alert.Heading>
-				<Trans t={t} i18nKey={"log-in.callback.invalid-ticket"}>
-					Invalid ticket (it might have been too long since you logged in with Discord), please{" "}
-					<Link to="/auth/log-in">try again</Link>.
-				</Trans>
-			</Alert>
-		);
-	}
-
-	if (usernameMessage === "Username is already taken") {
-		return (
-			<Alert variant="danger">
-				<Alert.Heading as="h4">{t("log-in.callback.invalid-username")}</Alert.Heading>
-				{t("log-in.callback.username-taken")}
-			</Alert>
-		);
-	}
-
-	return <ErrorAlert error={error} />;
 }

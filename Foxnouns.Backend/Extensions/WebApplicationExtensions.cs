@@ -4,12 +4,14 @@ using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Services.Auth;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using NodaTime;
 using Prometheus;
 using Serilog;
 using Serilog.Events;
+using FediverseAuthService = Foxnouns.Backend.Services.Auth.FediverseAuthService;
 using IClock = NodaTime.IClock;
 
 namespace Foxnouns.Backend.Extensions;

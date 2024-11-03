@@ -50,17 +50,6 @@ public class AuthController(
         Instant ExpiresAt
     );
 
-    public record CallbackResponse(
-        bool HasAccount,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Ticket,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            string? RemoteUsername,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            UserRendererService.UserResponse? User,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Token,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? ExpiresAt
-    );
-
     public record OauthRegisterRequest(string Ticket, string Username);
 
     public record CallbackRequest(string Code, string State);
@@ -77,3 +66,13 @@ public class AuthController(
         return NoContent();
     }
 }
+
+public record CallbackResponse(
+    bool HasAccount,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Ticket,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? RemoteUsername,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        UserRendererService.UserResponse? User,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Token,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? ExpiresAt
+);

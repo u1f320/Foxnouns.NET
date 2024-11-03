@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using J = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
-namespace Foxnouns.Backend.Services;
+namespace Foxnouns.Backend.Services.Auth;
 
 public partial class FediverseAuthService
 {
@@ -43,12 +43,6 @@ public partial class FediverseAuthService
         return await GenerateAuthUrlAsync(app);
     }
 
-    public async Task<FediverseUser> GetRemoteFediverseUserAsync(string instance, string code)
-    {
-        var app = await GetApplicationAsync(instance);
-        return await GetRemoteUserAsync(app, code);
-    }
-
     // thank you, gargron and syuilo, for agreeing on a name for *once* in your lives,
     // and having both mastodon and misskey use "username" in the self user response
     public record FediverseUser(
@@ -56,7 +50,7 @@ public partial class FediverseAuthService
         [property: J("username")] string Username
     );
 
-    private async Task<FediverseApplication> GetApplicationAsync(string instance)
+    public async Task<FediverseApplication> GetApplicationAsync(string instance)
     {
         var app = await _db.FediverseApplications.FirstOrDefaultAsync(a => a.Domain == instance);
         if (app != null)
@@ -110,7 +104,10 @@ public partial class FediverseAuthService
             _ => throw new ArgumentOutOfRangeException(nameof(app), app.InstanceType, null),
         };
 
-    private async Task<FediverseUser> GetRemoteUserAsync(FediverseApplication app, string code) =>
+    public async Task<FediverseUser> GetRemoteFediverseUserAsync(
+        FediverseApplication app,
+        string code
+    ) =>
         app.InstanceType switch
         {
             FediverseInstanceType.MastodonApi => await GetMastodonUserAsync(app, code),
