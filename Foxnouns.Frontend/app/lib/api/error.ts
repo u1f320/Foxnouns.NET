@@ -17,6 +17,7 @@ export enum ErrorCode {
 	UserNotFound = "USER_NOT_FOUND",
 	MemberNotFound = "MEMBER_NOT_FOUND",
 	AccountAlreadyLinked = "ACCOUNT_ALREADY_LINKED",
+	LastAuthMetod = "LAST_AUTH_METHOD",
 }
 
 export type ValidationError = {

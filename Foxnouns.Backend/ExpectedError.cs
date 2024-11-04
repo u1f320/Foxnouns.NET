@@ -148,6 +148,7 @@ public enum ErrorCode
     UserNotFound,
     MemberNotFound,
     AccountAlreadyLinked,
+    LastAuthMethod,
 }
 
 public class ValidationError

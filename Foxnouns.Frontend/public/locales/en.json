@@ -17,7 +17,8 @@
 			"internal-server-error": "Server experienced an internal error, please try again later.",
 			"member-not-found": "Member not found, please check your spelling and try again.",
 			"user-not-found": "User not found, please check your spelling and try again.",
-			"account-already-linked": "This account is already linked with a pronouns.cc account."
+			"account-already-linked": "This account is already linked with a pronouns.cc account.",
+			"last-auth-method": "You cannot remove your last authentication method."
 		},
 		"title": "An error occurred",
 		"more-info": "Click here for a more detailed error"
@@ -141,8 +142,10 @@
 			"new-email-pending": "Email address added! Click the link in your inbox to confirm.",
 			"email-link-success": "Email successfully linked",
 			"redirect-to-auth-hint": "You will be redirected back to the authentication page in a few seconds.",
-			"email-addresses": "Email addresses",
+			"remove-auth-method-title": "Remove authentication method",
+			"remove-auth-method-hint": "Are you sure you want to remove {{username}} ({{methodName}}) from your account? You will no longer be able to log in using it.",
 			"remove-auth-method": "Remove",
+			"email-addresses": "Email addresses",
 			"discord-accounts": "Linked Discord accounts",
 			"fediverse-accounts": "Linked Fediverse accounts"
 		},

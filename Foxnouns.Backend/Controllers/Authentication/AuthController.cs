@@ -1,3 +1,4 @@
+using System.Net;
 using System.Web;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
@@ -15,7 +16,7 @@ namespace Foxnouns.Backend.Controllers.Authentication;
 public class AuthController(
     Config config,
     DatabaseContext db,
-    KeyCacheService keyCache,
+    KeyCacheService keyCacheService,
     ILogger logger
 ) : ApiControllerBase
 {
@@ -31,7 +32,7 @@ public class AuthController(
             config.GoogleAuth.Enabled,
             config.TumblrAuth.Enabled
         );
-        var state = HttpUtility.UrlEncode(await keyCache.GenerateAuthStateAsync(ct));
+        var state = HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync(ct));
         string? discord = null;
         if (config.DiscordAuth is { ClientId: not null, ClientSecret: not null })
             discord =
@@ -72,6 +73,52 @@ public class AuthController(
         await db
             .Tokens.Where(t => t.UserId == CurrentUser.Id)
             .ExecuteUpdateAsync(s => s.SetProperty(t => t.ManuallyExpired, true));
+
+        return NoContent();
+    }
+
+    [HttpGet("methods/{id}")]
+    [Authorize("*")]
+    [ProducesResponseType<UserRendererService.AuthMethodResponse>(
+        statusCode: StatusCodes.Status200OK
+    )]
+    public async Task<IActionResult> GetAuthMethodAsync(Snowflake id)
+    {
+        var authMethod = await db
+            .AuthMethods.Include(a => a.FediverseApplication)
+            .FirstOrDefaultAsync(a => a.UserId == CurrentUser!.Id && a.Id == id);
+        if (authMethod == null)
+            throw new ApiError.NotFound("No authentication method with that ID found.");
+
+        return Ok(UserRendererService.RenderAuthMethod(authMethod));
+    }
+
+    [HttpDelete("methods/{id}")]
+    [Authorize("*")]
+    public async Task<IActionResult> DeleteAuthMethodAsync(Snowflake id)
+    {
+        var authMethods = await db
+            .AuthMethods.Where(a => a.UserId == CurrentUser!.Id)
+            .ToListAsync();
+        if (authMethods.Count < 2)
+            throw new ApiError(
+                "You cannot remove your last authentication method.",
+                HttpStatusCode.BadRequest,
+                ErrorCode.LastAuthMethod
+            );
+
+        var authMethod = authMethods.FirstOrDefault(a => a.Id == id);
+        if (authMethod == null)
+            throw new ApiError.NotFound("No authentication method with that ID found.");
+
+        _logger.Debug(
+            "Deleting auth method {AuthMethodId} for user {UserId}",
+            authMethod.Id,
+            CurrentUser!.Id
+        );
+
+        db.Remove(authMethod);
+        await db.SaveChangesAsync();
 
         return NoContent();
     }

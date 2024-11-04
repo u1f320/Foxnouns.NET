@@ -142,6 +142,8 @@ export const errorCodeDesc = (t: TFunction, code: ErrorCode) => {
 			return t("error.errors.user-not-found");
 		case ErrorCode.AccountAlreadyLinked:
 			return t("error.errors.account-already-linked");
+		case ErrorCode.LastAuthMetod:
+			return t("error.errors.last-auth-method");
 	}
 
 	return t("error.errors.generic-error");

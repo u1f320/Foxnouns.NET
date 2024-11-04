@@ -67,21 +67,22 @@ public class UserRendererService(
             renderMembers
                 ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden))
                 : null,
-            renderAuthMethods
-                ? authMethods.Select(a => new AuthenticationMethodResponse(
-                    a.Id,
-                    a.AuthType,
-                    a.RemoteId,
-                    a.FediverseApplication != null
-                        ? $"@{a.RemoteUsername}@{a.FediverseApplication.Domain}"
-                        : a.RemoteUsername
-                ))
-                : null,
+            renderAuthMethods ? authMethods.Select(RenderAuthMethod) : null,
             tokenHidden ? user.ListHidden : null,
             tokenHidden ? user.LastActive : null,
             tokenHidden ? user.LastSidReroll : null
         );
     }
+
+    public static AuthMethodResponse RenderAuthMethod(AuthMethod a) =>
+        new(
+            a.Id,
+            a.AuthType,
+            a.RemoteId,
+            a.FediverseApplication != null
+                ? $"@{a.RemoteUsername}@{a.FediverseApplication.Domain}"
+                : a.RemoteUsername
+        );
 
     public PartialUser RenderPartialUser(User user) =>
         new(
@@ -118,7 +119,7 @@ public class UserRendererService(
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             IEnumerable<MemberRendererService.PartialMember>? Members,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            IEnumerable<AuthenticationMethodResponse>? AuthMethods,
+            IEnumerable<AuthMethodResponse>? AuthMethods,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             bool? MemberListHidden,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? LastActive,
@@ -126,7 +127,7 @@ public class UserRendererService(
             Instant? LastSidReroll
     );
 
-    public record AuthenticationMethodResponse(
+    public record AuthMethodResponse(
         Snowflake Id,
         [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] AuthType Type,
         string RemoteId,
