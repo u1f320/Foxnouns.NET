@@ -39,7 +39,11 @@ public class UserAvatarUpdateInvocable(
 
         try
         {
-            var (hash, image) = await newAvatar.ConvertBase64UriToImage(size: 512, crop: true);
+            var (hash, image) = await ImageObjectExtensions.ConvertBase64UriToImage(
+                newAvatar,
+                size: 512,
+                crop: true
+            );
             image.Seek(0, SeekOrigin.Begin);
             var prevHash = user.Avatar;
 

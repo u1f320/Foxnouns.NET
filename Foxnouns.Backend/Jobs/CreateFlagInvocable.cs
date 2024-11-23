@@ -26,7 +26,8 @@ public class CreateFlagInvocable(
 
         try
         {
-            var (hash, image) = await Payload.ImageData.ConvertBase64UriToImage(
+            var (hash, image) = await ImageObjectExtensions.ConvertBase64UriToImage(
+                Payload.ImageData,
                 size: 256,
                 crop: false
             );

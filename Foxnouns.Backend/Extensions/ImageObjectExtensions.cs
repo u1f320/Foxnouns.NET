@@ -10,7 +10,7 @@ using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace Foxnouns.Backend.Extensions;
 
-public static class AvatarObjectExtensions
+public static class ImageObjectExtensions
 {
     private static readonly string[] ValidContentTypes = ["image/png", "image/webp", "image/jpeg"];
 
@@ -39,7 +39,7 @@ public static class AvatarObjectExtensions
     ) => await objectStorageService.RemoveObjectAsync(CreateFlagInvocable.Path(hash), ct);
 
     public static async Task<(string Hash, Stream Image)> ConvertBase64UriToImage(
-        this string uri,
+        string uri,
         int size,
         bool crop
     )

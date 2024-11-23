@@ -39,7 +39,11 @@ public class MemberAvatarUpdateInvocable(
 
         try
         {
-            var (hash, image) = await newAvatar.ConvertBase64UriToImage(size: 512, crop: true);
+            var (hash, image) = await ImageObjectExtensions.ConvertBase64UriToImage(
+                newAvatar,
+                size: 512,
+                crop: true
+            );
             var prevHash = member.Avatar;
 
             await objectStorageService.PutObjectAsync(Path(id, hash), image, "image/webp");
