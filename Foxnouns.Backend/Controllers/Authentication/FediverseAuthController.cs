@@ -6,7 +6,6 @@ using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
-using FediverseAuthService = Foxnouns.Backend.Services.Auth.FediverseAuthService;
 
 namespace Foxnouns.Backend.Controllers.Authentication;
 
@@ -25,6 +24,9 @@ public class FediverseAuthController(
     [ProducesResponseType<FediverseUrlResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFediverseUrlAsync([FromQuery] string instance)
     {
+        if (instance.Any(c => c is '@' or ':' or '/') || !instance.Contains('.'))
+            throw new ApiError.BadRequest("Not a valid domain.", "instance", instance);
+
         var url = await fediverseAuthService.GenerateAuthUrlAsync(instance);
         return Ok(new FediverseUrlResponse(url));
     }

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Web;
 using Foxnouns.Backend.Database;
@@ -17,16 +18,13 @@ public partial class FediverseAuthService
         Snowflake? existingAppId = null
     )
     {
-        var resp = await _client.PostAsync(
+        var resp = await _client.PostAsJsonAsync(
             $"https://{instance}/api/v1/apps",
-            new FormUrlEncodedContent(
-                new Dictionary<string, string>
-                {
-                    { "client_name", $"pronouns.cc (+{_config.BaseUrl})" },
-                    { "redirect_uris", MastodonRedirectUri(instance) },
-                    { "scope", "read:accounts" },
-                    { "website", _config.BaseUrl },
-                }
+            new CreateMastodonApplicationRequest(
+                ClientName: $"pronouns.cc (+{_config.BaseUrl})",
+                RedirectUris: MastodonRedirectUri(instance),
+                Scopes: "read read:accounts",
+                Website: _config.BaseUrl
             )
         );
         resp.EnsureSuccessStatusCode();
@@ -237,9 +235,17 @@ public partial class FediverseAuthService
     private static string MastodonCurrentAppUri(string instance) =>
         $"https://{instance}/api/v1/apps/verify_credentials";
 
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     private record PartialMastodonApplication(
         [property: J("name")] string Name,
         [property: J("client_id")] string ClientId,
         [property: J("client_secret")] string ClientSecret
+    );
+
+    private record CreateMastodonApplicationRequest(
+        [property: J("client_name")] string ClientName,
+        [property: J("redirect_uris")] string RedirectUris,
+        [property: J("scopes")] string Scopes,
+        [property: J("website")] string Website
     );
 }
