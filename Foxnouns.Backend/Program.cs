@@ -18,7 +18,7 @@ builder.AddSerilog();
 builder
     .WebHost.UseSentry(opts =>
     {
-        opts.Dsn = config.Logging.SentryUrl;
+        opts.Dsn = config.Logging.SentryUrl ?? "";
         opts.TracesSampleRate = config.Logging.SentryTracesSampleRate;
         opts.MaxRequestBodySize = RequestSize.Small;
     })

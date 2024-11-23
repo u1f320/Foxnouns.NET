@@ -162,6 +162,7 @@ public static partial class ValidationUtils
     }
 
     public const int MaxBioLength = 1024;
+    public const int MaxAvatarLength = 1_500_000;
 
     public static ValidationError? ValidateBio(string? bio)
     {
@@ -183,7 +184,10 @@ public static partial class ValidationUtils
         return avatar?.Length switch
         {
             0 => ValidationError.GenericValidationError("Avatar cannot be empty", null),
-            > 1_500_000 => ValidationError.GenericValidationError("Avatar is too large", null),
+            > MaxAvatarLength => ValidationError.GenericValidationError(
+                "Avatar is too large",
+                null
+            ),
             _ => null,
         };
     }
