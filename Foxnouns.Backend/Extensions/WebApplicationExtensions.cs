@@ -11,6 +11,7 @@ using NodaTime;
 using Prometheus;
 using Serilog;
 using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 using FediverseAuthService = Foxnouns.Backend.Services.Auth.FediverseAuthService;
 using IClock = NodaTime.IClock;
 
@@ -38,7 +39,7 @@ public static class WebApplicationExtensions
             .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
-            .WriteTo.Console();
+            .WriteTo.Console(theme: AnsiConsoleTheme.Sixteen);
 
         if (config.Logging.SeqLogUrl != null)
         {
