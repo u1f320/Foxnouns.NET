@@ -94,6 +94,7 @@ public class MembersController(
             Names = req.Names ?? [],
             Pronouns = req.Pronouns ?? [],
             Unlisted = req.Unlisted ?? false,
+            Sid = null!,
         };
         db.Add(member);
 

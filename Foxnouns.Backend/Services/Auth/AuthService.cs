@@ -45,6 +45,7 @@ public class AuthService(
                 },
             },
             LastActive = clock.GetCurrentInstant(),
+            Sid = null!,
         };
 
         db.Add(user);
@@ -88,6 +89,7 @@ public class AuthService(
                 },
             },
             LastActive = clock.GetCurrentInstant(),
+            Sid = null!,
         };
 
         db.Add(user);
