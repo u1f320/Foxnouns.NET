@@ -3,7 +3,7 @@
   "tasks": [
     {
       "name": "run-prettier",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["format"],
       "pathMode": "absolute"
     },

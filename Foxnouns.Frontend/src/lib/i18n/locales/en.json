@@ -1,0 +1,63 @@
+{
+	"hello": "Hello, {{name}}!",
+	"nav": {
+		"log-in": "Log in or sign up",
+		"settings": "Settings"
+	},
+	"avatar-tooltip": "Avatar for {{name}}",
+	"profile": {
+		"edit-member-profile-notice": "You are currently viewing the public profile of {memberName}.",
+		"edit-user-profile-notice": "You are currently viewing your public profile.",
+		"edit-profile-link": "Edit profile",
+		"names-header": "Names",
+		"pronouns-header": "Pronouns",
+		"default-members-header": "Members",
+		"create-member-button": "Create member"
+	},
+	"title": {
+		"log-in": "Log in",
+		"welcome": "Welcome"
+	},
+	"auth": {
+		"log-in-form-title": "Log in with email",
+		"log-in-form-email-label": "Email address",
+		"log-in-form-password-label": "Password",
+		"register-with-email-button": "Register with email",
+		"log-in-button": "Log in",
+		"log-in-3rd-party-header": "Log in with another service",
+		"log-in-3rd-party-desc": "If you prefer, you can also log in with one of these services:",
+		"log-in-with-discord": "Log in with Discord",
+		"log-in-with-google": "Log in with Google",
+		"log-in-with-tumblr": "Log in with Tumblr",
+		"log-in-with-the-fediverse": "Log in with the Fediverse",
+		"remote-fediverse-account-label": "Your Fediverse account",
+		"register-username-label": "Username",
+		"register-button": "Register account",
+		"register-with-mastodon": "Register with a Fediverse account",
+		"log-in-with-fediverse-error-blurb": "Is your instance returning an error?",
+		"log-in-with-fediverse-force-refresh-button": "Force a refresh on our end"
+	},
+	"error": {
+		"bad-request-header": "Something was wrong with your input",
+		"generic-header": "Something went wrong",
+		"raw-header": "Raw error",
+		"authentication-error": "Something went wrong when logging you in.",
+		"bad-request": "Your input was rejected by the server, please check for any mistakes and try again.",
+		"forbidden": "You are not allowed to perform that action.",
+		"internal-server-error": "Server experienced an internal error, please try again later.",
+		"authentication-required": "You need to log in first.",
+		"missing-scopes": "The current token is missing a required scope. Did you manually edit your cookies?",
+		"generic-error": "An unknown error occurred.",
+		"user-not-found": "User not found, please check your spelling and try again. Remember that usernames are case sensitive.",
+		"member-not-found": "Member not found, please check your spelling and try again.",
+		"account-already-linked": "This account is already linked with a pronouns.cc account.",
+		"last-auth-method": "You cannot remove your last authentication method.",
+		"validation-max-length-error": "Value is too long, maximum length is {{max}}, current length is {{actual}}.",
+		"validation-min-length-error": "Value is too long, minimum length is {{min}}, current length is {{actual}}.",
+		"validation-disallowed-value-1": "The following value is not allowed here",
+		"validation-disallowed-value-2": "Allowed values are",
+		"validation-reason": "Reason",
+		"validation-generic": "The value you entered is not allowed here. Reason",
+		"extra-info-header": "Extra error information"
+	}
+}

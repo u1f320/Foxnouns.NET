@@ -1,0 +1,28 @@
+{
+	"hello": "Ahoy, {{name}}!",
+	"nav": {
+		"log-in": "Report for duty",
+		"settings": "Pref'rences"
+	},
+	"avatar-tooltip": "Mugshot for {{name}}",
+	"profile": {
+		"edit-member-profile-notice": "You be viewin' the public persona of {memberName}.",
+		"edit-user-profile-notice": "You be viewin' yer public persona.",
+		"edit-profile-link": "Edit persona",
+		"names-header": "Names",
+		"pronouns-header": "Pronouns",
+		"default-members-header": "Members",
+		"create-member-button": "Create member"
+	},
+	"title": {
+		"log-in": "Report for duty",
+		"welcome": "Ahoy"
+	},
+	"auth": {
+		"log-in-form-title": "Use a message in a bottle",
+		"log-in-form-email-label": "Address",
+		"log-in-form-password-label": "Secret phrase",
+		"register-with-email-button": "Sign up",
+		"log-in-button": "Report for duty"
+	}
+}

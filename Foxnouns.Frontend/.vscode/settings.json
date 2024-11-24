@@ -1,0 +1,8 @@
+{
+	"editor.formatOnSave": true,
+	"editor.formatOnSaveMode": "modificationsIfAvailable",
+	"i18n-ally.localesPaths": ["src/lib/i18n", "src/lib/i18n/locales"],
+	"i18n-ally.keystyle": "nested",
+	"explorer.sortOrder": "filesFirst",
+	"explorer.compactFolders": false
+}
