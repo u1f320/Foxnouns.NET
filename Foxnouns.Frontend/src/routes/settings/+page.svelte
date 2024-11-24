@@ -29,7 +29,8 @@
 			</FormGroup>
 			{#if form?.ok}
 				<p class="text-success-emphasis">
-					<Icon name="check-circle-fill" /> Successfully changed your username!
+					<Icon name="check-circle-fill" />
+					{$t("settings.username-update-success")}
 				</p>
 			{:else if usernameError}
 				<p class="text-danger-emphasis text-has-newline">
@@ -46,7 +47,7 @@
 		</p>
 	</div>
 	<div class="col-md-3 text-center">
-		<h5>Avatar</h5>
+		<h5>{$t("settings.avatar")}</h5>
 		<Avatar
 			url={data.user.avatar_url}
 			alt={$t("avatar-tooltip", { name: "@" + data.user.username })}

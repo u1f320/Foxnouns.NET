@@ -4,6 +4,7 @@
     "Development": {
       "commandName": "Project",
       "dotnetRunMessages": true,
+      "hotReloadEnabled": false,
       "launchBrowser": false,
       "externalUrlConfiguration": true,
       "environmentVariables": {
@@ -13,6 +14,7 @@
     "Production": {
       "commandName": "Project",
       "dotnetRunMessages": true,
+      "hotReloadEnabled": false,
       "launchBrowser": false,
       "externalUrlConfiguration": true,
       "environmentVariables": {

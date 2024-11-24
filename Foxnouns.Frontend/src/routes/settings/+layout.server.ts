@@ -4,5 +4,5 @@ export const load = async ({ parent }) => {
 	const data = await parent();
 	if (!data.meUser) redirect(303, "/auth/log-in");
 
-	return { user: data.meUser! };
+	return { user: data.meUser!, token: data.token! };
 };

@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Coravel.Mailer.Mail.Helpers;
 using Coravel.Queuing.Interfaces;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
@@ -115,6 +116,42 @@ public class UsersController(
 
         if (req.HasProperty(nameof(req.Avatar)))
             errors.Add(("avatar", ValidationUtils.ValidateAvatar(req.Avatar)));
+
+        if (req.HasProperty(nameof(req.MemberTitle)))
+        {
+            if (string.IsNullOrEmpty(req.MemberTitle))
+            {
+                user.MemberTitle = null;
+            }
+            else
+            {
+                errors.Add(("member_title", ValidationUtils.ValidateDisplayName(req.MemberTitle)));
+                user.MemberTitle = req.MemberTitle;
+            }
+        }
+
+        if (req.HasProperty(nameof(req.MemberListHidden)))
+            user.ListHidden = req.MemberListHidden == true;
+
+        if (req.HasProperty(nameof(req.Timezone)))
+        {
+            if (string.IsNullOrEmpty(req.Timezone))
+            {
+                user.Timezone = null;
+            }
+            else
+            {
+                if (TimeZoneInfo.TryFindSystemTimeZoneById(req.Timezone, out _))
+                    user.Timezone = req.Timezone;
+                else
+                    errors.Add(
+                        (
+                            "timezone",
+                            ValidationError.GenericValidationError("Invalid timezone", req.Timezone)
+                        )
+                    );
+            }
+        }
 
         ValidationUtils.Validate(errors);
         // This is fired off regardless of whether the transaction is committed
@@ -253,6 +290,9 @@ public class UsersController(
         public Pronoun[]? Pronouns { get; init; }
         public Field[]? Fields { get; init; }
         public Snowflake[]? Flags { get; init; }
+        public string? MemberTitle { get; init; }
+        public bool? MemberListHidden { get; init; }
+        public string? Timezone { get; init; }
     }
 
     [HttpGet("@me/settings")]

@@ -434,6 +434,10 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnName("sid")
                         .HasDefaultValueSql("find_free_user_sid()");
 
+                    b.Property<string>("Timezone")
+                        .HasColumnType("text")
+                        .HasColumnName("timezone");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text")

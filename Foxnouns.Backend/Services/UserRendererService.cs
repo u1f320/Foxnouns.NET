@@ -4,6 +4,7 @@ using Foxnouns.Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
+using Org.BouncyCastle.Ocsp;
 
 namespace Foxnouns.Backend.Services;
 
@@ -49,6 +50,13 @@ public class UserRendererService(
                 .ToListAsync(ct)
             : [];
 
+        int? utcOffset = null;
+        if (
+            user.Timezone != null
+            && TimeZoneInfo.TryFindSystemTimeZoneById(user.Timezone, out var tz)
+        )
+            utcOffset = (int)tz.GetUtcOffset(DateTimeOffset.UtcNow).TotalSeconds;
+
         return new UserResponse(
             user.Id,
             user.Sid,
@@ -63,6 +71,7 @@ public class UserRendererService(
             user.Fields,
             user.CustomPreferences,
             flags.Select(f => RenderPrideFlag(f.PrideFlag)),
+            utcOffset,
             user.Role,
             renderMembers
                 ? members.Select(m => memberRenderer.RenderPartialMember(m, tokenHidden))
@@ -70,7 +79,8 @@ public class UserRendererService(
             renderAuthMethods ? authMethods.Select(RenderAuthMethod) : null,
             tokenHidden ? user.ListHidden : null,
             tokenHidden ? user.LastActive : null,
-            tokenHidden ? user.LastSidReroll : null
+            tokenHidden ? user.LastSidReroll : null,
+            tokenHidden ? user.Timezone ?? "<none>" : null
         );
     }
 
@@ -115,6 +125,7 @@ public class UserRendererService(
         IEnumerable<Field> Fields,
         Dictionary<Snowflake, User.CustomPreference> CustomPreferences,
         IEnumerable<PrideFlagResponse> Flags,
+        int? UtcOffset,
         [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] UserRole Role,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             IEnumerable<MemberRendererService.PartialMember>? Members,
@@ -124,7 +135,8 @@ public class UserRendererService(
             bool? MemberListHidden,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? LastActive,
         [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            Instant? LastSidReroll
+            Instant? LastSidReroll,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Timezone
     );
 
     public record AuthMethodResponse(

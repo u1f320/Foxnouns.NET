@@ -38,9 +38,11 @@
 	"packageManager": "pnpm@9.12.3+sha512.cce0f9de9c5a7c95bef944169cc5dfe8741abfb145078c0d508b868056848a87c81e626246cb60967cbd7fd29a6c062ef73ff840d96b3c86c40ac92cf4a813ee",
 	"dependencies": {
 		"@fontsource/firago": "^5.1.0",
+		"base64-arraybuffer": "^1.0.2",
 		"bootstrap-icons": "^1.11.3",
 		"luxon": "^3.5.0",
 		"markdown-it": "^14.1.0",
+		"pretty-bytes": "^6.1.1",
 		"sanitize-html": "^2.13.1",
 		"tslog": "^4.9.3"
 	}

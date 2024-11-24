@@ -11,6 +11,9 @@ importers:
       '@fontsource/firago':
         specifier: ^5.1.0
         version: 5.1.0
+      base64-arraybuffer:
+        specifier: ^1.0.2
+        version: 1.0.2
       bootstrap-icons:
         specifier: ^1.11.3
         version: 1.11.3
@@ -20,6 +23,9 @@ importers:
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
+      pretty-bytes:
+        specifier: ^6.1.1
+        version: 6.1.1
       sanitize-html:
         specifier: ^2.13.1
         version: 2.13.1
@@ -704,6 +710,10 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
+  base64-arraybuffer@1.0.2:
+    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
+    engines: {node: '>= 0.6.0'}
+
   bootstrap-icons@1.11.3:
     resolution: {integrity: sha512-+3lpHrCw/it2/7lBL15VR0HEumaBss0+f/Lb6ZvHISn1mlK83jjFpooTLsMWbIjJMDjDjOExMsTxnXSIT4k4ww==}
 
@@ -1210,6 +1220,10 @@ packages:
     resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
     engines: {node: '>=14'}
     hasBin: true
+
+  pretty-bytes@6.1.1:
+    resolution: {integrity: sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==}
+    engines: {node: ^14.13.1 || >=16.0.0}
 
   punycode.js@2.3.1:
     resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
@@ -1938,6 +1952,8 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
+  base64-arraybuffer@1.0.2: {}
+
   bootstrap-icons@1.11.3: {}
 
   bootstrap@5.3.3(@popperjs/core@2.11.8):
@@ -2431,6 +2447,8 @@ snapshots:
       svelte: 5.2.2
 
   prettier@3.3.3: {}
+
+  pretty-bytes@6.1.1: {}
 
   punycode.js@2.3.1: {}
 

@@ -1,0 +1,18 @@
+<script lang="ts">
+	import { Icon } from "@sveltestrap/sveltestrap";
+	import { t } from "$lib/i18n";
+	import type { RawApiError } from "$api/error";
+	import ErrorAlert from "$components/ErrorAlert.svelte";
+
+	type Props = { form: { error: RawApiError | null; ok: boolean } | null };
+	let { form }: Props = $props();
+</script>
+
+{#if form?.error}
+	<ErrorAlert error={form.error} />
+{:else if form?.ok}
+	<p class="text-success-emphasis">
+		<Icon name="check-circle-fill" />
+		{$t("edit-profile.saved-changes")}
+	</p>
+{/if}

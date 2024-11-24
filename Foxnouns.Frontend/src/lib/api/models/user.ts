@@ -1,5 +1,6 @@
 export type PartialUser = {
 	id: string;
+	sid: string;
 	username: string;
 	display_name: string | null;
 	avatar_url: string | null;
@@ -14,17 +15,20 @@ export type User = PartialUser & {
 	pronouns: Pronoun[];
 	fields: Field[];
 	flags: PrideFlag[];
+	utc_offset: number | null;
 	role: "USER" | "MODERATOR" | "ADMIN";
 };
 
 export type MeUser = UserWithMembers & {
+	members: PartialMember[];
 	auth_methods: AuthMethod[];
 	member_list_hidden: boolean;
 	last_active: string;
 	last_sid_reroll: string;
+	timezone: string;
 };
 
-export type UserWithMembers = User & { members: PartialMember[] };
+export type UserWithMembers = User & { members: PartialMember[] | null };
 
 export type UserWithHiddenFields = User & {
 	auth_methods?: unknown[];
@@ -38,6 +42,7 @@ export type UserSettings = {
 
 export type PartialMember = {
 	id: string;
+	sid: string;
 	name: string;
 	display_name: string;
 	bio: string | null;
