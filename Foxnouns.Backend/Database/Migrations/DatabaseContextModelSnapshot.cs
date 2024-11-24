@@ -107,10 +107,6 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
-                    b.Property<string>("AccessToken")
-                        .HasColumnType("text")
-                        .HasColumnName("access_token");
-
                     b.Property<string>("ClientId")
                         .IsRequired()
                         .HasColumnType("text")
@@ -129,10 +125,6 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.Property<int>("InstanceType")
                         .HasColumnType("integer")
                         .HasColumnName("instance_type");
-
-                    b.Property<Instant?>("TokenValidUntil")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("token_valid_until");
 
                     b.HasKey("Id")
                         .HasName("pk_fediverse_applications");

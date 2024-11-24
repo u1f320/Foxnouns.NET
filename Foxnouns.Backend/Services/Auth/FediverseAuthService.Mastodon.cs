@@ -3,7 +3,7 @@ using System.Net;
 using System.Web;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
-using Duration = NodaTime.Duration;
+using Foxnouns.Backend.Extensions;
 using J = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace Foxnouns.Backend.Services.Auth;
@@ -35,12 +35,6 @@ public partial class FediverseAuthService
                 $"Application created on Mastodon-compatible instance {instance} was null"
             );
 
-        var token = await GetMastodonAppTokenAsync(
-            instance,
-            mastodonApp.ClientId,
-            mastodonApp.ClientSecret
-        );
-
         FediverseApplication app;
 
         if (existingAppId == null)
@@ -52,8 +46,6 @@ public partial class FediverseAuthService
                 ClientSecret = mastodonApp.ClientSecret,
                 Domain = instance,
                 InstanceType = FediverseInstanceType.MastodonApi,
-                AccessToken = token,
-                TokenValidUntil = _clock.GetCurrentInstant() + Duration.FromDays(60),
             };
 
             _db.Add(app);
@@ -67,8 +59,6 @@ public partial class FediverseAuthService
             app.ClientId = mastodonApp.ClientId;
             app.ClientSecret = mastodonApp.ClientSecret;
             app.InstanceType = FediverseInstanceType.MastodonApi;
-            app.AccessToken = null;
-            app.TokenValidUntil = null;
         }
 
         await _db.SaveChangesAsync();
@@ -76,8 +66,14 @@ public partial class FediverseAuthService
         return app;
     }
 
-    private async Task<FediverseUser> GetMastodonUserAsync(FediverseApplication app, string code)
+    private async Task<FediverseUser> GetMastodonUserAsync(
+        FediverseApplication app,
+        string code,
+        string state
+    )
     {
+        await _keyCacheService.ValidateAuthStateAsync(state);
+
         var tokenResp = await _client.PostAsync(
             MastodonTokenUri(app.Domain),
             new FormUrlEncodedContent(
@@ -122,118 +118,33 @@ public partial class FediverseAuthService
 
     private record MastodonTokenResponse([property: J("access_token")] string AccessToken);
 
-    // TODO: Mastodon's OAuth documentation doesn't specify a "state" parameter. that feels... wrong
-    // https://docs.joinmastodon.org/methods/oauth/
-    private async Task<string> GenerateMastodonAuthUrlAsync(FediverseApplication app)
+    private async Task<string> GenerateMastodonAuthUrlAsync(
+        FediverseApplication app,
+        bool forceRefresh
+    )
     {
-        try
+        if (forceRefresh)
         {
-            await ValidateMastodonAppAsync(app);
-        }
-        catch (FoxnounsError.RemoteAuthError e)
-        {
-            _logger.Error(
-                e,
-                "Error validating app token for {AppId} on {Instance}",
-                app.Id,
-                app.Domain
+            _logger.Information(
+                "An app credentials refresh was requested for {ApplicationId}, creating a new application",
+                app.Id
             );
-
             app = await CreateMastodonApplicationAsync(app.Domain, existingAppId: app.Id);
         }
+
+        var state = HttpUtility.UrlEncode(await _keyCacheService.GenerateAuthStateAsync());
 
         return $"https://{app.Domain}/oauth/authorize?response_type=code"
             + $"&client_id={app.ClientId}"
             + $"&scope={HttpUtility.UrlEncode("read:accounts")}"
-            + $"&redirect_uri={HttpUtility.UrlEncode(MastodonRedirectUri(app.Domain))}";
-    }
-
-    private async Task ValidateMastodonAppAsync(FediverseApplication app)
-    {
-        // If we don't have an access token stored, or it's too old, get one
-        // When doing this we don't need to fetch the application info
-        if (app.AccessToken == null || app.TokenValidUntil < _clock.GetCurrentInstant())
-        {
-            _logger.Debug(
-                "Application {AppId} on instance {Instance} has no valid token, fetching it",
-                app.Id,
-                app.Domain
-            );
-
-            app.AccessToken = await GetMastodonAppTokenAsync(
-                app.Domain,
-                app.ClientId,
-                app.ClientSecret
-            );
-            app.TokenValidUntil = _clock.GetCurrentInstant() + Duration.FromDays(60);
-
-            _db.Update(app);
-            await _db.SaveChangesAsync();
-            return;
-        }
-
-        _logger.Debug(
-            "Checking whether application {AppId} on instance {Instance} is still valid",
-            app.Id,
-            app.Domain
-        );
-
-        var req = new HttpRequestMessage(HttpMethod.Get, MastodonCurrentAppUri(app.Domain));
-        req.Headers.Add("Authorization", $"Bearer {app.AccessToken}");
-
-        var resp = await _client.SendAsync(req);
-        if (!resp.IsSuccessStatusCode)
-        {
-            var error = await resp.Content.ReadAsStringAsync();
-            throw new FoxnounsError.RemoteAuthError(
-                "Verifying app credentials returned an error",
-                error
-            );
-        }
-    }
-
-    private async Task<string> GetMastodonAppTokenAsync(
-        string instance,
-        string clientId,
-        string clientSecret
-    )
-    {
-        var resp = await _client.PostAsync(
-            MastodonTokenUri(instance),
-            new FormUrlEncodedContent(
-                new Dictionary<string, string>
-                {
-                    { "grant_type", "client_credentials" },
-                    { "client_id", clientId },
-                    { "client_secret", clientSecret },
-                }
-            )
-        );
-        if (!resp.IsSuccessStatusCode)
-        {
-            var error = await resp.Content.ReadAsStringAsync();
-            throw new FoxnounsError.RemoteAuthError(
-                "Requesting app token returned an error",
-                error
-            );
-        }
-
-        var token = (await resp.Content.ReadFromJsonAsync<MastodonTokenResponse>())?.AccessToken;
-        if (token == null)
-        {
-            throw new FoxnounsError($"Token response from instance {instance} was invalid");
-        }
-
-        return token;
+            + $"&redirect_uri={HttpUtility.UrlEncode(MastodonRedirectUri(app.Domain))}"
+            + $"&state={state}";
     }
 
     private static string MastodonTokenUri(string instance) => $"https://{instance}/oauth/token";
 
     private static string MastodonCurrentUserUri(string instance) =>
         $"https://{instance}/api/v1/accounts/verify_credentials";
-
-    private static string MastodonCurrentAppUri(string instance) =>
-        $"https://{instance}/api/v1/apps/verify_credentials";
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     private record PartialMastodonApplication(

@@ -22,12 +22,15 @@ public class FediverseAuthController(
 
     [HttpGet]
     [ProducesResponseType<FediverseUrlResponse>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFediverseUrlAsync([FromQuery] string instance)
+    public async Task<IActionResult> GetFediverseUrlAsync(
+        [FromQuery] string instance,
+        [FromQuery] bool forceRefresh = false
+    )
     {
         if (instance.Any(c => c is '@' or ':' or '/') || !instance.Contains('.'))
             throw new ApiError.BadRequest("Not a valid domain.", "instance", instance);
 
-        var url = await fediverseAuthService.GenerateAuthUrlAsync(instance);
+        var url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh);
         return Ok(new FediverseUrlResponse(url));
     }
 
@@ -36,7 +39,11 @@ public class FediverseAuthController(
     public async Task<IActionResult> FediverseCallbackAsync([FromBody] CallbackRequest req)
     {
         var app = await fediverseAuthService.GetApplicationAsync(req.Instance);
-        var remoteUser = await fediverseAuthService.GetRemoteFediverseUserAsync(app, req.Code);
+        var remoteUser = await fediverseAuthService.GetRemoteFediverseUserAsync(
+            app,
+            req.Code,
+            req.State
+        );
 
         var user = await authService.AuthenticateUserAsync(
             AuthType.Fediverse,
@@ -72,12 +79,16 @@ public class FediverseAuthController(
     )
     {
         var ticketData = await keyCacheService.GetKeyAsync<FediverseTicketData>(
-            $"fediverse:{req.Ticket}"
+            $"fediverse:{req.Ticket}",
+            delete: true
         );
         if (ticketData == null)
             throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);
 
         var app = await db.FediverseApplications.FindAsync(ticketData.ApplicationId);
+        if (app == null)
+            throw new FoxnounsError("Null application found for ticket");
+
         if (
             await db.AuthMethods.AnyAsync(a =>
                 a.AuthType == AuthType.Fediverse
@@ -107,7 +118,7 @@ public class FediverseAuthController(
         return Ok(await authService.GenerateUserTokenAsync(user));
     }
 
-    public record CallbackRequest(string Instance, string Code);
+    public record CallbackRequest(string Instance, string Code, string State);
 
     private record FediverseUrlResponse(string Url);
 
