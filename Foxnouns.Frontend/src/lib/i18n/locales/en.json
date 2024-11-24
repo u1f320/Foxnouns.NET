@@ -16,7 +16,8 @@
 	},
 	"title": {
 		"log-in": "Log in",
-		"welcome": "Welcome"
+		"welcome": "Welcome",
+		"settings": "Settings"
 	},
 	"auth": {
 		"log-in-form-title": "Log in with email",
@@ -59,5 +60,32 @@
 		"validation-reason": "Reason",
 		"validation-generic": "The value you entered is not allowed here. Reason",
 		"extra-info-header": "Extra error information"
-	}
+	},
+	"settings": {
+		"general-information-tab": "General information",
+		"your-profile-tab": "Your profile",
+		"members-tab": "Members",
+		"authentication-tab": "Authentication",
+		"export-tab": "Export your data",
+		"change-username-button": "Change username",
+		"username-change-hint": "Changing your username will make any existing links to your or your members' profiles invalid.\nYour username must be unique, be at most 40 characters long, and only contain letters from the basic English alphabet, dashes, underscores, and periods. Your username is used as part of your profile link, you can set a separate display name.",
+		"username-update-error": "Could not update your username as the new username is invalid:\n{{message}}",
+		"change-avatar-link": "Change your avatar here",
+		"new-username": "New username",
+		"table-role": "Role",
+		"table-custom-preferences": "Custom preferences",
+		"table-member-list-hidden": "Member list hidden?",
+		"table-member-count": "Member count",
+		"table-created-at": "Account created at",
+		"table-id": "Your ID",
+		"table-title": "Account information",
+		"force-log-out-title": "Log out everywhere",
+		"force-log-out-button": "Force log out",
+		"force-log-out-hint": "If you think one of your tokens might have been compromised, you can log out on all devices by clicking this button.",
+		"log-out-title": "Log out",
+		"log-out-hint": "Use this button to log out on this device only.",
+		"log-out-button": "Log out"
+	},
+	"yes": "Yes",
+	"no": "No"
 }

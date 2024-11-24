@@ -52,3 +52,15 @@ export type ValidationError = {
 	allowed_values?: any[];
 	actual_value?: any;
 };
+
+/**
+ * Returns the first error for the value `key` in `error`.
+ * @param error The error object to traverse.
+ * @param key The JSON key to find.
+ */
+export const firstErrorFor = (error: RawApiError, key: string): ValidationError | undefined => {
+	if (!error.errors) return undefined;
+	const field = error.errors.find((e) => e.key == key);
+	if (!field?.errors) return undefined;
+	return field.errors.length != 0 ? field.errors[0] : undefined;
+};

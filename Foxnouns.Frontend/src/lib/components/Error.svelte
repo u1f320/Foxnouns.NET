@@ -4,17 +4,19 @@
 	import { t } from "$lib/i18n";
 	import KeyedValidationErrors from "./errors/KeyedValidationErrors.svelte";
 
-	type Props = { headerElem?: string; error: RawApiError };
-	let { headerElem, error }: Props = $props();
+	type Props = { showHeader?: boolean; headerElem?: string; error: RawApiError };
+	let { showHeader, headerElem, error }: Props = $props();
 </script>
 
-<svelte:element this={headerElem ?? "h4"}>
-	{#if error.code === ErrorCode.BadRequest}
-		{$t("error.bad-request-header")}
-	{:else}
-		{$t("error.generic-header")}
-	{/if}
-</svelte:element>
+{#if showHeader !== false}
+	<svelte:element this={headerElem ?? "h4"}>
+		{#if error.code === ErrorCode.BadRequest}
+			{$t("error.bad-request-header")}
+		{:else}
+			{$t("error.generic-header")}
+		{/if}
+	</svelte:element>
+{/if}
 <p>{errorDescription($t, error.code)}</p>
 {#if error.errors}
 	<details>

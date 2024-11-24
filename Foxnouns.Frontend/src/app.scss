@@ -23,3 +23,20 @@
 @import "@fontsource/firago/400-italic.css";
 @import "@fontsource/firago/700.css";
 @import "@fontsource/firago/700-italic.css";
+
+// This is necessary for line breaks in translation strings to show up. Don't ask me why
+.text-has-newline {
+	white-space: pre-line;
+}
+
+// Add breakpoint-dependent w-{size} utilities
+// Source: https://stackoverflow.com/questions/47760132/any-way-to-get-breakpoint-specific-width-classes
+@each $breakpoint in map-keys(bootstrap.$grid-breakpoints) {
+	@each $size, $length in (25: 25%, 50: 50%, 75: 75%, 100: 100%) {
+		@include bootstrap.media-breakpoint-up($breakpoint) {
+			.w-#{$breakpoint}-#{$size} {
+				width: $length !important;
+			}
+		}
+	}
+}
