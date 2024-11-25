@@ -1,17 +1,18 @@
 <script lang="ts">
 	import type { PrideFlag } from "$api/models/user";
-	import { Tooltip } from "@sveltestrap/sveltestrap";
+	import tippy from "$lib/tippy";
 
 	type Props = { flag: PrideFlag };
 	let { flag }: Props = $props();
-
-	// svelte-ignore non_reactive_update
-	let elem: HTMLImageElement;
 </script>
 
 <span class="mx-2 my-1">
-	<Tooltip target={elem} aria-hidden placement="top">{flag.description ?? flag.name}</Tooltip>
-	<img bind:this={elem} class="flag" src={flag.image_url} alt={flag.description ?? flag.name} />
+	<img
+		use:tippy={{ content: flag.description ?? flag.name }}
+		class="flag"
+		src={flag.image_url}
+		alt={flag.description ?? flag.name}
+	/>
 	{flag.name}
 </span>
 

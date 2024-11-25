@@ -29,6 +29,15 @@
 	white-space: pre-line;
 }
 
+// Make tippy tooltips look like bootstrap's
+.tippy-box {
+	padding: bootstrap.$spacer * 0.25 bootstrap.$spacer * 0.5;
+	opacity: 0.9;
+	color: var(--bs-body-bg);
+	background-color: var(--bs-emphasis-color);
+	border-radius: var(--bs-border-radius);
+}
+
 // Add breakpoint-dependent w-{size} utilities
 // Source: https://stackoverflow.com/questions/47760132/any-way-to-get-breakpoint-specific-width-classes
 @each $breakpoint in map-keys(bootstrap.$grid-breakpoints) {
