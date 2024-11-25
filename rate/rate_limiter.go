@@ -134,12 +134,12 @@ func (l *Limiter) bucketLimiter(user, method, bucket string) *httprate.RateLimit
 func requestLimitFor(method string) (int, time.Duration) {
 	switch strings.ToUpper(method) {
 	case "PATCH", "POST":
-		return 1, time.Second
-	case "DELETE":
-		return 1, 5 * time.Second
-	case "GET":
 		return 3, time.Second
+	case "DELETE":
+		return 2, 5 * time.Second
+	case "GET":
+		return 10, time.Second
 	default:
-		return 2, time.Second
+		return 5, time.Second
 	}
 }
