@@ -5,7 +5,7 @@
 	import { apiRequest, fastRequest } from "$api";
 	import ApiError from "$api/error";
 	import log from "$lib/log";
-	import { InputGroup } from "@sveltestrap/sveltestrap";
+	import { Icon, InputGroup } from "@sveltestrap/sveltestrap";
 	import { t } from "$lib/i18n";
 	import AvatarEditor from "$components/editor/AvatarEditor.svelte";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
@@ -13,6 +13,7 @@
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
 	import SidEditor from "$components/editor/SidEditor.svelte";
 	import BioEditor from "$components/editor/BioEditor.svelte";
+	import { PUBLIC_BASE_URL } from "$env/static/public";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -106,7 +107,36 @@
 		<h4>{$t("edit-profile.sid")}</h4>
 		<SidEditor {rerollSid} {sid} {canRerollSid} />
 	</div>
-	<div class="row">
+	<div class="row mb-3">
+		<h4>{$t("edit-profile.profile-options-header")}</h4>
+		<form method="POST" action="?/options">
+			<div class="form-check">
+				<input
+					class="form-check-input"
+					type="checkbox"
+					checked={data.member.unlisted}
+					value="true"
+					name="unlisted"
+					id="unlisted"
+				/>
+				<label class="form-check-label" for="unlisted">
+					{$t("edit-profile.unlisted-label")}
+				</label>
+			</div>
+			<p class="text-muted mt-1">
+				<Icon name="info-circle-fill" aria-hidden />
+				{$t("edit-profile.unlisted-note")}
+				<code>
+					{PUBLIC_BASE_URL.substring("https://".length)}/@{data.member.user.username}/{data.member
+						.name}
+				</code>
+			</p>
+			<div class="mt-2">
+				<button type="submit" class="btn btn-primary">{$t("save-changes")}</button>
+			</div>
+		</form>
+	</div>
+	<div class="row mb-3">
 		<h4>{$t("edit-profile.bio-tab")}</h4>
 		<form method="POST" action="?/bio">
 			<BioEditor bind:value={bio} maxLength={data.meta.limits.bio_length} />

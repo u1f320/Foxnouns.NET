@@ -79,4 +79,21 @@ export const actions = {
 			throw e;
 		}
 	},
+	options: async ({ params, request, fetch, cookies }) => {
+		const body = await request.formData();
+		let unlisted = !!body.get("unlisted");
+
+		try {
+			await fastRequest("PATCH", `/users/@me/members/${params.id}`, {
+				body: { unlisted },
+				fetch,
+				cookies,
+			});
+			return { error: null, ok: true };
+		} catch (e) {
+			if (e instanceof ApiError) return { error: e.obj, ok: false };
+			log.error("Error patching member %s:", params.id, e);
+			throw e;
+		}
+	},
 };
