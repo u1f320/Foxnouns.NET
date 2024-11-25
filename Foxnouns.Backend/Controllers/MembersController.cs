@@ -164,6 +164,9 @@ public class MembersController(
             member.Links = req.Links ?? [];
         }
 
+        if (req.HasProperty(nameof(req.Unlisted)))
+            member.Unlisted = req.Unlisted ?? false;
+
         if (req.Names != null)
         {
             errors.AddRange(
@@ -244,6 +247,7 @@ public class MembersController(
         public Pronoun[]? Pronouns { get; init; }
         public Field[]? Fields { get; init; }
         public Snowflake[]? Flags { get; init; }
+        public bool? Unlisted { get; init; }
     }
 
     [HttpDelete("/api/v2/users/@me/members/{memberRef}")]
