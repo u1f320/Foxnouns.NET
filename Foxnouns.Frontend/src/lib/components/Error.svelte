@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { ErrorCode, type RawApiError } from "$api/error";
-	import errorDescription from "$lib/errorCodes.svelte";
+	import errorDescription from "$lib/errorCodes";
 	import { t } from "$lib/i18n";
 	import KeyedValidationErrors from "./errors/KeyedValidationErrors.svelte";
 

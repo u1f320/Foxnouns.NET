@@ -64,7 +64,8 @@ export const actions = {
 	},
 	bio: async ({ params, request, fetch, cookies }) => {
 		const body = await request.formData();
-		const bio = body.get("bio") as string | null;
+		let bio = body.get("bio") as string | null;
+		if (!bio || bio === "") bio = null;
 
 		try {
 			await fastRequest("PATCH", `/users/@me/members/${params.id}`, {

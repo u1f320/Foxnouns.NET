@@ -55,7 +55,7 @@
 		"account-already-linked": "This account is already linked with a pronouns.cc account.",
 		"last-auth-method": "You cannot remove your last authentication method.",
 		"validation-max-length-error": "Value is too long, maximum length is {{max}}, current length is {{actual}}.",
-		"validation-min-length-error": "Value is too long, minimum length is {{min}}, current length is {{actual}}.",
+		"validation-min-length-error": "Value is too short, minimum length is {{min}}, current length is {{actual}}.",
 		"validation-disallowed-value-1": "The following value is not allowed here",
 		"validation-disallowed-value-2": "Allowed values are",
 		"validation-reason": "Reason",
@@ -123,7 +123,7 @@
 		"fields-tab": "Fields",
 		"flags-links-tab": "Flags & links",
 		"back-to-settings-tab": "Back to settings",
-		"member-header": "Editing member {{name}}",
+		"member-header": "Editing profile of {{name}}",
 		"username": "Username",
 		"change-username-info": "As changing your username will also change all of your members' links, you can only change it in your account settings.",
 		"change-username-link": "Go to settings",
@@ -131,8 +131,20 @@
 		"change-member-name": "Change name",
 		"display-name": "Display name",
 		"unlisted-label": "Hide from member list",
-		"unlisted-note": "This only hides this member from your public member list. They will still be visible to anyone at this link:"
+		"unlisted-note": "This only hides this member from your public member list. They will still be visible to anyone at this link:",
+		"edit-names-pronouns-header": "Edit names and pronouns",
+		"back-to-profile-tab": "Back to profile"
 	},
 	"save-changes": "Save changes",
-	"change": "Change"
+	"change": "Change",
+	"editor": {
+		"remove-entry": "Remove entry",
+		"move-entry-down": "Move entry down",
+		"move-entry-up": "Move entry up",
+		"add-entry": "Add entry",
+		"change-display-text": "Change display text",
+		"display-text-example": "Optional display text (e.g. it/its)",
+		"display-text-label": "Display text",
+		"display-text-info": "This is the short text shown on your profile page. If you leave it empty, it will default to the first two forms of the full set."
+	}
 }

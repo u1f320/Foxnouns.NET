@@ -5,6 +5,7 @@ import { createTippy } from "svelte-tippy";
 // temporary (probably) until sveltestrap works with svelte 5
 const tippy = createTippy({
 	animation: "scale-subtle",
+	delay: [null, 0],
 });
 
 export default tippy;

@@ -33,7 +33,7 @@
 		<h2>
 			{data.user.member_title || $t("profile.default-members-header")}
 			{#if isMeUser}
-				<a class="btn btn-success" href="/settings/create-member">
+				<a class="btn btn-success" href="/settings/members/new">
 					<Icon name="person-plus-fill" aria-hidden />
 					{$t("profile.create-member-button")}
 				</a>

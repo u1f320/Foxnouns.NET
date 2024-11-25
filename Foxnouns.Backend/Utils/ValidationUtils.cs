@@ -414,7 +414,7 @@ public static partial class ValidationUtils
                     case > Limits.FieldEntryTextLimit:
                         errors.Add(
                             (
-                                $"{errorPrefix}.{entryIdx}.value",
+                                $"{errorPrefix}.{entryIdx}.display_text",
                                 ValidationError.LengthError(
                                     "Pronoun display text is too long",
                                     1,
@@ -427,7 +427,7 @@ public static partial class ValidationUtils
                     case < 1:
                         errors.Add(
                             (
-                                $"{errorPrefix}.{entryIdx}.value",
+                                $"{errorPrefix}.{entryIdx}.display_text",
                                 ValidationError.LengthError(
                                     "Pronoun display text is too short",
                                     1,

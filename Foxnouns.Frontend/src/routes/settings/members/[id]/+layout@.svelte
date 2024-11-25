@@ -8,14 +8,20 @@
 	let { data, children }: Props = $props();
 
 	const isActive = (path: string) => $page.url.pathname === path;
+
+	let name = $derived(
+		data.member.display_name === data.member.name
+			? data.member.name
+			: `${data.member.display_name} (${data.member.name})`,
+	);
 </script>
 
 <svelte:head>
-	<title>{$t("edit-profile.member-header", { name: data.member.name })} • pronouns.cc</title>
+	<title>{$t("edit-profile.member-header", { name })} • pronouns.cc</title>
 </svelte:head>
 
 <div class="container">
-	<h3>{$t("edit-profile.member-header", { name: data.member.name })}</h3>
+	<h3>{$t("edit-profile.member-header", { name })}</h3>
 	<div class="row">
 		<div class="col-md-3 mt-1 mb-3">
 			<div class="list-group">
@@ -51,7 +57,7 @@
 					href="/@{data.user.username}/{data.member.name}"
 					class="list-group-item list-group-item-action text-danger"
 				>
-					Back to member
+					{$t("edit-profile.back-to-profile-tab")}
 				</a>
 				<a href="/settings/members" class="list-group-item list-group-item-action text-danger">
 					{$t("edit-profile.back-to-settings-tab")}

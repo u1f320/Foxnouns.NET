@@ -2,9 +2,10 @@
 	import type { Snippet } from "svelte";
 	import { page } from "$app/stores";
 	import { t } from "$lib/i18n";
+	import type { LayoutData } from "./$types";
 
-	type Props = { children: Snippet };
-	let { children }: Props = $props();
+	type Props = { data: LayoutData; children: Snippet };
+	let { data, children }: Props = $props();
 
 	const isActive = (path: string) => $page.url.pathname === path;
 </script>
@@ -52,6 +53,9 @@
 					class:active={isActive("/settings/profile/flags-links")}
 				>
 					{$t("edit-profile.flags-links-tab")}
+				</a>
+				<a href="/@{data.user.username}" class="list-group-item list-group-item-action text-danger">
+					{$t("edit-profile.back-to-profile-tab")}
 				</a>
 				<a href="/settings" class="list-group-item list-group-item-action text-danger">
 					{$t("edit-profile.back-to-settings-tab")}
