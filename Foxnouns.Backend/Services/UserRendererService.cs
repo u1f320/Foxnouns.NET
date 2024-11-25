@@ -20,6 +20,7 @@ public class UserRendererService(
         Token? token = null,
         bool renderMembers = true,
         bool renderAuthMethods = false,
+        string? overrideSid = null,
         CancellationToken ct = default
     )
     {
@@ -59,7 +60,7 @@ public class UserRendererService(
 
         return new UserResponse(
             user.Id,
-            user.Sid,
+            overrideSid ?? user.Sid,
             user.Username,
             user.DisplayName,
             user.Bio,

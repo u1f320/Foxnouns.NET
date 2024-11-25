@@ -4,14 +4,15 @@
 	import { Icon, InputGroup } from "@sveltestrap/sveltestrap";
 	import { encode } from "base64-arraybuffer";
 	import prettyBytes from "pretty-bytes";
+	import ShortNoscriptWarning from "./ShortNoscriptWarning.svelte";
 
 	type Props = {
 		current: string | null;
 		alt: string;
-		onclick: (avatar: string) => Promise<void>;
+		update: (avatar: string) => Promise<void>;
 		updated: boolean;
 	};
-	let { current, alt, onclick, updated }: Props = $props();
+	let { current, alt, update: onclick, updated }: Props = $props();
 
 	const MAX_AVATAR_BYTES = 1_000_000;
 
@@ -58,6 +59,8 @@
 		{$t("edit-profile.update-avatar")}
 	</button>
 </InputGroup>
+
+<ShortNoscriptWarning />
 
 {#if updated}
 	<p class="text-success-emphasis">

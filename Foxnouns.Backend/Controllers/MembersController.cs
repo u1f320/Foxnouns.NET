@@ -303,8 +303,8 @@ public class MembersController(
                     .SetProperty(u => u.LastActive, clock.GetCurrentInstant())
             );
 
-        // Re-fetch member to fetch the new sid
-        var updatedMember = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
-        return Ok(memberRenderer.RenderMember(updatedMember, CurrentToken));
+        // Fetch the new sid then pass that to RenderMember
+        var newSid = await db.Members.Where(m => m.Id == member.Id).Select(m => m.Sid).FirstAsync();
+        return Ok(memberRenderer.RenderMember(member, CurrentToken, newSid));
     }
 }

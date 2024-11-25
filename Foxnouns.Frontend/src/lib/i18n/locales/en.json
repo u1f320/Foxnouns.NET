@@ -6,13 +6,14 @@
   },
   "avatar-tooltip": "Avatar for {{name}}",
   "profile": {
-    "edit-member-profile-notice": "You are currently viewing the public profile of {memberName}.",
+    "edit-member-profile-notice": "You are currently viewing the public profile of {{memberName}}.",
     "edit-user-profile-notice": "You are currently viewing your public profile.",
     "edit-profile-link": "Edit profile",
     "names-header": "Names",
     "pronouns-header": "Pronouns",
     "default-members-header": "Members",
-    "create-member-button": "Create member"
+    "create-member-button": "Create member",
+    "back-to-user": "Back to {{name}}"
   },
   "title": {
     "log-in": "Log in",
@@ -59,7 +60,10 @@
     "validation-disallowed-value-2": "Allowed values are",
     "validation-reason": "Reason",
     "validation-generic": "The value you entered is not allowed here. Reason",
-    "extra-info-header": "Extra error information"
+    "extra-info-header": "Extra error information",
+    "noscript-title": "This page requires JavaScript",
+    "noscript-info": "This page requires JavaScript to function correctly. Some buttons may not work, or the page may not work at all.",
+    "noscript-short": "Requires JavaScript"
   },
   "settings": {
     "general-information-tab": "General information",
@@ -86,7 +90,9 @@
     "log-out-hint": "Use this button to log out on this device only.",
     "log-out-button": "Log out",
     "avatar": "Avatar",
-    "username-update-success": "Successfully changed your username!"
+    "username-update-success": "Successfully changed your username!",
+    "create-member-title": "Create a new member",
+    "create-member-name-label": "Member name"
   },
   "yes": "Yes",
   "no": "No",
@@ -112,7 +118,19 @@
     "profile-options-header": "Profile options",
     "bio-tab": "Bio",
     "saved-changes": "Successfully saved changes!",
-    "bio-length-hint": "Using {{length}}/{{maxLength}} characters"
+    "bio-length-hint": "Using {{length}}/{{maxLength}} characters",
+    "preview": "Preview",
+    "fields-tab": "Fields",
+    "flags-links-tab": "Flags & links",
+    "back-to-settings-tab": "Back to settings",
+    "member-header": "Editing member {{name}}",
+    "username": "Username",
+    "change-username-info": "As changing your username will also change all of your members' links, you can only change it in your account settings.",
+    "change-username-link": "Go to settings",
+    "member-name": "Name",
+    "change-member-name": "Change name",
+    "display-name": "Display name"
   },
-  "save-changes": "Save changes"
+  "save-changes": "Save changes",
+  "change": "Change"
 }

@@ -346,13 +346,20 @@ public class UsersController(
                     .SetProperty(u => u.LastActive, clock.GetCurrentInstant())
             );
 
+        // Get the user's new sid
+        var newSid = await db
+            .Users.Where(u => u.Id == CurrentUser.Id)
+            .Select(u => u.Sid)
+            .FirstAsync();
+
         var user = await db.ResolveUserAsync(CurrentUser.Id);
         return Ok(
             await userRenderer.RenderUserAsync(
-                user,
+                CurrentUser,
                 CurrentUser,
                 CurrentToken,
-                renderMembers: false
+                renderMembers: false,
+                overrideSid: newSid
             )
         );
     }

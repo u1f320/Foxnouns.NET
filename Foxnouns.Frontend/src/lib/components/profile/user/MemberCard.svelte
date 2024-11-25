@@ -35,11 +35,15 @@
 
 <div>
 	<a href="/@{username}/{member.name}">
-		<Avatar url={member.avatar_url} lazyLoad alt={$t("avatar-tooltip", { name: member.name })} />
+		<Avatar
+			url={member.avatar_url}
+			lazyLoad
+			alt={$t("avatar-tooltip", { name: member.display_name })}
+		/>
 	</a>
 	<p class="m-2">
 		<a class="text-reset fs-5 text-break" href="/@{username}/{member.name}">
-			{member.name}
+			{member.display_name}
 		</a>
 		{#if pronouns}
 			<br />

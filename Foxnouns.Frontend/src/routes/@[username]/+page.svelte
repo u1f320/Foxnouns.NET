@@ -6,7 +6,7 @@
 	import ProfileFields from "$components/profile/ProfileFields.svelte";
 	import { t } from "$lib/i18n";
 	import { Icon } from "@sveltestrap/sveltestrap";
-	import Paginator from "./Paginator.svelte";
+	import Paginator from "$components/Paginator.svelte";
 	import MemberCard from "$components/profile/user/MemberCard.svelte";
 
 	type Props = { data: PageData };
@@ -25,7 +25,7 @@
 		<OwnProfileNotice editLink="/settings/profile" />
 	{/if}
 
-	<ProfileHeader name="@{data.user.username}" profile={data.user} lazyLoadAvatar={true} />
+	<ProfileHeader name="@{data.user.username}" profile={data.user}/>
 	<ProfileFields profile={data.user} {allPreferences} />
 
 	{#if data.members.length > 0}
@@ -34,27 +34,27 @@
 			{data.user.member_title || $t("profile.default-members-header")}
 			{#if isMeUser}
 				<a class="btn btn-success" href="/settings/create-member">
-					<Icon name="person-plus-fill" aria-hidden={true} />
+					<Icon name="person-plus-fill" aria-hidden />
 					{$t("profile.create-member-button")}
 				</a>
 			{/if}
-			<Paginator
-				currentPage={data.currentPage}
-				pageCount={data.pageCount}
-				href="/@{data.user.username}"
-			/>
 		</h2>
+		<Paginator
+			center
+			currentPage={data.currentPage}
+			pageCount={data.pageCount}
+			href="/@{data.user.username}"
+		/>
 		<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 text-center">
 			{#each data.members as member (member.id)}
 				<MemberCard username={data.user.username} {member} {allPreferences} />
 			{/each}
 		</div>
-		<div class="text-center">
-			<Paginator
-				currentPage={data.currentPage}
-				pageCount={data.pageCount}
-				href="/@{data.user.username}"
-			/>
-		</div>
+		<Paginator
+			center
+			currentPage={data.currentPage}
+			pageCount={data.pageCount}
+			href="/@{data.user.username}"
+		/>
 	{/if}
 </div>

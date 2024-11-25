@@ -1,39 +1,29 @@
 <script lang="ts">
 	import type { ActionData, PageData } from "./$types";
 	import { t } from "$lib/i18n";
-	import { Button, ButtonGroup, Icon, InputGroup } from "@sveltestrap/sveltestrap";
-	import { PUBLIC_SHORT_URL } from "$env/static/public";
+	import { Icon, InputGroup } from "@sveltestrap/sveltestrap";
 	import AvatarEditor from "$components/editor/AvatarEditor.svelte";
 	import { apiRequest, fastRequest } from "$api";
 	import ApiError from "$api/error";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
-	import type { MeUser } from "$api/models/user";
+	import type { User } from "$api/models/user";
 	import log from "$lib/log";
 	import { DateTime, FixedOffsetZone } from "luxon";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
+	import SidEditor from "$components/editor/SidEditor.svelte";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
 
 	let error: ApiError | null = $state(null);
 
-	const copySid = async () => {
-		const url = `${PUBLIC_SHORT_URL}/${data.user.sid}`;
-		await navigator.clipboard.writeText(url);
-	};
-
-	// Editable properties
-	let sid = $state(data.user.sid);
-	let lastSidReroll = $state(data.user.last_sid_reroll);
-	let tz = $state(data.user.timezone === "<none>" ? null : data.user.timezone);
-
 	// Timezone code
+	let tz = $state(data.user.timezone === "<none>" ? null : data.user.timezone);
 	const validTimezones = Intl.supportedValuesOf("timeZone");
 	const detectTimezone = () => {
 		tz = DateTime.local().zoneName;
 	};
 
-	// Timezone code
 	let currentTime = $state("");
 	let displayTimezone = $state("");
 	$effect(() => {
@@ -52,14 +42,16 @@
 
 	// SID reroll code
 	// We compare the current time with the user's last SID reroll time. If it's more than an hour ago, it can be rerolled.
+	let sid = $state(data.user.sid);
+	let lastSidReroll = $state(data.user.last_sid_reroll);
 	let canRerollSid = $derived(
 		DateTime.now().toLocal().diff(DateTime.fromISO(lastSidReroll).toLocal(), "hours").hours >= 1,
 	);
 	const rerollSid = async () => {
 		try {
-			const resp = await apiRequest<MeUser>("POST", "/users/@me/reroll-sid", { token: data.token });
+			const resp = await apiRequest<User>("POST", "/users/@me/reroll-sid", { token: data.token });
 			sid = resp.sid;
-			lastSidReroll = resp.last_sid_reroll;
+			lastSidReroll = DateTime.now().toUTC().toISO();
 			error = null;
 		} catch (e) {
 			log.error("Could not reroll sid:", e);
@@ -67,15 +59,16 @@
 		}
 	};
 
-	// Passed to AvatarEditor
-	let updated = $state(false);
+	// Avatar update code
+	// AvatarEditor handles converting the uploaded image to a base64 string
+	let avatarUpdated = $state(false);
 	const updateAvatar = async (avatar: string) => {
 		try {
 			await fastRequest("PATCH", "/users/@me", {
 				body: { avatar },
 				token: data.token,
 			});
-			updated = true;
+			avatarUpdated = true;
 			error = null;
 		} catch (e) {
 			log.error("Could not update avatar:", e);
@@ -88,38 +81,51 @@
 	<ErrorAlert error={error.obj} />
 {/if}
 
+{#if form}
+	<div class="row">
+		<FormStatusMarker {form} />
+	</div>
+{/if}
+
 <div class="row">
 	<div class="col-md">
 		<h4>{$t("settings.avatar")}</h4>
 		<AvatarEditor
 			current={data.user.avatar_url}
 			alt={$t("avatar-tooltip", { name: "@" + data.user.username })}
-			onclick={updateAvatar}
-			{updated}
+			update={updateAvatar}
+			updated={avatarUpdated}
 		/>
 	</div>
 	<div class="col-md">
-		<h4>{$t("edit-profile.sid")}</h4>
-		{$t("edit-profile.sid-current")} <code>{sid}</code>
-		<ButtonGroup class="mb-1">
-			<Button color="secondary" onclick={() => rerollSid()} disabled={!canRerollSid}>
-				{$t("edit-profile.sid-reroll")}
-			</Button>
-			<Button color="secondary" onclick={() => copySid()}>
-				<Icon name="link-45deg" aria-hidden />
-				<span class="visually-hidden">{$t("edit-profile.sid-copy")}</span>
-			</Button>
-		</ButtonGroup>
-		<p class="text-muted">
+		<h4>{$t("edit-profile.username")}</h4>
+		<input class="form-control" type="text" value={data.user.username} disabled readonly />
+		<p class="mt-1 mb-3 text-muted">
 			<Icon name="info-circle-fill" aria-hidden />
-			{$t("edit-profile.sid-hint")}
+			{$t("edit-profile.change-username-info")}
+			<a href="/settings">{$t("edit-profile.change-username-link")}</a>
 		</p>
+
+		<h4>{$t("edit-profile.display-name")}</h4>
+		<form class="mb-3" method="POST" action="?/changeDisplayName">
+			<InputGroup>
+				<input
+					class="form-control"
+					name="display-name"
+					placeholder={data.user.username}
+					value={data.user.display_name}
+				/>
+				<button class="btn btn-primary" type="submit">{$t("change")}</button>
+			</InputGroup>
+		</form>
+
+		<h4>{$t("edit-profile.sid")}</h4>
+		<SidEditor {sid} {rerollSid} {canRerollSid} />
 	</div>
 </div>
 
 <div class="mt-3">
 	<h4>{$t("edit-profile.profile-options-header")}</h4>
-	<FormStatusMarker {form} />
 	<form method="POST" action="?/options">
 		<div class="mb-3">
 			<label class="form-label" for="member-title">{$t("edit-profile.member-header-label")}</label>

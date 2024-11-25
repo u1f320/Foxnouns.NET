@@ -24,13 +24,17 @@ public class MemberRendererService(DatabaseContext db, Config config)
         return members.Select(m => RenderPartialMember(m, renderUnlisted));
     }
 
-    public MemberResponse RenderMember(Member member, Token? token = null)
+    public MemberResponse RenderMember(
+        Member member,
+        Token? token = null,
+        string? overrideSid = null
+    )
     {
         var renderUnlisted = token?.UserId == member.UserId && token.HasScope("user.read_hidden");
 
         return new MemberResponse(
             member.Id,
-            member.Sid,
+            overrideSid ?? member.Sid,
             member.Name,
             member.DisplayName ?? member.Name,
             member.Bio,
