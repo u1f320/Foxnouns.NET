@@ -1,6 +1,6 @@
 # Foxnouns.NET
 
-Rewrite of pronouns.cc's codebase in C#, using Remix for the frontend.
+Rewrite of pronouns.cc's codebase in C#, using SvelteKit for the frontend.
 Still very work-in-progress, but a large portion of the backend is functional.
 
 ## License
