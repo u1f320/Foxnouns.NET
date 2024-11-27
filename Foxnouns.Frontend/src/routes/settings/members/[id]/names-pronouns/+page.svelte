@@ -5,6 +5,7 @@
 	import { mergePreferences } from "$api/models/user";
 	import FieldEditor from "$components/editor/FieldEditor.svelte";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
+	import NoscriptWarning from "$components/editor/NoscriptWarning.svelte";
 	import PronounsEditor from "$components/editor/PronounsEditor.svelte";
 	import { t } from "$lib/i18n";
 	import log from "$lib/log";
@@ -37,16 +38,15 @@
 	};
 </script>
 
+<NoscriptWarning />
 <FormStatusMarker form={ok} />
 
 <div>
 	<FieldEditor name={$t("profile.names-header")} bind:entries={names} {allPreferences} />
 </div>
-
 <div>
 	<PronounsEditor bind:entries={pronouns} {allPreferences} />
 </div>
-
 <div>
 	<button class="btn btn-primary" onclick={() => update()}>{$t("save-changes")}</button>
 </div>
