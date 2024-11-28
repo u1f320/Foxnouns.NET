@@ -5,6 +5,7 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -56,9 +57,10 @@ public class AuthController(
 
     public record AddOauthAccountResponse(
         Snowflake Id,
-        AuthType Type,
+        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] AuthType Type,
         string RemoteId,
-        string? RemoteUsername
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            string? RemoteUsername
     );
 
     public record OauthRegisterRequest(string Ticket, string Username);

@@ -27,7 +27,8 @@ public class MetaController : ApiControllerBase
                 new Limits(
                     MemberCount: MembersController.MaxMemberCount,
                     BioLength: ValidationUtils.MaxBioLength,
-                    CustomPreferences: ValidationUtils.MaxCustomPreferences
+                    CustomPreferences: ValidationUtils.MaxCustomPreferences,
+                    MaxAuthMethods: AuthUtils.MaxAuthMethodsPerType
                 )
             )
         );
@@ -49,5 +50,10 @@ public class MetaController : ApiControllerBase
     private record UserInfo(int Total, int ActiveMonth, int ActiveWeek, int ActiveDay);
 
     // All limits that the frontend should know about (for UI purposes)
-    private record Limits(int MemberCount, int BioLength, int CustomPreferences);
+    private record Limits(
+        int MemberCount,
+        int BioLength,
+        int CustomPreferences,
+        int MaxAuthMethods
+    );
 }

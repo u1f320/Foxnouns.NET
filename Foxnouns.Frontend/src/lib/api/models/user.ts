@@ -71,9 +71,11 @@ export type PrideFlag = {
 	description: string | null;
 };
 
+export type AuthType = "DISCORD" | "GOOGLE" | "TUMBLR" | "FEDIVERSE" | "EMAIL";
+
 export type AuthMethod = {
 	id: string;
-	type: "DISCORD" | "GOOGLE" | "TUMBLR" | "FEDIVERSE" | "EMAIL";
+	type: AuthType;
 	remote_id: string;
 	remote_username?: string;
 };

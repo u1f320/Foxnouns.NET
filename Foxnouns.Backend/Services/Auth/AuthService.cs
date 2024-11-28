@@ -223,6 +223,15 @@ public class AuthService(
     {
         AssertValidAuthType(authType, null);
 
+        // This is already checked when
+        var currentCount = await db
+            .AuthMethods.Where(m => m.UserId == userId && m.AuthType == authType)
+            .CountAsync(ct);
+        if (currentCount >= AuthUtils.MaxAuthMethodsPerType)
+            throw new ApiError.BadRequest(
+                "Too many linked accounts of this type, maximum of 3 per account."
+            );
+
         var authMethod = new AuthMethod
         {
             Id = snowflakeGenerator.GenerateSnowflake(),

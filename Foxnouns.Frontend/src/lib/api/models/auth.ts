@@ -1,4 +1,4 @@
-import type { User } from "./user";
+import type { AuthType, User } from "./user";
 
 export type AuthResponse = {
 	user: User;
@@ -20,4 +20,11 @@ export type AuthUrls = {
 	discord?: string;
 	google?: string;
 	tumblr?: string;
+};
+
+export type AddAccountResponse = {
+	id: string;
+	type: AuthType;
+	remote_id: string;
+	remote_username?: string;
 };

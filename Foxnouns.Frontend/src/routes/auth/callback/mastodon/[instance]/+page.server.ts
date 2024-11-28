@@ -1,9 +1,9 @@
 import { apiRequest } from "$api";
-import ApiError, { ErrorCode, type RawApiError } from "$api/error";
-import type { AuthResponse, CallbackResponse } from "$api/models/auth.js";
+import ApiError, { ErrorCode } from "$api/error";
+import type { CallbackResponse } from "$api/models/auth.js";
 import { setToken } from "$lib";
-import log from "$lib/log.js";
-import { isRedirect, redirect } from "@sveltejs/kit";
+import createRegisterAction from "$lib/actions/register.js";
+import { redirect } from "@sveltejs/kit";
 
 export const load = async ({ parent, params, url, fetch, cookies }) => {
 	const { meUser } = await parent();
@@ -33,30 +33,5 @@ export const load = async ({ parent, params, url, fetch, cookies }) => {
 };
 
 export const actions = {
-	default: async ({ request, fetch, cookies }) => {
-		const data = await request.formData();
-		const username = data.get("username") as string | null;
-		const ticket = data.get("ticket") as string | null;
-
-		if (!username || !ticket)
-			return {
-				error: { message: "Bad request", code: ErrorCode.BadRequest, status: 403 } as RawApiError,
-			};
-
-		try {
-			const resp = await apiRequest<AuthResponse>("POST", "/auth/fediverse/register", {
-				body: { username, ticket },
-				isInternal: true,
-				fetch,
-			});
-
-			setToken(cookies, resp.token);
-			redirect(303, "/auth/welcome");
-		} catch (e) {
-			if (isRedirect(e)) throw e;
-			log.error("Could not sign up user with username %s:", username, e);
-			if (e instanceof ApiError) return { error: e.obj };
-			throw e;
-		}
-	},
+	default: createRegisterAction("/auth/fediverse/register"),
 };
