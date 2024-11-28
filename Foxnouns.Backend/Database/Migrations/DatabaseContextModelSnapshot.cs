@@ -98,6 +98,16 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_auth_methods_user_id");
 
+                    b.HasIndex("AuthType", "RemoteId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_auth_methods_auth_type_remote_id")
+                        .HasFilter("fediverse_application_id IS NULL");
+
+                    b.HasIndex("AuthType", "RemoteId", "FediverseApplicationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_auth_methods_auth_type_remote_id_fediverse_application_id")
+                        .HasFilter("fediverse_application_id IS NOT NULL");
+
                     b.ToTable("auth_methods", (string)null);
                 });
 

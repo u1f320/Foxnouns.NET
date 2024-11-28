@@ -71,6 +71,22 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<Member>().HasIndex(m => new { m.UserId, m.Name }).IsUnique();
         modelBuilder.Entity<Member>().HasIndex(m => m.Sid).IsUnique();
         modelBuilder.Entity<TemporaryKey>().HasIndex(k => k.Key).IsUnique();
+        modelBuilder
+            .Entity<AuthMethod>()
+            .HasIndex(m => new
+            {
+                m.AuthType,
+                m.RemoteId,
+                m.FediverseApplicationId,
+            })
+            .HasFilter("fediverse_application_id IS NOT NULL")
+            .IsUnique();
+
+        modelBuilder
+            .Entity<AuthMethod>()
+            .HasIndex(m => new { m.AuthType, m.RemoteId })
+            .HasFilter("fediverse_application_id IS NULL")
+            .IsUnique();
 
         modelBuilder.Entity<User>().Property(u => u.Sid).HasDefaultValueSql("find_free_user_sid()");
         modelBuilder.Entity<User>().Property(u => u.Fields).HasColumnType("jsonb");
