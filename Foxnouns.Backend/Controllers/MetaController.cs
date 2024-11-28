@@ -27,7 +27,7 @@ public class MetaController : ApiControllerBase
                 new Limits(
                     MemberCount: MembersController.MaxMemberCount,
                     BioLength: ValidationUtils.MaxBioLength,
-                    CustomPreferences: UsersController.MaxCustomPreferences
+                    CustomPreferences: ValidationUtils.MaxCustomPreferences
                 )
             )
         );

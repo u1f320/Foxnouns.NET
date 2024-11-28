@@ -197,11 +197,11 @@ public class UsersController(
     [Authorize("user.update")]
     [ProducesResponseType<Dictionary<Snowflake, User.CustomPreference>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateCustomPreferencesAsync(
-        [FromBody] List<CustomPreferencesUpdateRequest> req,
+        [FromBody] List<CustomPreferenceUpdate> req,
         CancellationToken ct = default
     )
     {
-        ValidationUtils.Validate(ValidateCustomPreferences(req));
+        ValidationUtils.Validate(ValidationUtils.ValidateCustomPreferences(req));
 
         var user = await db.ResolveUserAsync(CurrentUser!.Id, ct);
         var preferences = user
@@ -241,7 +241,7 @@ public class UsersController(
     }
 
     [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-    public class CustomPreferencesUpdateRequest
+    public class CustomPreferenceUpdate
     {
         public Snowflake? Id { get; init; }
         public required string Icon { get; set; }
@@ -249,34 +249,6 @@ public class UsersController(
         public PreferenceSize Size { get; set; }
         public bool Muted { get; set; }
         public bool Favourite { get; set; }
-    }
-
-    public const int MaxCustomPreferences = 25;
-
-    private static List<(string, ValidationError?)> ValidateCustomPreferences(
-        List<CustomPreferencesUpdateRequest> preferences
-    )
-    {
-        var errors = new List<(string, ValidationError?)>();
-
-        if (preferences.Count > MaxCustomPreferences)
-            errors.Add(
-                (
-                    "custom_preferences",
-                    ValidationError.LengthError(
-                        "Too many custom preferences",
-                        0,
-                        MaxCustomPreferences,
-                        preferences.Count
-                    )
-                )
-            );
-        if (preferences.Count > 50)
-            return errors;
-
-        // TODO: validate individual preferences
-
-        return errors;
     }
 
     public class UpdateUserRequest : PatchRequest
