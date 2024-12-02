@@ -73,7 +73,14 @@
 		"extra-info-header": "Extra error information",
 		"noscript-title": "This page requires JavaScript",
 		"noscript-info": "This page requires JavaScript to function correctly. Some buttons may not work, or the page may not work at all.",
-		"noscript-short": "Requires JavaScript"
+		"noscript-short": "Requires JavaScript",
+		"404-description": "The page you were trying to visit was not found. If you're sure the page should exist, check your address bar for any typos.",
+		"back-to-profile-button": "Go back to your profile",
+		"back-to-main-page-button": "Go back to the main page",
+		"back-to-prev-page-button": "Go back to the previous page",
+		"400-description": "Something went wrong with your request. This error should never land you on this page, so it's probably a bug.",
+		"500-description": "Something went wrong on the server. Please try again later.",
+		"unknown-status-description": "Something went wrong, but we're not sure what. Please try again."
 	},
 	"settings": {
 		"general-information-tab": "General information",
