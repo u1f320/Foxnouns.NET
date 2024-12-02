@@ -110,7 +110,9 @@
 		"username-update-success": "Successfully changed your username!",
 		"create-member-title": "Create a new member",
 		"create-member-name-label": "Member name",
-		"auth-remove-method": "Remove"
+		"auth-remove-method": "Remove",
+		"force-log-out-warning": "Make sure you're still able to log in before using this!",
+		"force-log-out-confirmation": "Are you sure you want to log out from all devices? If you just want to log out from this device, click the \"Log out\" button on your settings page."
 	},
 	"yes": "Yes",
 	"no": "No",
