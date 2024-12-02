@@ -106,12 +106,14 @@ public static class WebApplicationExtensions
                     .AddScoped<RemoteAuthService>()
                     .AddScoped<FediverseAuthService>()
                     .AddScoped<ObjectStorageService>()
+                    .AddTransient<DataCleanupService>()
                     // Background services
                     .AddHostedService<PeriodicTasksService>()
                     // Transient jobs
                     .AddTransient<MemberAvatarUpdateInvocable>()
                     .AddTransient<UserAvatarUpdateInvocable>()
-                    .AddTransient<CreateFlagInvocable>();
+                    .AddTransient<CreateFlagInvocable>()
+                    .AddTransient<CreateDataExportInvocable>();
 
                 if (!config.Logging.EnableMetrics)
                     services.AddHostedService<BackgroundMetricsCollectionService>();

@@ -111,6 +111,34 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("auth_methods", (string)null);
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.DataExport", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Filename")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("filename");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_data_exports");
+
+                    b.HasIndex("Filename")
+                        .IsUnique()
+                        .HasDatabaseName("ix_data_exports_filename");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_data_exports_user_id");
+
+                    b.ToTable("data_exports", (string)null);
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.FediverseApplication", b =>
                 {
                     b.Property<long>("Id")
@@ -511,6 +539,18 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasConstraintName("fk_auth_methods_users_user_id");
 
                     b.Navigation("FediverseApplication");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.DataExport", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_data_exports_users_user_id");
 
                     b.Navigation("User");
                 });

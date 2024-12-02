@@ -11,3 +11,5 @@ public record CreateFlagPayload(
     string ImageData,
     string? Description
 );
+
+public record CreateDataExportPayload(Snowflake UserId);

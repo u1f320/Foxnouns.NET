@@ -8,10 +8,7 @@ public class PeriodicTasksService(ILogger logger, IServiceProvider services) : B
     {
         using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
         while (await timer.WaitForNextTickAsync(ct))
-        {
-            _logger.Debug("Collecting metrics");
             await RunPeriodicTasksAsync(ct);
-        }
     }
 
     private async Task RunPeriodicTasksAsync(CancellationToken ct)
@@ -20,7 +17,10 @@ public class PeriodicTasksService(ILogger logger, IServiceProvider services) : B
 
         await using var scope = services.CreateAsyncScope();
 
-        var keyCacheSvc = scope.ServiceProvider.GetRequiredService<KeyCacheService>();
-        await keyCacheSvc.DeleteExpiredKeysAsync(ct);
+        var keyCacheService = scope.ServiceProvider.GetRequiredService<KeyCacheService>();
+        var dataCleanupService = scope.ServiceProvider.GetRequiredService<DataCleanupService>();
+
+        await keyCacheService.DeleteExpiredKeysAsync(ct);
+        await dataCleanupService.InvokeAsync(ct);
     }
 }

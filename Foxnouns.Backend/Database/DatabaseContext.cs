@@ -46,17 +46,18 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
             .UseSnakeCaseNamingConvention()
             .UseExceptionProcessor();
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<Member> Members { get; set; }
-    public DbSet<AuthMethod> AuthMethods { get; set; }
-    public DbSet<FediverseApplication> FediverseApplications { get; set; }
-    public DbSet<Token> Tokens { get; set; }
-    public DbSet<Application> Applications { get; set; }
-    public DbSet<TemporaryKey> TemporaryKeys { get; set; }
+    public DbSet<User> Users { get; init; }
+    public DbSet<Member> Members { get; init; }
+    public DbSet<AuthMethod> AuthMethods { get; init; }
+    public DbSet<FediverseApplication> FediverseApplications { get; init; }
+    public DbSet<Token> Tokens { get; init; }
+    public DbSet<Application> Applications { get; init; }
+    public DbSet<TemporaryKey> TemporaryKeys { get; init; }
+    public DbSet<DataExport> DataExports { get; init; }
 
-    public DbSet<PrideFlag> PrideFlags { get; set; }
-    public DbSet<UserFlag> UserFlags { get; set; }
-    public DbSet<MemberFlag> MemberFlags { get; set; }
+    public DbSet<PrideFlag> PrideFlags { get; init; }
+    public DbSet<UserFlag> UserFlags { get; init; }
+    public DbSet<MemberFlag> MemberFlags { get; init; }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -81,6 +82,7 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
             })
             .HasFilter("fediverse_application_id IS NOT NULL")
             .IsUnique();
+        modelBuilder.Entity<DataExport>().HasIndex(d => d.Filename).IsUnique();
 
         modelBuilder
             .Entity<AuthMethod>()

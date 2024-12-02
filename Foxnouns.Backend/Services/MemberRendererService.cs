@@ -72,7 +72,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
             renderUnlisted ? member.Unlisted : null
         );
 
-    private string? AvatarUrlFor(Member member) =>
+    public string? AvatarUrlFor(Member member) =>
         member.Avatar != null
             ? $"{config.MediaBaseUrl}/members/{member.Id}/avatars/{member.Avatar}.webp"
             : null;

@@ -22,12 +22,31 @@ public class UserRendererService(
         bool renderAuthMethods = false,
         string? overrideSid = null,
         CancellationToken ct = default
+    ) =>
+        await RenderUserInnerAsync(
+            user,
+            selfUser != null && selfUser.Id == user.Id,
+            token?.Scopes ?? [],
+            renderMembers,
+            renderAuthMethods,
+            overrideSid,
+            ct
+        );
+
+    public async Task<UserResponse> RenderUserInnerAsync(
+        User user,
+        bool isSelfUser,
+        string[] scopes,
+        bool renderMembers = true,
+        bool renderAuthMethods = false,
+        string? overrideSid = null,
+        CancellationToken ct = default
     )
     {
-        var isSelfUser = selfUser?.Id == user.Id;
-        var tokenCanReadHiddenMembers = token.HasScope("member.read") && isSelfUser;
-        var tokenHidden = token.HasScope("user.read_hidden") && isSelfUser;
-        var tokenPrivileged = token.HasScope("user.read_privileged") && isSelfUser;
+        scopes = scopes.ExpandScopes();
+        var tokenCanReadHiddenMembers = scopes.Contains("member.read") && isSelfUser;
+        var tokenHidden = scopes.Contains("user.read_hidden") && isSelfUser;
+        var tokenPrivileged = scopes.Contains("user.read_privileged") && isSelfUser;
 
         renderMembers = renderMembers && (!user.ListHidden || tokenCanReadHiddenMembers);
         renderAuthMethods = renderAuthMethods && tokenPrivileged;
@@ -105,12 +124,12 @@ public class UserRendererService(
             user.CustomPreferences
         );
 
-    private string? AvatarUrlFor(User user) =>
+    public string? AvatarUrlFor(User user) =>
         user.Avatar != null
             ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp"
             : null;
 
-    private string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
+    public string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
     public record UserResponse(
         Snowflake Id,

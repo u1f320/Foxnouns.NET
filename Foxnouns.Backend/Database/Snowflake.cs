@@ -65,6 +65,9 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
         return true;
     }
 
+    public static Snowflake FromInstant(Instant instant) =>
+        new((ulong)(instant.ToUnixTimeMilliseconds() - Epoch) << 22);
+
     public override bool Equals(object? obj) => obj is Snowflake other && Value == other.Value;
 
     public bool Equals(Snowflake other)

@@ -62,7 +62,7 @@ public class BackgroundMetricsCollectionService(
         using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
         while (await timer.WaitForNextTickAsync(ct))
         {
-            _logger.Debug("Collecting metrics");
+            _logger.Debug("Collecting metrics manually");
             await metricsCollectionService.CollectMetricsAsync(ct);
         }
     }

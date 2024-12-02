@@ -48,4 +48,13 @@ public class ObjectStorageService(ILogger logger, Config config, IMinioClient mi
             ct
         );
     }
+
+    public async Task GetObjectAsync(string path, CancellationToken ct = default)
+    {
+        var stream = new MemoryStream();
+        var resp = await minioClient.GetObjectAsync(
+            new GetObjectArgs().WithBucket(config.Storage.Bucket).WithObject(path),
+            ct
+        );
+    }
 }
