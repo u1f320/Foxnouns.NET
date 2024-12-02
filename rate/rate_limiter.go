@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"net/http"
@@ -91,12 +90,7 @@ func getReset(w http.ResponseWriter) int64 {
 }
 
 func requestBucket(method, template string) string {
-	hasher := sha256.New()
-	_, err := hasher.Write([]byte(method + "-" + template))
-	if err != nil {
-		panic(err)
-	}
-	return hex.EncodeToString(hasher.Sum(nil))
+	return hex.EncodeToString([]byte(method + "-" + template))
 }
 
 func (l *Limiter) globalLimiter(user string) *httprate.RateLimiter {

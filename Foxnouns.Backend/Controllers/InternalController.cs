@@ -15,6 +15,9 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
     [GeneratedRegex(@"(\{\w+\})")]
     private static partial Regex PathVarRegex();
 
+    [GeneratedRegex(@"\{id\}")]
+    private static partial Regex IdCountRegex();
+
     private static string GetCleanedTemplate(string template)
     {
         if (template.StartsWith("api/v2"))
@@ -22,8 +25,19 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
         template = PathVarRegex()
             .Replace(template, "{id}") // Replace all path variables (almost always IDs) with `{id}`
             .Replace("@me", "{id}"); // Also replace hardcoded `@me` with `{id}`
+
+        // If there's at least one path parameter, we only return the *first* part of the path.
         if (template.Contains("{id}"))
+        {
+            // However, if the path starts with /users/{id} *and* there's another path parameter (such as a member ID)
+            // we ignore the leading /users/{id}. This is because a lot of routes are scoped by user, but should have
+            // separate rate limits from other user-scoped routes.
+            if (template.StartsWith("/users/{id}/") && IdCountRegex().Count(template) >= 2)
+                template = template["/users/{id}".Length..];
+
             return template.Split("{id}")[0] + "{id}";
+        }
+
         return template;
     }
 
