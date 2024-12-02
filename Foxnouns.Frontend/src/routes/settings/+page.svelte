@@ -23,7 +23,13 @@
 		<form method="POST" action="?/changeUsername">
 			<FormGroup class="mb-3">
 				<InputGroup class="m-1 mt-3 w-md-75">
-					<Input type="text" value={data.user.username} name="username" required />
+					<Input
+						type="text"
+						value={data.user.username}
+						name="username"
+						required
+						autocomplete="off"
+					/>
 					<Button type="submit" color="secondary">{$t("settings.change-username-button")}</Button>
 				</InputGroup>
 			</FormGroup>

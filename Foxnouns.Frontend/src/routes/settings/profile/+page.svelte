@@ -114,6 +114,7 @@
 					name="display-name"
 					placeholder={data.user.username}
 					value={data.user.display_name}
+					autocomplete="off"
 				/>
 				<button class="btn btn-primary" type="submit">{$t("change")}</button>
 			</InputGroup>
@@ -136,6 +137,7 @@
 				class="form-control"
 				value={data.user.member_title}
 				placeholder={$t("profile.default-members-header")}
+				autocomplete="off"
 			/>
 			<p class="text-muted mt-1">
 				<Icon name="info-circle-fill" aria-hidden />

@@ -56,6 +56,7 @@
 			class="form-control"
 			bind:value={newFieldName}
 			placeholder={$t("editor.field-name")}
+			autocomplete="off"
 		/>
 		<IconButton type="submit" color="success" icon="plus" tooltip={$t("editor.add-field")} />
 	</form>

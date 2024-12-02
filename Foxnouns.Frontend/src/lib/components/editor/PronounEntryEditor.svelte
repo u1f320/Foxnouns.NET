@@ -50,7 +50,7 @@
 			tooltip={$t("editor.move-entry-down")}
 			onclick={() => moveValue(index, true)}
 		/>
-		<input type="text" class="form-control" bind:value={value.value} />
+		<input type="text" class="form-control" bind:value={value.value} autocomplete="off" />
 		<ButtonDropdown>
 			<span use:tippy={{ content: status.tooltip }}>
 				<DropdownToggle color="secondary" caret>
@@ -88,6 +88,7 @@
 				type="text"
 				class="form-control"
 				bind:value={value.display_text}
+				autocomplete="off"
 			/>
 			<IconButton id="display-help" icon="question" tooltip="Help" color="secondary" />
 			<!-- TODO: remove children={false} once sveltestrap is updated

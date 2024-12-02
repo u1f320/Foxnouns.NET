@@ -40,7 +40,7 @@
 		tooltip={$t("editor.move-entry-down")}
 		onclick={() => moveValue(index, false)}
 	/>
-	<input type="text" class="form-control" bind:value={value.value} />
+	<input type="text" class="form-control" bind:value={value.value} autocomplete="off" />
 	<ButtonDropdown>
 		<span use:tippy={{ content: status.tooltip }}>
 			<DropdownToggle color="secondary" caret>

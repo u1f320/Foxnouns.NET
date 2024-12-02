@@ -84,7 +84,13 @@
 		<h4>{$t("edit-profile.member-name")}</h4>
 		<form method="POST" action="?/changeName" class="mb-3">
 			<InputGroup>
-				<input name="name" class="form-control" type="text" value={data.member.name} />
+				<input
+					name="name"
+					class="form-control"
+					type="text"
+					value={data.member.name}
+					autocomplete="off"
+				/>
 				<button type="submit" class="btn btn-primary">
 					{$t("change")}
 				</button>
@@ -99,6 +105,7 @@
 					name="display-name"
 					placeholder={data.member.name}
 					value={data.member.display_name !== data.member.name ? data.member.display_name : null}
+					autocomplete="off"
 				/>
 				<button class="btn btn-primary" type="submit">{$t("change")}</button>
 			</InputGroup>

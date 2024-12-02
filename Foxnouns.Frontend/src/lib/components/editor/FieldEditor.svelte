@@ -65,7 +65,7 @@
 				onclick={() => move(index, false)}
 			/>
 			<InputGroupText>{$t("editor.field-name")}</InputGroupText>
-			<input class="form-control" bind:value={name} />
+			<input class="form-control" bind:value={name} autocomplete="off" />
 			<IconButton
 				color="danger"
 				icon="trash3"
@@ -88,6 +88,7 @@
 		class="form-control"
 		bind:value={newEntry}
 		placeholder={$t("editor.new-entry")}
+		autocomplete="off"
 	/>
 	<IconButton type="submit" color="success" icon="plus" tooltip={$t("editor.add-entry")} />
 </form>

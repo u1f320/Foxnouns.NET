@@ -60,6 +60,6 @@
 {/each}
 
 <form class="input-group m-1" onsubmit={addEntry}>
-	<input type="text" class="form-control" bind:value={newEntry} />
+	<input type="text" class="form-control" bind:value={newEntry} autocomplete="off" />
 	<IconButton type="submit" color="success" icon="plus" tooltip={$t("editor.add-entry")} />
 </form>

@@ -16,7 +16,7 @@
 <form method="POST">
 	<div class="my-3">
 		<label class="form-label" for="name">{$t("settings.create-member-name-label")}</label>
-		<input class="form-control" type="text" id="name" name="name" required />
+		<input class="form-control" type="text" id="name" name="name" required autocomplete="off" />
 	</div>
 	<button class="btn btn-primary" type="submit">{$t("profile.create-member-button")}</button>
 </form>
