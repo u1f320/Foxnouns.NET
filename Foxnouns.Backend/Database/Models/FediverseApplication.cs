@@ -1,5 +1,3 @@
-using NodaTime;
-
 namespace Foxnouns.Backend.Database.Models;
 
 public class FediverseApplication : BaseModel

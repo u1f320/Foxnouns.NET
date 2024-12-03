@@ -1,6 +1,5 @@
 using System.Net;
 using Foxnouns.Backend.Utils;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 
 namespace Foxnouns.Backend.Middleware;

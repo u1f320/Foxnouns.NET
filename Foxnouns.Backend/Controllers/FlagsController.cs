@@ -1,6 +1,5 @@
 using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
-using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;

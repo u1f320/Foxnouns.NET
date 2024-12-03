@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Coravel.Mailer.Mail.Helpers;
 using Coravel.Queuing.Interfaces;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
