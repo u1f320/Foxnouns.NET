@@ -55,10 +55,7 @@ public class User : BaseModel
         public PreferenceSize Size { get; set; }
     }
 
-    [NotMapped]
     public static readonly Duration DeleteAfter = Duration.FromDays(30);
-
-    [NotMapped]
     public static readonly Duration DeleteSuspendedAfter = Duration.FromDays(180);
 }
 
