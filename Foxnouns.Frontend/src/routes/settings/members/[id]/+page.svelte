@@ -14,6 +14,7 @@
 	import SidEditor from "$components/editor/SidEditor.svelte";
 	import BioEditor from "$components/editor/BioEditor.svelte";
 	import { PUBLIC_BASE_URL } from "$env/static/public";
+	import { enhance } from "$app/forms";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -83,7 +84,7 @@
 	</div>
 	<div class="col-md">
 		<h4>{$t("edit-profile.member-name")}</h4>
-		<form method="POST" action="?/changeName" class="mb-3">
+		<form method="POST" action="?/changeName" class="mb-3" use:enhance>
 			<InputGroup>
 				<input
 					name="name"
@@ -99,7 +100,7 @@
 		</form>
 
 		<h4>{$t("edit-profile.display-name")}</h4>
-		<form class="mb-3" method="POST" action="?/changeDisplayName">
+		<form class="mb-3" method="POST" action="?/changeDisplayName" use:enhance>
 			<InputGroup>
 				<input
 					class="form-control"
@@ -117,7 +118,7 @@
 	</div>
 	<div class="row mb-3">
 		<h4>{$t("edit-profile.profile-options-header")}</h4>
-		<form method="POST" action="?/options">
+		<form method="POST" action="?/options" use:enhance>
 			<div class="form-check">
 				<input
 					class="form-check-input"
@@ -146,7 +147,7 @@
 	</div>
 	<div class="row mb-3">
 		<h4>{$t("edit-profile.bio-tab")}</h4>
-		<form method="POST" action="?/bio">
+		<form method="POST" action="?/bio" use:enhance>
 			<BioEditor bind:value={bio} maxLength={data.meta.limits.bio_length} />
 		</form>
 	</div>

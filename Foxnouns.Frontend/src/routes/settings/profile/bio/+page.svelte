@@ -3,6 +3,7 @@
 	import type { ActionData, PageData } from "./$types";
 	import BioEditor from "$components/editor/BioEditor.svelte";
 	import { t } from "$lib/i18n";
+	import { enhance } from "$app/forms";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -12,6 +13,6 @@
 
 <h4>{$t("edit-profile.bio-tab")}</h4>
 <FormStatusMarker {form} />
-<form method="POST">
+<form method="POST" use:enhance>
 	<BioEditor bind:value={bio} maxLength={data.meta.limits.bio_length} />
 </form>

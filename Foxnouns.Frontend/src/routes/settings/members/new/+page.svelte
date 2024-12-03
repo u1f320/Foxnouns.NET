@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from "$app/forms";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
 	import { t } from "$lib/i18n";
 	import type { ActionData } from "./$types";
@@ -13,7 +14,7 @@
 	<ErrorAlert error={form.error} />
 {/if}
 
-<form method="POST">
+<form method="POST" use:enhance>
 	<div class="my-3">
 		<label class="form-label" for="name">{$t("settings.create-member-name-label")}</label>
 		<input class="form-control" type="text" id="name" name="name" required autocomplete="off" />

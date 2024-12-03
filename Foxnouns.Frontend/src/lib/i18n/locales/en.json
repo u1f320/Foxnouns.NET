@@ -112,7 +112,13 @@
 		"create-member-name-label": "Member name",
 		"auth-remove-method": "Remove",
 		"force-log-out-warning": "Make sure you're still able to log in before using this!",
-		"force-log-out-confirmation": "Are you sure you want to log out from all devices? If you just want to log out from this device, click the \"Log out\" button on your settings page."
+		"force-log-out-confirmation": "Are you sure you want to log out from all devices? If you just want to log out from this device, click the \"Log out\" button on your settings page.",
+		"export-request-success": "Successfully requested a new export! Please note that it may take a few minutes to complete, especially if you have a lot of members.",
+		"export-title": "Request a copy of your data",
+		"export-info": "You can request a copy of your data once every 24 hours. Exports are stored for 15 days (a little over two weeks) and then deleted.",
+		"export-expires-at": "(expires {{expiresAt}})",
+		"export-download": "Download export",
+		"export-request-button": "Request a new export"
 	},
 	"yes": "Yes",
 	"no": "No",

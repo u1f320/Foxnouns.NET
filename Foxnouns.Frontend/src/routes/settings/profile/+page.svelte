@@ -11,6 +11,7 @@
 	import { DateTime, FixedOffsetZone } from "luxon";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
 	import SidEditor from "$components/editor/SidEditor.svelte";
+	import { enhance } from "$app/forms";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -128,7 +129,7 @@
 
 <div class="mt-3">
 	<h4>{$t("edit-profile.profile-options-header")}</h4>
-	<form method="POST" action="?/options">
+	<form method="POST" action="?/options" use:enhance>
 		<div class="mb-3">
 			<label class="form-label" for="member-title">{$t("edit-profile.member-header-label")}</label>
 			<input

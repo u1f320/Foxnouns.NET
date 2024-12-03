@@ -7,6 +7,7 @@
 	import Error from "$components/Error.svelte";
 	import { idTimestamp } from "$lib";
 	import { DateTime } from "luxon";
+	import { enhance } from "$app/forms";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -20,7 +21,7 @@
 <div class="row mb-3">
 	<div class="col-md-9">
 		<h5>Change your username</h5>
-		<form method="POST" action="?/changeUsername">
+		<form method="POST" action="?/changeUsername" use:enhance>
 			<FormGroup class="mb-3">
 				<InputGroup class="m-1 mt-3 w-md-75">
 					<Input
