@@ -22,6 +22,7 @@
 	<div class="row">
 		<div class="col-md-4 text-center">
 			<Avatar
+				name={"name" in profile ? profile.name : profile.username}
 				url={profile.avatar_url}
 				alt={$t("avatar-tooltip", { name })}
 				lazyLoad={lazyLoadAvatar}

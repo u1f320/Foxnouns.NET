@@ -30,6 +30,7 @@
 	{#each data.members as member (member.id)}
 		<ListGroupItem tag="a" href="/settings/members/{member.id}" data-sveltekit-preload-data="tap">
 			<Avatar
+				name={member.name}
 				url={member.avatar_url}
 				alt={$t("avatar-tooltip", { name: member.display_name })}
 				size={20}

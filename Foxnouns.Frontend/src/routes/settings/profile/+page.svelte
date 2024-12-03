@@ -91,6 +91,7 @@
 	<div class="col-md">
 		<h4>{$t("settings.avatar")}</h4>
 		<AvatarEditor
+			name={data.user.username}
 			current={data.user.avatar_url}
 			alt={$t("avatar-tooltip", { name: "@" + data.user.username })}
 			update={updateAvatar}

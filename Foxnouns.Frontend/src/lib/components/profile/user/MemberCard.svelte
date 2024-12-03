@@ -36,6 +36,7 @@
 <div>
 	<a href="/@{username}/{member.name}">
 		<Avatar
+			name={member.name}
 			url={member.avatar_url}
 			lazyLoad
 			alt={$t("avatar-tooltip", { name: member.display_name })}

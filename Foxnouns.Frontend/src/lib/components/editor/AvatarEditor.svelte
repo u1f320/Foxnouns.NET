@@ -7,12 +7,13 @@
 	import ShortNoscriptWarning from "./ShortNoscriptWarning.svelte";
 
 	type Props = {
+		name: string;
 		current: string | null;
 		alt: string;
 		update: (avatar: string) => Promise<void>;
 		updated: boolean;
 	};
-	let { current, alt, update: onclick, updated }: Props = $props();
+	let { name, current, alt, update: onclick, updated }: Props = $props();
 
 	const MAX_AVATAR_BYTES = 1_000_000;
 
@@ -40,7 +41,7 @@
 </script>
 
 <p class="text-center">
-	<Avatar url={avatarExists ? avatar : current} {alt} />
+	<Avatar {name} url={avatarExists ? avatar : current} {alt} />
 </p>
 
 <InputGroup class="mb-2">

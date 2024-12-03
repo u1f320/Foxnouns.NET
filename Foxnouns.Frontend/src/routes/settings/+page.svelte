@@ -55,6 +55,7 @@
 	<div class="col-md-3 text-center">
 		<h5>{$t("settings.avatar")}</h5>
 		<Avatar
+			name={data.user.username}
 			url={data.user.avatar_url}
 			alt={$t("avatar-tooltip", { name: "@" + data.user.username })}
 		/>
