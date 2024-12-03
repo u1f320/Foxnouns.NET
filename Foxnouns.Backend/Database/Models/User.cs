@@ -30,6 +30,7 @@ public class User : BaseModel
 
     public List<Member> Members { get; } = [];
     public List<AuthMethod> AuthMethods { get; } = [];
+    public List<DataExport> DataExports { get; } = [];
     public UserSettings Settings { get; set; } = new();
 
     public required Instant LastActive { get; set; }
@@ -53,6 +54,12 @@ public class User : BaseModel
         [JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
         public PreferenceSize Size { get; set; }
     }
+
+    [NotMapped]
+    public static readonly Duration DeleteAfter = Duration.FromDays(30);
+
+    [NotMapped]
+    public static readonly Duration DeleteSuspendedAfter = Duration.FromDays(180);
 }
 
 public enum UserRole

@@ -44,6 +44,7 @@ public class CreateDataExportInvocable(
             .Users.Include(u => u.AuthMethods)
             .Include(u => u.Flags)
             .Include(u => u.ProfileFlags)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(u => u.Id == Payload.UserId);
         if (user == null)
         {
