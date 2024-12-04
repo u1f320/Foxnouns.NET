@@ -69,10 +69,11 @@ public partial class FediverseAuthService
     private async Task<FediverseUser> GetMastodonUserAsync(
         FediverseApplication app,
         string code,
-        string state
+        string? state = null
     )
     {
-        await _keyCacheService.ValidateAuthStateAsync(state);
+        if (state != null)
+            await _keyCacheService.ValidateAuthStateAsync(state);
 
         var tokenResp = await _client.PostAsync(
             MastodonTokenUri(app.Domain),
@@ -120,7 +121,8 @@ public partial class FediverseAuthService
 
     private async Task<string> GenerateMastodonAuthUrlAsync(
         FediverseApplication app,
-        bool forceRefresh
+        bool forceRefresh,
+        string? state = null
     )
     {
         if (forceRefresh)
@@ -132,7 +134,7 @@ public partial class FediverseAuthService
             app = await CreateMastodonApplicationAsync(app.Domain, existingAppId: app.Id);
         }
 
-        var state = HttpUtility.UrlEncode(await _keyCacheService.GenerateAuthStateAsync());
+        state ??= HttpUtility.UrlEncode(await _keyCacheService.GenerateAuthStateAsync());
 
         return $"https://{app.Domain}/oauth/authorize?response_type=code"
             + $"&client_id={app.ClientId}"

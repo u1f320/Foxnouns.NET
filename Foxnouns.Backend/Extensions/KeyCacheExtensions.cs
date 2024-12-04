@@ -63,13 +63,14 @@ public static class KeyCacheExtensions
         this KeyCacheService keyCacheService,
         AuthType authType,
         Snowflake userId,
+        string? instance = null,
         CancellationToken ct = default
     )
     {
         var state = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"add_account:{state}",
-            new AddExtraAccountState(authType, userId),
+            new AddExtraAccountState(authType, userId, instance),
             Duration.FromDays(1),
             ct
         );
@@ -93,4 +94,4 @@ public record RegisterEmailState(
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Snowflake? ExistingUserId
 );
 
-public record AddExtraAccountState(AuthType AuthType, Snowflake UserId);
+public record AddExtraAccountState(AuthType AuthType, Snowflake UserId, string? Instance = null);

@@ -45,6 +45,12 @@
           "Npgsql": "8.0.1"
         }
       },
+      "Humanizer.Core": {
+        "type": "Direct",
+        "requested": "[2.14.1, )",
+        "resolved": "2.14.1",
+        "contentHash": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw=="
+      },
       "JetBrains.Annotations": {
         "type": "Direct",
         "requested": "[2024.2.0, )",
@@ -290,11 +296,6 @@
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Relational": "8.0.0"
         }
-      },
-      "Humanizer.Core": {
-        "type": "Transitive",
-        "resolved": "2.14.1",
-        "contentHash": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw=="
       },
       "MailKit": {
         "type": "Transitive",

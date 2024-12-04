@@ -72,7 +72,11 @@
 				<h4 class="mt-4">{$t("auth.log-in-with-the-fediverse")}</h4>
 				<form method="POST" action="?/fedi" use:enhance>
 					<InputGroup>
-						<Input name="instance" type="text" placeholder="Your instance (i.e. mastodon.social)" />
+						<Input
+							name="instance"
+							type="text"
+							placeholder={$t("auth.log-in-with-fediverse-instance-placeholder")}
+						/>
 						<Button type="submit" color="secondary">{$t("auth.log-in-button")}</Button>
 					</InputGroup>
 					<p>

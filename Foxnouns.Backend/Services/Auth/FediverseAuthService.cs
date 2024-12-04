@@ -37,10 +37,14 @@ public partial class FediverseAuthService
         _client.DefaultRequestHeaders.Add("Accept", "application/json");
     }
 
-    public async Task<string> GenerateAuthUrlAsync(string instance, bool forceRefresh)
+    public async Task<string> GenerateAuthUrlAsync(
+        string instance,
+        bool forceRefresh,
+        string? state = null
+    )
     {
         var app = await GetApplicationAsync(instance);
-        return await GenerateAuthUrlAsync(app, forceRefresh);
+        return await GenerateAuthUrlAsync(app, forceRefresh, state);
     }
 
     // thank you, gargron and syuilo, for agreeing on a name for *once* in your lives,
@@ -96,12 +100,17 @@ public partial class FediverseAuthService
             );
     }
 
-    private async Task<string> GenerateAuthUrlAsync(FediverseApplication app, bool forceRefresh) =>
+    private async Task<string> GenerateAuthUrlAsync(
+        FediverseApplication app,
+        bool forceRefresh,
+        string? state = null
+    ) =>
         app.InstanceType switch
         {
             FediverseInstanceType.MastodonApi => await GenerateMastodonAuthUrlAsync(
                 app,
-                forceRefresh
+                forceRefresh,
+                state
             ),
             FediverseInstanceType.MisskeyApi => throw new NotImplementedException(),
             _ => throw new ArgumentOutOfRangeException(nameof(app), app.InstanceType, null),
@@ -110,7 +119,7 @@ public partial class FediverseAuthService
     public async Task<FediverseUser> GetRemoteFediverseUserAsync(
         FediverseApplication app,
         string code,
-        string state
+        string? state = null
     ) =>
         app.InstanceType switch
         {

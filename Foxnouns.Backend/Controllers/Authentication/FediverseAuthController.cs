@@ -1,5 +1,8 @@
+using System.Net;
+using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Services.Auth;
 using Foxnouns.Backend.Utils;
@@ -15,13 +18,14 @@ public class FediverseAuthController(
     DatabaseContext db,
     FediverseAuthService fediverseAuthService,
     AuthService authService,
+    RemoteAuthService remoteAuthService,
     KeyCacheService keyCacheService
 ) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<FediverseAuthController>();
 
     [HttpGet]
-    [ProducesResponseType<FediverseUrlResponse>(statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType<AuthController.SingleUrlResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFediverseUrlAsync(
         [FromQuery] string instance,
         [FromQuery] bool forceRefresh = false
@@ -31,7 +35,7 @@ public class FediverseAuthController(
             throw new ApiError.BadRequest("Not a valid domain.", "instance", instance);
 
         var url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh);
-        return Ok(new FediverseUrlResponse(url));
+        return Ok(new AuthController.SingleUrlResponse(url));
     }
 
     [HttpPost("callback")]
@@ -118,9 +122,74 @@ public class FediverseAuthController(
         return Ok(await authService.GenerateUserTokenAsync(user));
     }
 
-    public record CallbackRequest(string Instance, string Code, string State);
+    [HttpGet("add-account")]
+    [Authorize("*")]
+    public async Task<IActionResult> AddFediverseAccountAsync(
+        [FromQuery] string instance,
+        [FromQuery] bool forceRefresh = false
+    )
+    {
+        if (instance.Any(c => c is '@' or ':' or '/') || !instance.Contains('.'))
+            throw new ApiError.BadRequest("Not a valid domain.", "instance", instance);
 
-    private record FediverseUrlResponse(string Url);
+        var state = await remoteAuthService.ValidateAddAccountRequestAsync(
+            CurrentUser!.Id,
+            AuthType.Fediverse,
+            instance
+        );
+
+        var url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh, state);
+        return Ok(new AuthController.SingleUrlResponse(url));
+    }
+
+    [HttpPost("add-account/callback")]
+    [Authorize("*")]
+    public async Task<IActionResult> AddAccountCallbackAsync([FromBody] CallbackRequest req)
+    {
+        await remoteAuthService.ValidateAddAccountStateAsync(
+            req.State,
+            CurrentUser!.Id,
+            AuthType.Fediverse,
+            req.Instance
+        );
+
+        var app = await fediverseAuthService.GetApplicationAsync(req.Instance);
+        var remoteUser = await fediverseAuthService.GetRemoteFediverseUserAsync(app, req.Code);
+        try
+        {
+            var authMethod = await authService.AddAuthMethodAsync(
+                CurrentUser.Id,
+                AuthType.Fediverse,
+                remoteUser.Id,
+                remoteUser.Username,
+                app
+            );
+            _logger.Debug(
+                "Added new Fediverse auth method {AuthMethodId} to user {UserId}",
+                authMethod.Id,
+                CurrentUser.Id
+            );
+
+            return Ok(
+                new AuthController.AddOauthAccountResponse(
+                    authMethod.Id,
+                    AuthType.Fediverse,
+                    authMethod.RemoteId,
+                    $"{authMethod.RemoteUsername}@{app.Domain}"
+                )
+            );
+        }
+        catch (UniqueConstraintException)
+        {
+            throw new ApiError(
+                "That account is already linked.",
+                HttpStatusCode.BadRequest,
+                ErrorCode.AccountAlreadyLinked
+            );
+        }
+    }
+
+    public record CallbackRequest(string Instance, string Code, string State);
 
     private record FediverseTicketData(
         Snowflake ApplicationId,

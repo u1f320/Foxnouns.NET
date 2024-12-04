@@ -218,10 +218,11 @@ public class AuthService(
         AuthType authType,
         string remoteId,
         string? remoteUsername = null,
+        FediverseApplication? app = null,
         CancellationToken ct = default
     )
     {
-        AssertValidAuthType(authType, null);
+        AssertValidAuthType(authType, app);
 
         // This is already checked when
         var currentCount = await db
@@ -237,6 +238,7 @@ public class AuthService(
             Id = snowflakeGenerator.GenerateSnowflake(),
             AuthType = authType,
             RemoteId = remoteId,
+            FediverseApplicationId = app?.Id,
             RemoteUsername = remoteUsername,
             UserId = userId,
         };

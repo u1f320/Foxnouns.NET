@@ -127,6 +127,9 @@ public static partial class ValidationUtils
         if (entries.Length > Limits.FieldEntriesLimit + 50)
             return errors;
 
+        var customPreferenceIds =
+            customPreferences?.Keys.Select(id => id.ToString()).ToArray() ?? [];
+
         foreach (var (entry, entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx)))
         {
             switch (entry.Value.Length)
@@ -158,8 +161,6 @@ public static partial class ValidationUtils
                     );
                     break;
             }
-
-            var customPreferenceIds = customPreferences?.Keys.Select(id => id.ToString()) ?? [];
 
             if (
                 !DefaultStatusOptions.Contains(entry.Status)
@@ -202,6 +203,9 @@ public static partial class ValidationUtils
         // Same as above, no overwhelming this function with a ridiculous amount of entries
         if (entries.Length > Limits.FieldEntriesLimit + 50)
             return errors;
+
+        var customPreferenceIds =
+            customPreferences?.Keys.Select(id => id.ToString()).ToList() ?? [];
 
         foreach (var (entry, entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx)))
         {
@@ -267,8 +271,6 @@ public static partial class ValidationUtils
                         break;
                 }
             }
-
-            var customPreferenceIds = customPreferences?.Keys.Select(id => id.ToString()) ?? [];
 
             if (
                 !DefaultStatusOptions.Contains(entry.Status)

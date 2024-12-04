@@ -104,21 +104,9 @@ public class DiscordAuthController(
     {
         CheckRequirements();
 
-        var existingAccounts = await db
-            .AuthMethods.Where(m => m.UserId == CurrentUser!.Id && m.AuthType == AuthType.Discord)
-            .CountAsync();
-        if (existingAccounts > AuthUtils.MaxAuthMethodsPerType)
-        {
-            throw new ApiError.BadRequest(
-                "Too many linked Discord accounts, maximum of 3 per account."
-            );
-        }
-
-        var state = HttpUtility.UrlEncode(
-            await keyCacheService.GenerateAddExtraAccountStateAsync(
-                AuthType.Discord,
-                CurrentUser!.Id
-            )
+        var state = await remoteAuthService.ValidateAddAccountRequestAsync(
+            CurrentUser!.Id,
+            AuthType.Discord
         );
 
         var url =
@@ -138,12 +126,11 @@ public class DiscordAuthController(
     {
         CheckRequirements();
 
-        var accountState = await keyCacheService.GetAddExtraAccountStateAsync(req.State);
-        if (
-            accountState is not { AuthType: AuthType.Discord }
-            || accountState.UserId != CurrentUser!.Id
-        )
-            throw new ApiError.BadRequest("Invalid state", "state", req.State);
+        await remoteAuthService.ValidateAddAccountStateAsync(
+            req.State,
+            CurrentUser!.Id,
+            AuthType.Discord
+        );
 
         var remoteUser = await remoteAuthService.RequestDiscordTokenAsync(req.Code);
         try

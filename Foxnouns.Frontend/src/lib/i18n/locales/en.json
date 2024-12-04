@@ -47,7 +47,8 @@
 		"successful-link-fedi": "Your account has successfully been linked to the following fediverse account:",
 		"successful-link-profile-hint": "You now can close this page, or go back to your profile:",
 		"successful-link-profile-link": "Go to your profile",
-		"remote-discord-account-label": "Your Discord account"
+		"remote-discord-account-label": "Your Discord account",
+		"log-in-with-fediverse-instance-placeholder": "Your instance (i.e. mastodon.social)"
 	},
 	"error": {
 		"bad-request-header": "Something was wrong with your input",
