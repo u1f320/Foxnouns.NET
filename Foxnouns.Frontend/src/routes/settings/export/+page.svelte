@@ -5,6 +5,7 @@
 	import { Icon } from "@sveltestrap/sveltestrap";
 	import { t } from "$lib/i18n";
 	import { enhance } from "$app/forms";
+	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -18,14 +19,7 @@
 <div class="mx-auto w-lg-75">
 	<h3>{$t("settings.export-title")}</h3>
 
-	{#if form?.ok}
-		<p class="text-success-emphasis">
-			<Icon name="check-circle-fill" />
-			{$t("settings.export-request-success")}
-		</p>
-	{:else if form?.error}
-		<ErrorAlert error={form.error} />
-	{/if}
+	<FormStatusMarker {form} successMessage={$t("settings.export-request-success")} />
 
 	<p>
 		{$t("settings.export-info")}

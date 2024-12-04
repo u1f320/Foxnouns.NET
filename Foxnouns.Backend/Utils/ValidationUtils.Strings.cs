@@ -185,6 +185,27 @@ public static partial class ValidationUtils
         };
     }
 
+    public const int MinimumPasswordLength = 12;
+    public const int MaximumPasswordLength = 1024;
+
+    public static ValidationError? ValidatePassword(string password) =>
+        password.Length switch
+        {
+            < MinimumPasswordLength => ValidationError.LengthError(
+                "Password is too short",
+                MinimumPasswordLength,
+                MaximumPasswordLength,
+                password.Length
+            ),
+            > MaximumPasswordLength => ValidationError.LengthError(
+                "Password is too long",
+                MinimumPasswordLength,
+                MaximumPasswordLength,
+                password.Length
+            ),
+            _ => null,
+        };
+
     [GeneratedRegex(@"^[a-zA-Z_0-9\-\.]{2,40}$", RegexOptions.IgnoreCase, "en-NL")]
     private static partial Regex UsernameRegex();
 

@@ -25,7 +25,7 @@ public static class KeyCacheExtensions
         CancellationToken ct = default
     )
     {
-        var val = await keyCacheService.GetKeyAsync($"oauth_state:{state}", delete: true, ct);
+        var val = await keyCacheService.GetKeyAsync($"oauth_state:{state}", ct: ct);
         if (val == null)
             throw new ApiError.BadRequest("Invalid OAuth state");
     }
@@ -52,12 +52,7 @@ public static class KeyCacheExtensions
         this KeyCacheService keyCacheService,
         string state,
         CancellationToken ct = default
-    ) =>
-        await keyCacheService.GetKeyAsync<RegisterEmailState>(
-            $"email_state:{state}",
-            delete: true,
-            ct
-        );
+    ) => await keyCacheService.GetKeyAsync<RegisterEmailState>($"email_state:{state}", ct: ct);
 
     public static async Task<string> GenerateAddExtraAccountStateAsync(
         this KeyCacheService keyCacheService,

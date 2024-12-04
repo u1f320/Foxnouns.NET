@@ -119,6 +119,20 @@ public class AuthController(
             CurrentUser!.Id
         );
 
+        // If this is the user's last email, we should also clear the user's password.
+        if (
+            authMethod.AuthType == AuthType.Email
+            && authMethods.Count(a => a.AuthType == AuthType.Email) == 1
+        )
+        {
+            _logger.Debug(
+                "Deleted last email address for user {UserId}, resetting their password",
+                CurrentUser.Id
+            );
+            CurrentUser.Password = null;
+            db.Update(CurrentUser);
+        }
+
         db.Remove(authMethod);
         await db.SaveChangesAsync();
 

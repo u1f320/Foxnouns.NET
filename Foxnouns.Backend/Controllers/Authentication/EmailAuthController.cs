@@ -1,3 +1,5 @@
+using System.Net;
+using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
@@ -26,8 +28,8 @@ public class EmailAuthController(
 {
     private readonly ILogger _logger = logger.ForContext<EmailAuthController>();
 
-    [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync(
+    [HttpPost("register/init")]
+    public async Task<IActionResult> RegisterInitAsync(
         [FromBody] RegisterRequest req,
         CancellationToken ct = default
     )
@@ -62,24 +64,8 @@ public class EmailAuthController(
         CheckRequirements();
 
         var state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
-        if (state == null)
+        if (state is not { ExistingUserId: null })
             throw new ApiError.BadRequest("Invalid state", "state", req.State);
-
-        // If this callback is for an existing user, add the email address to their auth methods
-        if (state.ExistingUserId != null)
-        {
-            var authMethod = await authService.AddAuthMethodAsync(
-                state.ExistingUserId.Value,
-                AuthType.Email,
-                state.Email
-            );
-            _logger.Debug(
-                "Added email auth {AuthId} for user {UserId}",
-                authMethod.Id,
-                state.ExistingUserId
-            );
-            return NoContent();
-        }
 
         var ticket = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync($"email:{ticket}", state.Email, Duration.FromMinutes(20));
@@ -96,7 +82,7 @@ public class EmailAuthController(
         );
     }
 
-    [HttpPost("complete-registration")]
+    [HttpPost("register")]
     public async Task<IActionResult> CompleteRegistrationAsync(
         [FromBody] CompleteRegistrationRequest req
     )
@@ -106,12 +92,6 @@ public class EmailAuthController(
         var email = await keyCacheService.GetKeyAsync($"email:{req.Ticket}");
         if (email == null)
             throw new ApiError.BadRequest("Unknown ticket", "ticket", req.Ticket);
-
-        // Check if username is valid at all
-        ValidationUtils.Validate([("username", ValidationUtils.ValidateUsername(req.Username))]);
-        // Check if username is already taken
-        if (await db.Users.AnyAsync(u => u.Username == req.Username))
-            throw new ApiError.BadRequest("Username is already taken", "username", req.Username);
 
         var user = await authService.CreateUserWithPasswordAsync(req.Username, email, req.Password);
         var frontendApp = await db.GetFrontendApplicationAsync();
@@ -184,7 +164,21 @@ public class EmailAuthController(
         );
     }
 
-    [HttpPost("add")]
+    [HttpPost("change-password")]
+    [Authorize("*")]
+    public async Task<IActionResult> UpdatePasswordAsync([FromBody] ChangePasswordRequest req)
+    {
+        if (!await authService.ValidatePasswordAsync(CurrentUser!, req.Current))
+            throw new ApiError.Forbidden("Invalid password");
+
+        ValidationUtils.Validate([("new", ValidationUtils.ValidatePassword(req.New))]);
+
+        await authService.SetUserPasswordAsync(CurrentUser!, req.New);
+        await db.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpPost("add-email")]
     [Authorize("*")]
     public async Task<IActionResult> AddEmailAddressAsync([FromBody] AddEmailAddressRequest req)
     {
@@ -204,11 +198,8 @@ public class EmailAuthController(
 
         if (emails.Count != 0)
         {
-            var validPassword = await authService.ValidatePasswordAsync(CurrentUser!, req.Password);
-            if (!validPassword)
-            {
+            if (!await authService.ValidatePasswordAsync(CurrentUser!, req.Password))
                 throw new ApiError.Forbidden("Invalid password");
-            }
         }
         else
         {
@@ -233,6 +224,48 @@ public class EmailAuthController(
         return NoContent();
     }
 
+    [HttpPost("add-email/callback")]
+    [Authorize("*")]
+    public async Task<IActionResult> AddEmailCallbackAsync([FromBody] CallbackRequest req)
+    {
+        CheckRequirements();
+
+        var state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
+        if (state?.ExistingUserId != CurrentUser!.Id)
+            throw new ApiError.BadRequest("Invalid state", "state", req.State);
+
+        try
+        {
+            var authMethod = await authService.AddAuthMethodAsync(
+                CurrentUser.Id,
+                AuthType.Email,
+                state.Email
+            );
+            _logger.Debug(
+                "Added email auth {AuthId} for user {UserId}",
+                authMethod.Id,
+                CurrentUser.Id
+            );
+
+            return Ok(
+                new AuthController.AddOauthAccountResponse(
+                    authMethod.Id,
+                    AuthType.Email,
+                    authMethod.RemoteId,
+                    RemoteUsername: null
+                )
+            );
+        }
+        catch (UniqueConstraintException)
+        {
+            throw new ApiError(
+                "That email address is already linked.",
+                HttpStatusCode.BadRequest,
+                ErrorCode.AccountAlreadyLinked
+            );
+        }
+    }
+
     public record AddEmailAddressRequest(string Email, string Password);
 
     private void CheckRequirements()
@@ -248,4 +281,6 @@ public class EmailAuthController(
     public record CompleteRegistrationRequest(string Ticket, string Username, string Password);
 
     public record CallbackRequest(string State);
+
+    public record ChangePasswordRequest(string Current, string New);
 }

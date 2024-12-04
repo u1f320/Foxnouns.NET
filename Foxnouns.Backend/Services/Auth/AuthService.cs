@@ -31,6 +31,16 @@ public class AuthService(
         CancellationToken ct = default
     )
     {
+        // Validate username and whether it's not taken
+        ValidationUtils.Validate(
+            [
+                ("username", ValidationUtils.ValidateUsername(username)),
+                ("password", ValidationUtils.ValidatePassword(password)),
+            ]
+        );
+        if (await db.Users.AnyAsync(u => u.Username == username, ct))
+            throw new ApiError.BadRequest("Username is already taken", "username", username);
+
         var user = new User
         {
             Id = snowflakeGenerator.GenerateSnowflake(),
@@ -49,7 +59,7 @@ public class AuthService(
         };
 
         db.Add(user);
-        user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
+        user.Password = await HashPasswordAsync(user, password, ct);
 
         return user;
     }
@@ -70,6 +80,8 @@ public class AuthService(
     {
         AssertValidAuthType(authType, instance);
 
+        // Validate username and whether it's not taken
+        ValidationUtils.Validate([("username", ValidationUtils.ValidateUsername(username))]);
         if (await db.Users.AnyAsync(u => u.Username == username, ct))
             throw new ApiError.BadRequest("Username is already taken", "username", username);
 
@@ -121,10 +133,7 @@ public class AuthService(
                 ErrorCode.UserNotFound
             );
 
-        var pwResult = await Task.Run(
-            () => _passwordHasher.VerifyHashedPassword(user, user.Password!, password),
-            ct
-        );
+        var pwResult = await VerifyHashedPasswordAsync(user, password, ct);
         if (pwResult == PasswordVerificationResult.Failed) // TODO: this seems to fail on some valid passwords?
             throw new ApiError.NotFound(
                 "No user with that email address found, or password is incorrect",
@@ -132,7 +141,7 @@ public class AuthService(
             );
         if (pwResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
-            user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
+            user.Password = await HashPasswordAsync(user, password, ct);
             await db.SaveChangesAsync(ct);
         }
 
@@ -160,10 +169,7 @@ public class AuthService(
             throw new FoxnounsError("Password for user supplied to ValidatePasswordAsync was null");
         }
 
-        var pwResult = await Task.Run(
-            () => _passwordHasher.VerifyHashedPassword(user, user.Password!, password),
-            ct
-        );
+        var pwResult = await VerifyHashedPasswordAsync(user, password, ct);
         return pwResult
             is PasswordVerificationResult.SuccessRehashNeeded
                 or PasswordVerificationResult.Success;
@@ -178,7 +184,7 @@ public class AuthService(
         CancellationToken ct = default
     )
     {
-        user.Password = await Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
+        user.Password = await HashPasswordAsync(user, password, ct);
         db.Update(user);
     }
 
@@ -315,6 +321,22 @@ public class AuthService(
             ExpiresAt: token.ExpiresAt
         );
     }
+
+    private Task<string> HashPasswordAsync(
+        User user,
+        string password,
+        CancellationToken ct = default
+    ) => Task.Run(() => _passwordHasher.HashPassword(user, password), ct);
+
+    private Task<PasswordVerificationResult> VerifyHashedPasswordAsync(
+        User user,
+        string providedPassword,
+        CancellationToken ct = default
+    ) =>
+        Task.Run(
+            () => _passwordHasher.VerifyHashedPassword(user, user.Password!, providedPassword),
+            ct
+        );
 
     private static (string, byte[]) GenerateToken()
     {

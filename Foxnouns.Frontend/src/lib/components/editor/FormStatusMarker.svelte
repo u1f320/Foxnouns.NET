@@ -4,8 +4,8 @@
 	import type { RawApiError } from "$api/error";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
 
-	type Props = { form: { error: RawApiError | null; ok: boolean } | null };
-	let { form }: Props = $props();
+	type Props = { form: { error: RawApiError | null; ok: boolean } | null; successMessage?: string };
+	let { form, successMessage }: Props = $props();
 </script>
 
 {#if form?.error}
@@ -13,6 +13,6 @@
 {:else if form?.ok}
 	<p class="text-success-emphasis">
 		<Icon name="check-circle-fill" />
-		{$t("edit-profile.saved-changes")}
+		{successMessage ?? $t("edit-profile.saved-changes")}
 	</p>
 {/if}

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { RawApiError } from "$api/error";
-	import { enhance } from "$app/forms";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
 	import { t } from "$lib/i18n";
 	import { Button, Input, Label } from "@sveltestrap/sveltestrap";
@@ -21,7 +20,7 @@
 	<ErrorAlert {error} />
 {/if}
 
-<form method="POST" use:enhance>
+<form method="POST">
 	<div class="mb-3">
 		<Label>{remoteLabel}</Label>
 		<Input type="text" readonly value={remoteUser} />
