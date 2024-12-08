@@ -5,10 +5,11 @@ using Newtonsoft.Json.Serialization;
 namespace Foxnouns.Backend.Utils;
 
 /// <summary>
-/// A base class used for PATCH requests which stores information on whether a key is explicitly set to null or not passed at all.
-///
+/// <para>A base class used for PATCH requests which stores information on whether a key is explicitly set to null or not passed at all.</para>
+/// <para>
 /// HasProperty() should not be used for properties that cannot be set to null--a null value should be treated
 /// as an unset value in those cases.
+/// </para>
 /// </summary>
 public abstract class PatchRequest
 {

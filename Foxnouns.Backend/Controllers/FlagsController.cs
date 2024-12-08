@@ -124,7 +124,9 @@ public class FlagsController(
             }
         }
         else
+        {
             _logger.Debug("Flag file {Hash} is used by other flags, not deleting", hash);
+        }
 
         await tx.CommitAsync();
 

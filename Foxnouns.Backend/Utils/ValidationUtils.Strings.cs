@@ -63,7 +63,10 @@ public static partial class ValidationUtils
                 string.Equals(u, username, StringComparison.InvariantCultureIgnoreCase)
             )
         )
+        {
             return ValidationError.GenericValidationError("Username is not allowed", username);
+        }
+
         return null;
     }
 
@@ -89,7 +92,10 @@ public static partial class ValidationUtils
                 string.Equals(u, memberName, StringComparison.InvariantCultureIgnoreCase)
             )
         )
+        {
             return ValidationError.GenericValidationError("Name is not allowed", memberName);
+        }
+
         return null;
     }
 

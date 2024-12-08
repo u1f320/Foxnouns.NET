@@ -93,12 +93,14 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
             HttpMethodAttribute? httpMethodAttribute =
                 endpoint.Metadata.GetMetadata<HttpMethodAttribute>();
             if (
-                httpMethodAttribute != null
-                && !httpMethodAttribute.HttpMethods.Any(x =>
+                httpMethodAttribute?.HttpMethods.Any(x =>
                     x.Equals(requestMethod, StringComparison.OrdinalIgnoreCase)
-                )
+                ) == false
             )
+            {
                 continue;
+            }
+
             return endpoint;
         }
 

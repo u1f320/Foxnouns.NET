@@ -135,7 +135,9 @@ public class UsersController(
             else
             {
                 if (TimeZoneInfo.TryFindSystemTimeZoneById(req.Timezone, out _))
+                {
                     user.Timezone = req.Timezone;
+                }
                 else
                 {
                     errors.Add(
@@ -174,7 +176,7 @@ public class UsersController(
             throw new ApiError.BadRequest(
                 "That username is already taken.",
                 "username",
-                req.Username!
+                req.Username
             );
         }
 

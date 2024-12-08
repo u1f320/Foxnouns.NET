@@ -104,7 +104,7 @@ public class DiscordAuthController(
         );
 
         string url =
-            $"https://discord.com/oauth2/authorize?response_type=code"
+            "https://discord.com/oauth2/authorize?response_type=code"
             + $"&client_id={config.DiscordAuth.ClientId}&scope=identify"
             + $"&prompt=none&state={state}"
             + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/discord")}";

@@ -26,7 +26,7 @@ namespace Foxnouns.Backend.Database.Migrations
                 table: "tokens",
                 type: "bytea",
                 nullable: false,
-                defaultValue: new byte[0]
+                defaultValue: Array.Empty<byte>()
             );
 
             migrationBuilder.CreateTable(
@@ -40,10 +40,7 @@ namespace Foxnouns.Backend.Database.Migrations
                     scopes = table.Column<string[]>(type: "text[]", nullable: false),
                     redirect_uris = table.Column<string[]>(type: "text[]", nullable: false),
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_applications", x => x.id);
-                }
+                constraints: table => table.PrimaryKey("pk_applications", x => x.id)
             );
 
             migrationBuilder.CreateIndex(

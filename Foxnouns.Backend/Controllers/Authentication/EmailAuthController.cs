@@ -48,7 +48,9 @@ public class EmailAuthController(
                 ct
             )
         )
+        {
             return NoContent();
+        }
 
         mailService.QueueAccountCreationEmail(req.Email, state);
         return NoContent();

@@ -238,7 +238,7 @@ public class MembersController(
             throw new ApiError.BadRequest(
                 "A member with that name already exists",
                 "name",
-                req.Name!
+                req.Name
             );
         }
 

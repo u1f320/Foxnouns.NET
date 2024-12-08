@@ -74,7 +74,9 @@ public class UserRendererService(
             user.Timezone != null
             && TimeZoneInfo.TryFindSystemTimeZoneById(user.Timezone, out TimeZoneInfo? tz)
         )
+        {
             utcOffset = (int)tz.GetUtcOffset(DateTimeOffset.UtcNow).TotalSeconds;
+        }
 
         return new UserResponse(
             user.Id,

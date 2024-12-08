@@ -57,7 +57,7 @@ public class CreateDataExportInvocable(
 
         _logger.Information("Generating data export for user {UserId}", user.Id);
 
-        using var stream = new MemoryStream();
+        await using var stream = new MemoryStream();
         using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
         zip.Comment =
             $"This archive for {user.Username} ({user.Id}) was generated at  {InstantPattern.General.Format(clock.GetCurrentInstant())}";

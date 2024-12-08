@@ -44,18 +44,18 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
             .UseSnakeCaseNamingConvention()
             .UseExceptionProcessor();
 
-    public DbSet<User> Users { get; init; }
-    public DbSet<Member> Members { get; init; }
-    public DbSet<AuthMethod> AuthMethods { get; init; }
-    public DbSet<FediverseApplication> FediverseApplications { get; init; }
-    public DbSet<Token> Tokens { get; init; }
-    public DbSet<Application> Applications { get; init; }
-    public DbSet<TemporaryKey> TemporaryKeys { get; init; }
-    public DbSet<DataExport> DataExports { get; init; }
+    public DbSet<User> Users { get; init; } = null!;
+    public DbSet<Member> Members { get; init; } = null!;
+    public DbSet<AuthMethod> AuthMethods { get; init; } = null!;
+    public DbSet<FediverseApplication> FediverseApplications { get; init; } = null!;
+    public DbSet<Token> Tokens { get; init; } = null!;
+    public DbSet<Application> Applications { get; init; } = null!;
+    public DbSet<TemporaryKey> TemporaryKeys { get; init; } = null!;
+    public DbSet<DataExport> DataExports { get; init; } = null!;
 
-    public DbSet<PrideFlag> PrideFlags { get; init; }
-    public DbSet<UserFlag> UserFlags { get; init; }
-    public DbSet<MemberFlag> MemberFlags { get; init; }
+    public DbSet<PrideFlag> PrideFlags { get; init; } = null!;
+    public DbSet<UserFlag> UserFlags { get; init; } = null!;
+    public DbSet<MemberFlag> MemberFlags { get; init; } = null!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

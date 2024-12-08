@@ -44,7 +44,9 @@ public class AuthorizationMiddleware : IMiddleware
             && token.User.Role != UserRole.Admin
             && token.User.Role != UserRole.Moderator
         )
+        {
             throw new ApiError.Forbidden("This endpoint can only be used by moderators.");
+        }
 
         await next(ctx);
     }

@@ -142,6 +142,8 @@ public class RemoteAuthService(
             || accountState.UserId != userId
             || (instance != null && accountState.Instance != instance)
         )
+        {
             throw new ApiError.BadRequest("Invalid state", "state", state);
+        }
     }
 }

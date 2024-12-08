@@ -32,10 +32,7 @@ namespace Foxnouns.Backend.Database.Migrations
                         nullable: false
                     ),
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_temporary_keys", x => x.id);
-                }
+                constraints: table => table.PrimaryKey("pk_temporary_keys", x => x.id)
             );
 
             migrationBuilder.CreateIndex(

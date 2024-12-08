@@ -24,10 +24,7 @@ namespace Foxnouns.Backend.Database.Migrations
                     client_secret = table.Column<string>(type: "text", nullable: false),
                     instance_type = table.Column<int>(type: "integer", nullable: false),
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_fediverse_applications", x => x.id);
-                }
+                constraints: table => table.PrimaryKey("pk_fediverse_applications", x => x.id)
             );
 
             migrationBuilder.CreateTable(
@@ -46,10 +43,7 @@ namespace Foxnouns.Backend.Database.Migrations
                     names = table.Column<string>(type: "jsonb", nullable: false),
                     pronouns = table.Column<string>(type: "jsonb", nullable: false),
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_users", x => x.id);
-                }
+                constraints: table => table.PrimaryKey("pk_users", x => x.id)
             );
 
             migrationBuilder.CreateTable(
