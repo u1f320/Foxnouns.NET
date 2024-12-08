@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -62,10 +63,6 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
         Snowflake? userId = await db.GetTokenUserId(rawToken);
         return Ok(new RequestDataResponse(userId, template));
     }
-
-    public record RequestDataRequest(string? Token, string Method, string Path);
-
-    public record RequestDataResponse(Snowflake? UserId, string Template);
 
     private static RouteEndpoint? GetEndpoint(
         HttpContext httpContext,

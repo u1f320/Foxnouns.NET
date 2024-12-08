@@ -1,8 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using Coravel.Queuing.Interfaces;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
@@ -27,7 +27,7 @@ public class UsersController(
     private readonly ILogger _logger = logger.ForContext<UsersController>();
 
     [HttpGet("{userRef}")]
-    [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType<UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
     {
         User user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
@@ -38,7 +38,7 @@ public class UsersController(
 
     [HttpPatch("@me")]
     [Authorize("user.update")]
-    [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType<UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateUserAsync(
         [FromBody] UpdateUserRequest req,
         CancellationToken ct = default
@@ -196,7 +196,7 @@ public class UsersController(
     [Authorize("user.update")]
     [ProducesResponseType<Dictionary<Snowflake, User.CustomPreference>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateCustomPreferencesAsync(
-        [FromBody] List<CustomPreferenceUpdate> req,
+        [FromBody] List<CustomPreferenceUpdateRequest> req,
         CancellationToken ct = default
     )
     {
@@ -207,7 +207,7 @@ public class UsersController(
             .CustomPreferences.Where(x => req.Any(r => r.Id == x.Key))
             .ToDictionary();
 
-        foreach (CustomPreferenceUpdate? r in req)
+        foreach (CustomPreferenceUpdateRequest? r in req)
         {
             if (r.Id != null && preferences.ContainsKey(r.Id.Value))
             {
@@ -239,33 +239,6 @@ public class UsersController(
         return Ok(user.CustomPreferences);
     }
 
-    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
-    public class CustomPreferenceUpdate
-    {
-        public Snowflake? Id { get; init; }
-        public required string Icon { get; set; }
-        public required string Tooltip { get; set; }
-        public PreferenceSize Size { get; set; }
-        public bool Muted { get; set; }
-        public bool Favourite { get; set; }
-    }
-
-    public class UpdateUserRequest : PatchRequest
-    {
-        public string? Username { get; init; }
-        public string? DisplayName { get; init; }
-        public string? Bio { get; init; }
-        public string? Avatar { get; init; }
-        public string[]? Links { get; init; }
-        public FieldEntry[]? Names { get; init; }
-        public Pronoun[]? Pronouns { get; init; }
-        public Field[]? Fields { get; init; }
-        public Snowflake[]? Flags { get; init; }
-        public string? MemberTitle { get; init; }
-        public bool? MemberListHidden { get; init; }
-        public string? Timezone { get; init; }
-    }
-
     [HttpGet("@me/settings")]
     [Authorize("user.read_hidden")]
     [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
@@ -294,14 +267,9 @@ public class UsersController(
         return Ok(user.Settings);
     }
 
-    public class UpdateUserSettingsRequest : PatchRequest
-    {
-        public bool? DarkMode { get; init; }
-    }
-
     [HttpPost("@me/reroll-sid")]
     [Authorize("user.update")]
-    [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType<UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> RerollSidAsync()
     {
         Instant minTimeAgo = clock.GetCurrentInstant() - Duration.FromHours(1);

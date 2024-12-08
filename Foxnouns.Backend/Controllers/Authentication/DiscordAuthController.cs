@@ -3,6 +3,7 @@ using System.Web;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
@@ -29,7 +30,7 @@ public class DiscordAuthController(
 
     [HttpPost("callback")]
     [ProducesResponseType<CallbackResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> CallbackAsync([FromBody] AuthController.CallbackRequest req)
+    public async Task<IActionResult> CallbackAsync([FromBody] CallbackRequest req)
     {
         CheckRequirements();
         await keyCacheService.ValidateAuthStateAsync(req.State);
@@ -58,10 +59,8 @@ public class DiscordAuthController(
     }
 
     [HttpPost("register")]
-    [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> RegisterAsync(
-        [FromBody] AuthController.OauthRegisterRequest req
-    )
+    [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> RegisterAsync([FromBody] OauthRegisterRequest req)
     {
         RemoteAuthService.RemoteUser? remoteUser =
             await keyCacheService.GetKeyAsync<RemoteAuthService.RemoteUser>(
@@ -109,14 +108,12 @@ public class DiscordAuthController(
             + $"&prompt=none&state={state}"
             + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/discord")}";
 
-        return Ok(new AuthController.SingleUrlResponse(url));
+        return Ok(new SingleUrlResponse(url));
     }
 
     [HttpPost("add-account/callback")]
     [Authorize("*")]
-    public async Task<IActionResult> AddAccountCallbackAsync(
-        [FromBody] AuthController.CallbackRequest req
-    )
+    public async Task<IActionResult> AddAccountCallbackAsync([FromBody] CallbackRequest req)
     {
         CheckRequirements();
 
@@ -144,7 +141,7 @@ public class DiscordAuthController(
             );
 
             return Ok(
-                new AuthController.AddOauthAccountResponse(
+                new AddOauthAccountResponse(
                     authMethod.Id,
                     AuthType.Discord,
                     authMethod.RemoteId,

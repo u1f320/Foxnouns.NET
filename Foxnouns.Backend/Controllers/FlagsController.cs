@@ -1,50 +1,49 @@
 using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
-using Foxnouns.Backend.Extensions;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Foxnouns.Backend.Controllers;
 
 [Route("/api/v2/users/@me/flags")]
 public class FlagsController(
-    ILogger logger,
     DatabaseContext db,
     UserRendererService userRenderer,
-    ObjectStorageService objectStorageService,
     ISnowflakeGenerator snowflakeGenerator,
     IQueue queue
 ) : ApiControllerBase
 {
-    private readonly ILogger _logger = logger.ForContext<FlagsController>();
-
     [HttpGet]
     [Authorize("identify")]
-    [ProducesResponseType<IEnumerable<UserRendererService.PrideFlagResponse>>(
-        statusCode: StatusCodes.Status200OK
-    )]
+    [ProducesResponseType<IEnumerable<PrideFlagResponse>>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFlagsAsync(CancellationToken ct = default)
     {
         List<PrideFlag> flags = await db
             .PrideFlags.Where(f => f.UserId == CurrentUser!.Id)
+            .OrderBy(f => f.Name)
+            .ThenBy(f => f.Id)
             .ToListAsync(ct);
 
         return Ok(flags.Select(userRenderer.RenderPrideFlag));
     }
 
+    public const int MaxFlagCount = 500;
+
     [HttpPost]
     [Authorize("user.update")]
-    [ProducesResponseType<UserRendererService.PrideFlagResponse>(
-        statusCode: StatusCodes.Status202Accepted
-    )]
-    public IActionResult CreateFlag([FromBody] CreateFlagRequest req)
+    [ProducesResponseType<PrideFlagResponse>(statusCode: StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> CreateFlagAsync([FromBody] CreateFlagRequest req)
     {
+        int flagCount = await db.PrideFlags.Where(f => f.UserId == CurrentUser!.Id).CountAsync();
+        if (flagCount >= MaxFlagCount)
+            throw new ApiError.BadRequest("Maximum number of flags reached");
+
         ValidationUtils.Validate(ValidateFlag(req.Name, req.Description, req.Image));
 
         Snowflake id = snowflakeGenerator.GenerateSnowflake();
@@ -55,10 +54,6 @@ public class FlagsController(
 
         return Accepted(new CreateFlagResponse(id, req.Name, req.Description));
     }
-
-    public record CreateFlagRequest(string Name, string Image, string? Description);
-
-    private record CreateFlagResponse(Snowflake Id, string Name, string? Description);
 
     [HttpPatch("{id}")]
     [Authorize("user.update")]
@@ -84,51 +79,18 @@ public class FlagsController(
         return Ok(userRenderer.RenderPrideFlag(flag));
     }
 
-    public class UpdateFlagRequest : PatchRequest
-    {
-        public string? Name { get; init; }
-        public string? Description { get; init; }
-    }
-
     [HttpDelete("{id}")]
     [Authorize("user.update")]
     public async Task<IActionResult> DeleteFlagAsync(Snowflake id)
     {
-        await using IDbContextTransaction tx = await db.Database.BeginTransactionAsync();
-
         PrideFlag? flag = await db.PrideFlags.FirstOrDefaultAsync(f =>
             f.Id == id && f.UserId == CurrentUser!.Id
         );
         if (flag == null)
             throw new ApiError.NotFound("Unknown flag ID, or it's not your flag.");
 
-        string hash = flag.Hash;
-
         db.PrideFlags.Remove(flag);
         await db.SaveChangesAsync();
-
-        int flagCount = await db.PrideFlags.CountAsync(f => f.Hash == flag.Hash);
-        if (flagCount == 0)
-        {
-            try
-            {
-                _logger.Information(
-                    "Deleting flag file {Hash} as it is no longer used by any flags",
-                    hash
-                );
-                await objectStorageService.DeleteFlagAsync(hash);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, "Error deleting flag file {Hash}", hash);
-            }
-        }
-        else
-        {
-            _logger.Debug("Flag file {Hash} is used by other flags, not deleting", hash);
-        }
-
-        await tx.CommitAsync();
 
         return NoContent();
     }

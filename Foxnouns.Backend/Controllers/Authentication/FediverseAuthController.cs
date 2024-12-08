@@ -2,6 +2,7 @@ using System.Net;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Services.Auth;
@@ -25,7 +26,7 @@ public class FediverseAuthController(
     private readonly ILogger _logger = logger.ForContext<FediverseAuthController>();
 
     [HttpGet]
-    [ProducesResponseType<AuthController.SingleUrlResponse>(statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType<SingleUrlResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFediverseUrlAsync(
         [FromQuery] string instance,
         [FromQuery] bool forceRefresh = false
@@ -35,12 +36,12 @@ public class FediverseAuthController(
             throw new ApiError.BadRequest("Not a valid domain.", "instance", instance);
 
         string url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh);
-        return Ok(new AuthController.SingleUrlResponse(url));
+        return Ok(new SingleUrlResponse(url));
     }
 
     [HttpPost("callback")]
     [ProducesResponseType<CallbackResponse>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> FediverseCallbackAsync([FromBody] CallbackRequest req)
+    public async Task<IActionResult> FediverseCallbackAsync([FromBody] FediverseCallbackRequest req)
     {
         FediverseApplication app = await fediverseAuthService.GetApplicationAsync(req.Instance);
         FediverseAuthService.FediverseUser remoteUser =
@@ -74,10 +75,8 @@ public class FediverseAuthController(
     }
 
     [HttpPost("register")]
-    [ProducesResponseType<AuthController.AuthResponse>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> RegisterAsync(
-        [FromBody] AuthController.OauthRegisterRequest req
-    )
+    [ProducesResponseType<AuthResponse>(statusCode: StatusCodes.Status200OK)]
+    public async Task<IActionResult> RegisterAsync([FromBody] OauthRegisterRequest req)
     {
         FediverseTicketData? ticketData = await keyCacheService.GetKeyAsync<FediverseTicketData>(
             $"fediverse:{req.Ticket}",
@@ -138,12 +137,14 @@ public class FediverseAuthController(
         );
 
         string url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh, state);
-        return Ok(new AuthController.SingleUrlResponse(url));
+        return Ok(new SingleUrlResponse(url));
     }
 
     [HttpPost("add-account/callback")]
     [Authorize("*")]
-    public async Task<IActionResult> AddAccountCallbackAsync([FromBody] CallbackRequest req)
+    public async Task<IActionResult> AddAccountCallbackAsync(
+        [FromBody] FediverseCallbackRequest req
+    )
     {
         await remoteAuthService.ValidateAddAccountStateAsync(
             req.State,
@@ -171,7 +172,7 @@ public class FediverseAuthController(
             );
 
             return Ok(
-                new AuthController.AddOauthAccountResponse(
+                new AddOauthAccountResponse(
                     authMethod.Id,
                     AuthType.Fediverse,
                     authMethod.RemoteId,
@@ -188,8 +189,6 @@ public class FediverseAuthController(
             );
         }
     }
-
-    public record CallbackRequest(string Instance, string Code, string State);
 
     private record FediverseTicketData(
         Snowflake ApplicationId,

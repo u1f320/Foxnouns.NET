@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
-using Foxnouns.Backend.Controllers.Authentication;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

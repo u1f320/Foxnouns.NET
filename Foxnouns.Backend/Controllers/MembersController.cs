@@ -2,6 +2,7 @@ using Coravel.Queuing.Interfaces;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
@@ -28,9 +29,7 @@ public class MembersController(
     private readonly ILogger _logger = logger.ForContext<MembersController>();
 
     [HttpGet]
-    [ProducesResponseType<IEnumerable<MemberRendererService.PartialMember>>(
-        StatusCodes.Status200OK
-    )]
+    [ProducesResponseType<IEnumerable<PartialMember>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMembersAsync(string userRef, CancellationToken ct = default)
     {
         User user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
@@ -38,7 +37,7 @@ public class MembersController(
     }
 
     [HttpGet("{memberRef}")]
-    [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<MemberResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMemberAsync(
         string userRef,
         string memberRef,
@@ -52,7 +51,7 @@ public class MembersController(
     public const int MaxMemberCount = 500;
 
     [HttpPost("/api/v2/users/@me/members")]
-    [ProducesResponseType<MemberRendererService.MemberResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<MemberResponse>(StatusCodes.Status200OK)]
     [Authorize("member.create")]
     public async Task<IActionResult> CreateMemberAsync(
         [FromBody] CreateMemberRequest req,
@@ -246,20 +245,6 @@ public class MembersController(
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
-    public class UpdateMemberRequest : PatchRequest
-    {
-        public string? Name { get; init; }
-        public string? DisplayName { get; init; }
-        public string? Bio { get; init; }
-        public string? Avatar { get; init; }
-        public string[]? Links { get; init; }
-        public FieldEntry[]? Names { get; init; }
-        public Pronoun[]? Pronouns { get; init; }
-        public Field[]? Fields { get; init; }
-        public Snowflake[]? Flags { get; init; }
-        public bool? Unlisted { get; init; }
-    }
-
     [HttpDelete("/api/v2/users/@me/members/{memberRef}")]
     [Authorize("member.update")]
     public async Task<IActionResult> DeleteMemberAsync(string memberRef)
@@ -282,21 +267,9 @@ public class MembersController(
         return NoContent();
     }
 
-    public record CreateMemberRequest(
-        string Name,
-        string? DisplayName,
-        string? Bio,
-        string? Avatar,
-        bool? Unlisted,
-        string[]? Links,
-        List<FieldEntry>? Names,
-        List<Pronoun>? Pronouns,
-        List<Field>? Fields
-    );
-
     [HttpPost("/api/v2/users/@me/members/{memberRef}/reroll-sid")]
     [Authorize("member.update")]
-    [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
+    [ProducesResponseType<MemberResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> RerollSidAsync(string memberRef)
     {
         Member member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);

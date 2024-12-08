@@ -1,5 +1,6 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -49,7 +50,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
         );
     }
 
-    private UserRendererService.PartialUser RenderPartialUser(User user) =>
+    private PartialUser RenderPartialUser(User user) =>
         new(
             user.Id,
             user.Sid,
@@ -84,34 +85,6 @@ public class MemberRendererService(DatabaseContext db, Config config)
 
     private string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
-    private UserRendererService.PrideFlagResponse RenderPrideFlag(PrideFlag flag) =>
+    private PrideFlagResponse RenderPrideFlag(PrideFlag flag) =>
         new(flag.Id, ImageUrlFor(flag), flag.Name, flag.Description);
-
-    public record PartialMember(
-        Snowflake Id,
-        string Sid,
-        string Name,
-        string DisplayName,
-        string? Bio,
-        string? AvatarUrl,
-        IEnumerable<FieldEntry> Names,
-        IEnumerable<Pronoun> Pronouns,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? Unlisted
-    );
-
-    public record MemberResponse(
-        Snowflake Id,
-        string Sid,
-        string Name,
-        string DisplayName,
-        string? Bio,
-        string? AvatarUrl,
-        string[] Links,
-        IEnumerable<FieldEntry> Names,
-        IEnumerable<Pronoun> Pronouns,
-        IEnumerable<Field> Fields,
-        IEnumerable<UserRendererService.PrideFlagResponse> Flags,
-        UserRendererService.PartialUser User,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? Unlisted
-    );
 }

@@ -2,14 +2,12 @@ using System.Net;
 using System.Web;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
-using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using NodaTime;
 
 namespace Foxnouns.Backend.Controllers.Authentication;
 
@@ -47,28 +45,6 @@ public class AuthController(
         return Ok(new UrlsResponse(config.EmailAuth.Enabled, discord, null, null));
     }
 
-    private record UrlsResponse(bool EmailEnabled, string? Discord, string? Google, string? Tumblr);
-
-    public record AuthResponse(
-        UserRendererService.UserResponse User,
-        string Token,
-        Instant ExpiresAt
-    );
-
-    public record SingleUrlResponse(string Url);
-
-    public record AddOauthAccountResponse(
-        Snowflake Id,
-        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] AuthType Type,
-        string RemoteId,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            string? RemoteUsername
-    );
-
-    public record OauthRegisterRequest(string Ticket, string Username);
-
-    public record CallbackRequest(string Code, string State);
-
     [HttpPost("force-log-out")]
     [Authorize("identify")]
     public async Task<IActionResult> ForceLogoutAsync()
@@ -83,9 +59,7 @@ public class AuthController(
 
     [HttpGet("methods/{id}")]
     [Authorize("*")]
-    [ProducesResponseType<UserRendererService.AuthMethodResponse>(
-        statusCode: StatusCodes.Status200OK
-    )]
+    [ProducesResponseType<AuthMethodResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAuthMethodAsync(Snowflake id)
     {
         AuthMethod? authMethod = await db
@@ -143,13 +117,3 @@ public class AuthController(
         return NoContent();
     }
 }
-
-public record CallbackResponse(
-    bool HasAccount,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Ticket,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? RemoteUsername,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        UserRendererService.UserResponse? User,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Token,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? ExpiresAt
-);

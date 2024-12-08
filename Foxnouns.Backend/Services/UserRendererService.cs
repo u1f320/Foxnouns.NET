@@ -1,5 +1,6 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -132,58 +133,6 @@ public class UserRendererService(
 
     public string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
 
-    public record UserResponse(
-        Snowflake Id,
-        string Sid,
-        string Username,
-        string? DisplayName,
-        string? Bio,
-        string? MemberTitle,
-        string? AvatarUrl,
-        string[] Links,
-        IEnumerable<FieldEntry> Names,
-        IEnumerable<Pronoun> Pronouns,
-        IEnumerable<Field> Fields,
-        Dictionary<Snowflake, User.CustomPreference> CustomPreferences,
-        IEnumerable<PrideFlagResponse> Flags,
-        int? UtcOffset,
-        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] UserRole Role,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            IEnumerable<MemberRendererService.PartialMember>? Members,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            IEnumerable<AuthMethodResponse>? AuthMethods,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            bool? MemberListHidden,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? LastActive,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            Instant? LastSidReroll,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Timezone
-    );
-
-    public record AuthMethodResponse(
-        Snowflake Id,
-        [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] AuthType Type,
-        string RemoteId,
-        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-            string? RemoteUsername
-    );
-
-    public record PartialUser(
-        Snowflake Id,
-        string Sid,
-        string Username,
-        string? DisplayName,
-        string? AvatarUrl,
-        Dictionary<Snowflake, User.CustomPreference> CustomPreferences
-    );
-
     public PrideFlagResponse RenderPrideFlag(PrideFlag flag) =>
         new(flag.Id, ImageUrlFor(flag), flag.Name, flag.Description);
-
-    public record PrideFlagResponse(
-        Snowflake Id,
-        string ImageUrl,
-        string Name,
-        string? Description
-    );
 }

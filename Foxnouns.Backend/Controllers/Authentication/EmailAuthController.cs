@@ -2,6 +2,7 @@ using System.Net;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
@@ -30,7 +31,7 @@ public class EmailAuthController(
 
     [HttpPost("register/init")]
     public async Task<IActionResult> RegisterInitAsync(
-        [FromBody] RegisterRequest req,
+        [FromBody] EmailRegisterRequest req,
         CancellationToken ct = default
     )
     {
@@ -73,7 +74,7 @@ public class EmailAuthController(
 
     [HttpPost("register")]
     public async Task<IActionResult> CompleteRegistrationAsync(
-        [FromBody] CompleteRegistrationRequest req
+        [FromBody] EmailCompleteRegistrationRequest req
     )
     {
         CheckRequirements();
@@ -102,7 +103,7 @@ public class EmailAuthController(
         await keyCacheService.DeleteKeyAsync($"email:{req.Ticket}");
 
         return Ok(
-            new AuthController.AuthResponse(
+            new AuthResponse(
                 await userRenderer.RenderUserAsync(user, user, renderMembers: false),
                 tokenStr,
                 token.ExpiresAt
@@ -111,9 +112,9 @@ public class EmailAuthController(
     }
 
     [HttpPost("login")]
-    [ProducesResponseType<AuthController.AuthResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> LoginAsync(
-        [FromBody] LoginRequest req,
+        [FromBody] EmailLoginRequest req,
         CancellationToken ct = default
     )
     {
@@ -141,7 +142,7 @@ public class EmailAuthController(
         await db.SaveChangesAsync(ct);
 
         return Ok(
-            new AuthController.AuthResponse(
+            new AuthResponse(
                 await userRenderer.RenderUserAsync(user, user, renderMembers: false, ct: ct),
                 tokenStr,
                 token.ExpiresAt
@@ -151,7 +152,7 @@ public class EmailAuthController(
 
     [HttpPost("change-password")]
     [Authorize("*")]
-    public async Task<IActionResult> UpdatePasswordAsync([FromBody] ChangePasswordRequest req)
+    public async Task<IActionResult> UpdatePasswordAsync([FromBody] EmailChangePasswordRequest req)
     {
         if (!await authService.ValidatePasswordAsync(CurrentUser!, req.Current))
             throw new ApiError.Forbidden("Invalid password");
@@ -211,7 +212,7 @@ public class EmailAuthController(
 
     [HttpPost("add-email/callback")]
     [Authorize("*")]
-    public async Task<IActionResult> AddEmailCallbackAsync([FromBody] CallbackRequest req)
+    public async Task<IActionResult> AddEmailCallbackAsync([FromBody] EmailCallbackRequest req)
     {
         CheckRequirements();
 
@@ -233,7 +234,7 @@ public class EmailAuthController(
             );
 
             return Ok(
-                new AuthController.AddOauthAccountResponse(
+                new AddOauthAccountResponse(
                     authMethod.Id,
                     AuthType.Email,
                     authMethod.RemoteId,
@@ -258,14 +259,4 @@ public class EmailAuthController(
         if (!config.EmailAuth.Enabled)
             throw new ApiError.BadRequest("Email authentication is not enabled on this instance.");
     }
-
-    public record LoginRequest(string Email, string Password);
-
-    public record RegisterRequest(string Email);
-
-    public record CompleteRegistrationRequest(string Ticket, string Username, string Password);
-
-    public record CallbackRequest(string State);
-
-    public record ChangePasswordRequest(string Current, string New);
 }

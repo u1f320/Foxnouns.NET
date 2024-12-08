@@ -1,6 +1,7 @@
 using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Microsoft.AspNetCore.Mvc;
@@ -42,8 +43,6 @@ public class ExportsController(
 
     private string ExportUrl(Snowflake userId, string filename) =>
         $"{config.MediaBaseUrl}/data-exports/{userId}/{filename}.zip";
-
-    private record DataExportResponse(string? Url, Instant? ExpiresAt);
 
     [HttpPost]
     public async Task<IActionResult> QueueDataExportAsync()

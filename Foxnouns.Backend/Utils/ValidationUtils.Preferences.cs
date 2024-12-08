@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 using Foxnouns.Backend.Controllers;
+using Foxnouns.Backend.Dto;
 
 namespace Foxnouns.Backend.Utils;
 
@@ -23,7 +24,7 @@ public static partial class ValidationUtils
     public const int MaxPreferenceTooltipLength = 128;
 
     public static List<(string, ValidationError?)> ValidateCustomPreferences(
-        List<UsersController.CustomPreferenceUpdate> preferences
+        List<CustomPreferenceUpdateRequest> preferences
     )
     {
         var errors = new List<(string, ValidationError?)>();
@@ -46,11 +47,7 @@ public static partial class ValidationUtils
         if (preferences.Count > 50)
             return errors;
 
-        foreach (
-            (UsersController.CustomPreferenceUpdate? p, int i) in preferences.Select(
-                (p, i) => (p, i)
-            )
-        )
+        foreach ((CustomPreferenceUpdateRequest? p, int i) in preferences.Select((p, i) => (p, i)))
         {
             if (!BootstrapIcons.IsValid(p.Icon))
             {
