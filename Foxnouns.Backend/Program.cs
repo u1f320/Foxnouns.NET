@@ -9,9 +9,9 @@ using Prometheus;
 using Sentry.Extensibility;
 using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-var config = builder.AddConfiguration();
+Config config = builder.AddConfiguration();
 
 builder.AddSerilog();
 
@@ -58,7 +58,7 @@ JsonConvert.DefaultSettings = () =>
 
 builder.AddServices(config).AddCustomMiddleware().AddEndpointsApiExplorer().AddSwaggerGen();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 await app.Initialize(args);
 

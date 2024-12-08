@@ -3,6 +3,7 @@ using Foxnouns.Backend.Database;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
 using Prometheus;
+using ITimer = Prometheus.ITimer;
 
 namespace Foxnouns.Backend.Services;
 
@@ -16,19 +17,23 @@ public class MetricsCollectionService(ILogger logger, IServiceProvider services,
 
     public async Task CollectMetricsAsync(CancellationToken ct = default)
     {
-        var timer = FoxnounsMetrics.MetricsCollectionTime.NewTimer();
-        var now = clock.GetCurrentInstant();
+        ITimer timer = FoxnounsMetrics.MetricsCollectionTime.NewTimer();
+        Instant now = clock.GetCurrentInstant();
 
-        await using var scope = services.CreateAsyncScope();
+        await using AsyncServiceScope scope = services.CreateAsyncScope();
+        // ReSharper disable once SuggestVarOrType_SimpleTypes
         await using var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
-        var users = await db.Users.Where(u => !u.Deleted).Select(u => u.LastActive).ToListAsync(ct);
+        List<Instant>? users = await db
+            .Users.Where(u => !u.Deleted)
+            .Select(u => u.LastActive)
+            .ToListAsync(ct);
         FoxnounsMetrics.UsersCount.Set(users.Count);
         FoxnounsMetrics.UsersActiveMonthCount.Set(users.Count(i => i > now - Month));
         FoxnounsMetrics.UsersActiveWeekCount.Set(users.Count(i => i > now - Week));
         FoxnounsMetrics.UsersActiveDayCount.Set(users.Count(i => i > now - Day));
 
-        var memberCount = await db
+        int memberCount = await db
             .Members.Include(m => m.User)
             .Where(m => !m.Unlisted && !m.User.ListHidden && !m.User.Deleted)
             .CountAsync(ct);

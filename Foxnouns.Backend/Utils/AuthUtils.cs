@@ -69,8 +69,8 @@ public static class AuthUtils
 
     public static bool ValidateScopes(Application application, string[] scopes)
     {
-        var expandedScopes = scopes.ExpandScopes();
-        var appScopes = application.Scopes.ExpandAppScopes();
+        string[] expandedScopes = scopes.ExpandScopes();
+        string[] appScopes = application.Scopes.ExpandAppScopes();
         return !expandedScopes.Except(appScopes).Any();
     }
 
@@ -78,7 +78,7 @@ public static class AuthUtils
     {
         try
         {
-            var scheme = new Uri(uri).Scheme;
+            string scheme = new Uri(uri).Scheme;
             return !ForbiddenSchemes.Contains(scheme);
         }
         catch

@@ -24,7 +24,7 @@ public class SidController(Config config, DatabaseContext db) : ApiControllerBas
 
     private async Task<IActionResult> ResolveUserSidAsync(string id, CancellationToken ct = default)
     {
-        var username = await db
+        string? username = await db
             .Users.Where(u => u.Sid == id.ToLowerInvariant() && !u.Deleted)
             .Select(u => u.Username)
             .FirstOrDefaultAsync(ct);

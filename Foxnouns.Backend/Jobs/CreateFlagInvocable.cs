@@ -26,10 +26,10 @@ public class CreateFlagInvocable(
 
         try
         {
-            var (hash, image) = await ImageObjectExtensions.ConvertBase64UriToImage(
+            (string? hash, Stream? image) = await ImageObjectExtensions.ConvertBase64UriToImage(
                 Payload.ImageData,
-                size: 256,
-                crop: false
+                256,
+                false
             );
             await objectStorageService.PutObjectAsync(Path(hash), image, "image/webp");
 

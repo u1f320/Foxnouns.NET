@@ -44,21 +44,22 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
     [HttpPost("request-data")]
     public async Task<IActionResult> GetRequestDataAsync([FromBody] RequestDataRequest req)
     {
-        var endpoint = GetEndpoint(HttpContext, req.Path, req.Method);
+        RouteEndpoint? endpoint = GetEndpoint(HttpContext, req.Path, req.Method);
         if (endpoint == null)
             throw new ApiError.BadRequest("Path/method combination is invalid");
 
-        var actionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
-        var template = actionDescriptor?.AttributeRouteInfo?.Template;
+        ControllerActionDescriptor? actionDescriptor =
+            endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
+        string? template = actionDescriptor?.AttributeRouteInfo?.Template;
         if (template == null)
             throw new FoxnounsError("Template value was null on valid endpoint");
         template = GetCleanedTemplate(template);
 
         // If no token was supplied, or it isn't valid base 64, return a null user ID (limiting by IP)
-        if (!AuthUtils.TryParseToken(req.Token, out var rawToken))
+        if (!AuthUtils.TryParseToken(req.Token, out byte[]? rawToken))
             return Ok(new RequestDataResponse(null, template));
 
-        var userId = await db.GetTokenUserId(rawToken);
+        Snowflake? userId = await db.GetTokenUserId(rawToken);
         return Ok(new RequestDataResponse(userId, template));
     }
 
@@ -72,12 +73,13 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
         string requestMethod
     )
     {
-        var endpointDataSource = httpContext.RequestServices.GetService<EndpointDataSource>();
+        EndpointDataSource? endpointDataSource =
+            httpContext.RequestServices.GetService<EndpointDataSource>();
         if (endpointDataSource == null)
             return null;
-        var endpoints = endpointDataSource.Endpoints.OfType<RouteEndpoint>();
+        IEnumerable<RouteEndpoint> endpoints = endpointDataSource.Endpoints.OfType<RouteEndpoint>();
 
-        foreach (var endpoint in endpoints)
+        foreach (RouteEndpoint? endpoint in endpoints)
         {
             if (endpoint.RoutePattern.RawText == null)
                 continue;
@@ -86,9 +88,10 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
                 TemplateParser.Parse(endpoint.RoutePattern.RawText),
                 new RouteValueDictionary()
             );
-            if (!templateMatcher.TryMatch(url, new()))
+            if (!templateMatcher.TryMatch(url, new RouteValueDictionary()))
                 continue;
-            var httpMethodAttribute = endpoint.Metadata.GetMetadata<HttpMethodAttribute>();
+            HttpMethodAttribute? httpMethodAttribute =
+                endpoint.Metadata.GetMetadata<HttpMethodAttribute>();
             if (
                 httpMethodAttribute != null
                 && !httpMethodAttribute.HttpMethods.Any(x =>

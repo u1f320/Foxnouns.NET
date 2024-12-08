@@ -33,14 +33,16 @@ public class AuthController(
             config.GoogleAuth.Enabled,
             config.TumblrAuth.Enabled
         );
-        var state = HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync(ct));
+        string state = HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync(ct));
         string? discord = null;
         if (config.DiscordAuth is { ClientId: not null, ClientSecret: not null })
+        {
             discord =
                 $"https://discord.com/oauth2/authorize?response_type=code"
                 + $"&client_id={config.DiscordAuth.ClientId}&scope=identify"
                 + $"&prompt=none&state={state}"
                 + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/discord")}";
+        }
 
         return Ok(new UrlsResponse(config.EmailAuth.Enabled, discord, null, null));
     }
@@ -86,7 +88,7 @@ public class AuthController(
     )]
     public async Task<IActionResult> GetAuthMethodAsync(Snowflake id)
     {
-        var authMethod = await db
+        AuthMethod? authMethod = await db
             .AuthMethods.Include(a => a.FediverseApplication)
             .FirstOrDefaultAsync(a => a.UserId == CurrentUser!.Id && a.Id == id);
         if (authMethod == null)
@@ -99,17 +101,19 @@ public class AuthController(
     [Authorize("*")]
     public async Task<IActionResult> DeleteAuthMethodAsync(Snowflake id)
     {
-        var authMethods = await db
+        List<AuthMethod> authMethods = await db
             .AuthMethods.Where(a => a.UserId == CurrentUser!.Id)
             .ToListAsync();
         if (authMethods.Count < 2)
+        {
             throw new ApiError(
                 "You cannot remove your last authentication method.",
                 HttpStatusCode.BadRequest,
                 ErrorCode.LastAuthMethod
             );
+        }
 
-        var authMethod = authMethods.FirstOrDefault(a => a.Id == id);
+        AuthMethod? authMethod = authMethods.FirstOrDefault(a => a.Id == id);
         if (authMethod == null)
             throw new ApiError.NotFound("No authentication method with that ID found.");
 

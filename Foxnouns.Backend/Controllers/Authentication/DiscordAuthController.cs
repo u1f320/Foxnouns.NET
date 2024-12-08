@@ -34,8 +34,10 @@ public class DiscordAuthController(
         CheckRequirements();
         await keyCacheService.ValidateAuthStateAsync(req.State);
 
-        var remoteUser = await remoteAuthService.RequestDiscordTokenAsync(req.Code);
-        var user = await authService.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id);
+        RemoteAuthService.RemoteUser remoteUser = await remoteAuthService.RequestDiscordTokenAsync(
+            req.Code
+        );
+        User? user = await authService.AuthenticateUserAsync(AuthType.Discord, remoteUser.Id);
         if (user != null)
             return Ok(await authService.GenerateUserTokenAsync(user));
 
@@ -45,23 +47,14 @@ public class DiscordAuthController(
             remoteUser.Id
         );
 
-        var ticket = AuthUtils.RandomToken();
+        string ticket = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"discord:{ticket}",
             remoteUser,
             Duration.FromMinutes(20)
         );
 
-        return Ok(
-            new CallbackResponse(
-                HasAccount: false,
-                Ticket: ticket,
-                RemoteUsername: remoteUser.Username,
-                User: null,
-                Token: null,
-                ExpiresAt: null
-            )
-        );
+        return Ok(new CallbackResponse(false, ticket, remoteUser.Username, null, null, null));
     }
 
     [HttpPost("register")]
@@ -70,9 +63,10 @@ public class DiscordAuthController(
         [FromBody] AuthController.OauthRegisterRequest req
     )
     {
-        var remoteUser = await keyCacheService.GetKeyAsync<RemoteAuthService.RemoteUser>(
-            $"discord:{req.Ticket}"
-        );
+        RemoteAuthService.RemoteUser? remoteUser =
+            await keyCacheService.GetKeyAsync<RemoteAuthService.RemoteUser>(
+                $"discord:{req.Ticket}"
+            );
         if (remoteUser == null)
             throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);
         if (
@@ -88,7 +82,7 @@ public class DiscordAuthController(
             throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);
         }
 
-        var user = await authService.CreateUserWithRemoteAuthAsync(
+        User user = await authService.CreateUserWithRemoteAuthAsync(
             req.Username,
             AuthType.Discord,
             remoteUser.Id,
@@ -104,12 +98,12 @@ public class DiscordAuthController(
     {
         CheckRequirements();
 
-        var state = await remoteAuthService.ValidateAddAccountRequestAsync(
+        string state = await remoteAuthService.ValidateAddAccountRequestAsync(
             CurrentUser!.Id,
             AuthType.Discord
         );
 
-        var url =
+        string url =
             $"https://discord.com/oauth2/authorize?response_type=code"
             + $"&client_id={config.DiscordAuth.ClientId}&scope=identify"
             + $"&prompt=none&state={state}"
@@ -132,10 +126,12 @@ public class DiscordAuthController(
             AuthType.Discord
         );
 
-        var remoteUser = await remoteAuthService.RequestDiscordTokenAsync(req.Code);
+        RemoteAuthService.RemoteUser remoteUser = await remoteAuthService.RequestDiscordTokenAsync(
+            req.Code
+        );
         try
         {
-            var authMethod = await authService.AddAuthMethodAsync(
+            AuthMethod authMethod = await authService.AddAuthMethodAsync(
                 CurrentUser.Id,
                 AuthType.Discord,
                 remoteUser.Id,
@@ -169,8 +165,10 @@ public class DiscordAuthController(
     private void CheckRequirements()
     {
         if (!config.DiscordAuth.Enabled)
+        {
             throw new ApiError.BadRequest(
                 "Discord authentication is not enabled on this instance."
             );
+        }
     }
 }

@@ -11,9 +11,8 @@ namespace Foxnouns.Backend.Database;
 
 public class DatabaseContext(DbContextOptions options) : DbContext(options)
 {
-    private static string GenerateConnectionString(Config.DatabaseConfig config)
-    {
-        return new NpgsqlConnectionStringBuilder(config.Url)
+    private static string GenerateConnectionString(Config.DatabaseConfig config) =>
+        new NpgsqlConnectionStringBuilder(config.Url)
         {
             Pooling = config.EnablePooling ?? true,
             Timeout = config.Timeout ?? 5,
@@ -22,7 +21,6 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
             ConnectionPruningInterval = 10,
             ConnectionIdleLifetime = 10,
         }.ConnectionString;
-    }
 
     public static NpgsqlDataSource BuildDataSource(Config config)
     {
@@ -138,16 +136,16 @@ public class DesignTimeDatabaseContextFactory : IDesignTimeDbContextFactory<Data
     public DatabaseContext CreateDbContext(string[] args)
     {
         // Read the configuration file
-        var config =
+        Config config =
             new ConfigurationBuilder()
                 .AddConfiguration()
                 .Build()
                 // Get the configuration as our config class
-                .Get<Config>() ?? new();
+                .Get<Config>() ?? new Config();
 
-        var dataSource = DatabaseContext.BuildDataSource(config);
+        NpgsqlDataSource dataSource = DatabaseContext.BuildDataSource(config);
 
-        var options = DatabaseContext
+        DbContextOptions options = DatabaseContext
             .BuildOptions(new DbContextOptionsBuilder(), dataSource, null)
             .Options;
 

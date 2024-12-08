@@ -8,8 +8,8 @@ public class AuthenticationMiddleware(DatabaseContext db) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext ctx, RequestDelegate next)
     {
-        var endpoint = ctx.GetEndpoint();
-        var metadata = endpoint?.Metadata.GetMetadata<AuthenticateAttribute>();
+        Endpoint? endpoint = ctx.GetEndpoint();
+        AuthenticateAttribute? metadata = endpoint?.Metadata.GetMetadata<AuthenticateAttribute>();
 
         if (metadata == null)
         {
@@ -18,14 +18,17 @@ public class AuthenticationMiddleware(DatabaseContext db) : IMiddleware
         }
 
         if (
-            !AuthUtils.TryParseToken(ctx.Request.Headers.Authorization.ToString(), out var rawToken)
+            !AuthUtils.TryParseToken(
+                ctx.Request.Headers.Authorization.ToString(),
+                out byte[]? rawToken
+            )
         )
         {
             await next(ctx);
             return;
         }
 
-        var oauthToken = await db.GetToken(rawToken);
+        Token? oauthToken = await db.GetToken(rawToken);
         if (oauthToken == null)
         {
             await next(ctx);
@@ -50,7 +53,7 @@ public static class HttpContextExtensions
 
     public static Token? GetToken(this HttpContext ctx)
     {
-        if (ctx.Items.TryGetValue(Key, out var token))
+        if (ctx.Items.TryGetValue(Key, out object? token))
             return token as Token;
         return null;
     }

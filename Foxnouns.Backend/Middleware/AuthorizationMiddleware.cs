@@ -7,8 +7,8 @@ public class AuthorizationMiddleware : IMiddleware
 {
     public async Task InvokeAsync(HttpContext ctx, RequestDelegate next)
     {
-        var endpoint = ctx.GetEndpoint();
-        var attribute = endpoint?.Metadata.GetMetadata<AuthorizeAttribute>();
+        Endpoint? endpoint = ctx.GetEndpoint();
+        AuthorizeAttribute? attribute = endpoint?.Metadata.GetMetadata<AuthorizeAttribute>();
 
         if (attribute == null)
         {
@@ -16,21 +16,27 @@ public class AuthorizationMiddleware : IMiddleware
             return;
         }
 
-        var token = ctx.GetToken();
+        Token? token = ctx.GetToken();
         if (token == null)
+        {
             throw new ApiError.Unauthorized(
                 "This endpoint requires an authenticated user.",
                 ErrorCode.AuthenticationRequired
             );
+        }
+
         if (
             attribute.Scopes.Length > 0
             && attribute.Scopes.Except(token.Scopes.ExpandScopes()).Any()
         )
+        {
             throw new ApiError.Forbidden(
                 "This endpoint requires ungranted scopes.",
                 attribute.Scopes.Except(token.Scopes.ExpandScopes()),
                 ErrorCode.MissingScopes
             );
+        }
+
         if (attribute.RequireAdmin && token.User.Role != UserRole.Admin)
             throw new ApiError.Forbidden("This endpoint can only be used by admins.");
         if (

@@ -30,7 +30,7 @@ public class PatchRequestContractResolver : DefaultContractResolver
         MemberSerialization memberSerialization
     )
     {
-        var prop = base.CreateProperty(member, memberSerialization);
+        JsonProperty prop = base.CreateProperty(member, memberSerialization);
 
         prop.SetIsSpecified += (o, _) =>
         {

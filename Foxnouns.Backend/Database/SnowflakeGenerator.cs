@@ -28,9 +28,9 @@ public class SnowflakeGenerator : ISnowflakeGenerator
     public Snowflake GenerateSnowflake(Instant? time = null)
     {
         time ??= SystemClock.Instance.GetCurrentInstant();
-        var increment = Interlocked.Increment(ref _increment);
-        var threadId = Environment.CurrentManagedThreadId % 32;
-        var timestamp = time.Value.ToUnixTimeMilliseconds() - Snowflake.Epoch;
+        long increment = Interlocked.Increment(ref _increment);
+        int threadId = Environment.CurrentManagedThreadId % 32;
+        long timestamp = time.Value.ToUnixTimeMilliseconds() - Snowflake.Epoch;
 
         return (timestamp << 22)
             | (uint)(_processId << 17)
@@ -44,8 +44,5 @@ public static class SnowflakeGeneratorServiceExtensions
     public static IServiceCollection AddSnowflakeGenerator(
         this IServiceCollection services,
         int? processId = null
-    )
-    {
-        return services.AddSingleton<ISnowflakeGenerator>(new SnowflakeGenerator(processId));
-    }
+    ) => services.AddSingleton<ISnowflakeGenerator>(new SnowflakeGenerator(processId));
 }

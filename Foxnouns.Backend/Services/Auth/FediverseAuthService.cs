@@ -43,7 +43,7 @@ public partial class FediverseAuthService
         string? state = null
     )
     {
-        var app = await GetApplicationAsync(instance);
+        FediverseApplication app = await GetApplicationAsync(instance);
         return await GenerateAuthUrlAsync(app, forceRefresh, state);
     }
 
@@ -56,13 +56,15 @@ public partial class FediverseAuthService
 
     public async Task<FediverseApplication> GetApplicationAsync(string instance)
     {
-        var app = await _db.FediverseApplications.FirstOrDefaultAsync(a => a.Domain == instance);
+        FediverseApplication? app = await _db.FediverseApplications.FirstOrDefaultAsync(a =>
+            a.Domain == instance
+        );
         if (app != null)
             return app;
 
         _logger.Debug("No application for fediverse instance {Instance}, creating it", instance);
 
-        var softwareName = await GetSoftwareNameAsync(instance);
+        string softwareName = await GetSoftwareNameAsync(instance);
 
         if (IsMastodonCompatible(softwareName))
         {
@@ -76,13 +78,14 @@ public partial class FediverseAuthService
     {
         _logger.Debug("Requesting software name for fediverse instance {Instance}", instance);
 
-        var wellKnownResp = await _client.GetAsync(
+        HttpResponseMessage wellKnownResp = await _client.GetAsync(
             new Uri($"https://{instance}/.well-known/nodeinfo")
         );
         wellKnownResp.EnsureSuccessStatusCode();
 
-        var wellKnown = await wellKnownResp.Content.ReadFromJsonAsync<WellKnownResponse>();
-        var nodeInfoUrl = wellKnown?.Links.FirstOrDefault(l => l.Rel == NodeInfoRel)?.Href;
+        WellKnownResponse? wellKnown =
+            await wellKnownResp.Content.ReadFromJsonAsync<WellKnownResponse>();
+        string? nodeInfoUrl = wellKnown?.Links.FirstOrDefault(l => l.Rel == NodeInfoRel)?.Href;
         if (nodeInfoUrl == null)
         {
             throw new FoxnounsError(
@@ -90,10 +93,10 @@ public partial class FediverseAuthService
             );
         }
 
-        var nodeInfoResp = await _client.GetAsync(nodeInfoUrl);
+        HttpResponseMessage nodeInfoResp = await _client.GetAsync(nodeInfoUrl);
         nodeInfoResp.EnsureSuccessStatusCode();
 
-        var nodeInfo = await nodeInfoResp.Content.ReadFromJsonAsync<PartialNodeInfo>();
+        PartialNodeInfo? nodeInfo = await nodeInfoResp.Content.ReadFromJsonAsync<PartialNodeInfo>();
         return nodeInfo?.Software.Name
             ?? throw new FoxnounsError(
                 $"Nodeinfo response for instance {instance} was invalid, no software name"

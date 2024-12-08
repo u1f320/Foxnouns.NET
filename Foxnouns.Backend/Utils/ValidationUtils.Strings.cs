@@ -46,6 +46,7 @@ public static partial class ValidationUtils
     public static ValidationError? ValidateUsername(string username)
     {
         if (!UsernameRegex().IsMatch(username))
+        {
             return username.Length switch
             {
                 < 2 => ValidationError.LengthError("Username is too short", 2, 40, username.Length),
@@ -55,6 +56,7 @@ public static partial class ValidationUtils
                     username
                 ),
             };
+        }
 
         if (
             InvalidUsernames.Any(u =>
@@ -68,6 +70,7 @@ public static partial class ValidationUtils
     public static ValidationError? ValidateMemberName(string memberName)
     {
         if (!MemberRegex().IsMatch(memberName))
+        {
             return memberName.Length switch
             {
                 < 1 => ValidationError.LengthError("Name is too short", 1, 100, memberName.Length),
@@ -79,6 +82,7 @@ public static partial class ValidationUtils
                     memberName
                 ),
             };
+        }
 
         if (
             InvalidMemberNames.Any(u =>
@@ -117,13 +121,15 @@ public static partial class ValidationUtils
         if (links == null)
             return [];
         if (links.Length > MaxLinks)
+        {
             return
             [
                 ("links", ValidationError.LengthError("Too many links", 0, MaxLinks, links.Length)),
             ];
+        }
 
         var errors = new List<(string, ValidationError?)>();
-        foreach (var (link, idx) in links.Select((l, i) => (l, i)))
+        foreach ((string link, int idx) in links.Select((l, i) => (l, i)))
         {
             switch (link.Length)
             {

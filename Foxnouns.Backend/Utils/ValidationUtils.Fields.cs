@@ -39,6 +39,7 @@ public static partial class ValidationUtils
 
         var errors = new List<(string, ValidationError?)>();
         if (fields.Count > 25)
+        {
             errors.Add(
                 (
                     "fields",
@@ -50,11 +51,13 @@ public static partial class ValidationUtils
                     )
                 )
             );
+        }
+
         // No overwhelming this function, thank you
         if (fields.Count > 100)
             return errors;
 
-        foreach (var (field, index) in fields.Select((field, index) => (field, index)))
+        foreach ((Field? field, int index) in fields.Select((field, index) => (field, index)))
         {
             switch (field.Name.Length)
             {
@@ -111,6 +114,7 @@ public static partial class ValidationUtils
         var errors = new List<(string, ValidationError?)>();
 
         if (entries.Length > Limits.FieldEntriesLimit)
+        {
             errors.Add(
                 (
                     errorPrefix,
@@ -122,15 +126,19 @@ public static partial class ValidationUtils
                     )
                 )
             );
+        }
 
         // Same as above, no overwhelming this function with a ridiculous amount of entries
         if (entries.Length > Limits.FieldEntriesLimit + 50)
             return errors;
 
-        var customPreferenceIds =
-            customPreferences?.Keys.Select(id => id.ToString()).ToArray() ?? [];
+        string[] customPreferenceIds = customPreferences.Keys.Select(id => id.ToString()).ToArray();
 
-        foreach (var (entry, entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx)))
+        foreach (
+            (FieldEntry? entry, int entryIdx) in entries.Select(
+                (entry, entryIdx) => (entry, entryIdx)
+            )
+        )
         {
             switch (entry.Value.Length)
             {
@@ -166,12 +174,14 @@ public static partial class ValidationUtils
                 !DefaultStatusOptions.Contains(entry.Status)
                 && !customPreferenceIds.Contains(entry.Status)
             )
+            {
                 errors.Add(
                     (
                         $"{errorPrefix}.{entryIdx}.status",
                         ValidationError.GenericValidationError("Invalid status", entry.Status)
                     )
                 );
+            }
         }
 
         return errors;
@@ -188,6 +198,7 @@ public static partial class ValidationUtils
         var errors = new List<(string, ValidationError?)>();
 
         if (entries.Length > Limits.FieldEntriesLimit)
+        {
             errors.Add(
                 (
                     errorPrefix,
@@ -199,15 +210,17 @@ public static partial class ValidationUtils
                     )
                 )
             );
+        }
 
         // Same as above, no overwhelming this function with a ridiculous amount of entries
         if (entries.Length > Limits.FieldEntriesLimit + 50)
             return errors;
 
-        var customPreferenceIds =
-            customPreferences?.Keys.Select(id => id.ToString()).ToList() ?? [];
+        string[] customPreferenceIds = customPreferences.Keys.Select(id => id.ToString()).ToArray();
 
-        foreach (var (entry, entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx)))
+        foreach (
+            (Pronoun? entry, int entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx))
+        )
         {
             switch (entry.Value.Length)
             {
@@ -276,12 +289,14 @@ public static partial class ValidationUtils
                 !DefaultStatusOptions.Contains(entry.Status)
                 && !customPreferenceIds.Contains(entry.Status)
             )
+            {
                 errors.Add(
                     (
                         $"{errorPrefix}.{entryIdx}.status",
                         ValidationError.GenericValidationError("Invalid status", entry.Status)
                     )
                 );
+            }
         }
 
         return errors;

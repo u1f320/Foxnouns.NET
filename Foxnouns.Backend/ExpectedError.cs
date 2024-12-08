@@ -35,13 +35,13 @@ public class ApiError(
     public readonly ErrorCode ErrorCode = errorCode ?? ErrorCode.InternalServerError;
 
     public class Unauthorized(string message, ErrorCode errorCode = ErrorCode.AuthenticationError)
-        : ApiError(message, statusCode: HttpStatusCode.Unauthorized, errorCode: errorCode);
+        : ApiError(message, HttpStatusCode.Unauthorized, errorCode);
 
     public class Forbidden(
         string message,
         IEnumerable<string>? scopes = null,
         ErrorCode errorCode = ErrorCode.Forbidden
-    ) : ApiError(message, statusCode: HttpStatusCode.Forbidden, errorCode: errorCode)
+    ) : ApiError(message, HttpStatusCode.Forbidden, errorCode)
     {
         public readonly string[] Scopes = scopes?.ToArray() ?? [];
     }
@@ -49,7 +49,7 @@ public class ApiError(
     public class BadRequest(
         string message,
         IReadOnlyDictionary<string, IEnumerable<ValidationError>>? errors = null
-    ) : ApiError(message, statusCode: HttpStatusCode.BadRequest)
+    ) : ApiError(message, HttpStatusCode.BadRequest)
     {
         public BadRequest(string message, string field, object? actualValue)
             : this(
@@ -72,7 +72,7 @@ public class ApiError(
                 return o;
 
             var a = new JArray();
-            foreach (var error in errors)
+            foreach (KeyValuePair<string, IEnumerable<ValidationError>> error in errors)
             {
                 var errorObj = new JObject
                 {
@@ -92,7 +92,7 @@ public class ApiError(
     /// Any other methods should use <see cref="ApiError.BadRequest" /> instead.
     /// </summary>
     public class AspBadRequest(string message, ModelStateDictionary? modelState = null)
-        : ApiError(message, statusCode: HttpStatusCode.BadRequest)
+        : ApiError(message, HttpStatusCode.BadRequest)
     {
         public JObject ToJson()
         {
@@ -106,7 +106,11 @@ public class ApiError(
                 return o;
 
             var a = new JArray();
-            foreach (var error in modelState.Where(e => e.Value is { Errors.Count: > 0 }))
+            foreach (
+                KeyValuePair<string, ModelStateEntry?> error in modelState.Where(e =>
+                    e.Value is { Errors.Count: > 0 }
+                )
+            )
             {
                 var errorObj = new JObject
                 {
@@ -130,10 +134,9 @@ public class ApiError(
     }
 
     public class NotFound(string message, ErrorCode? code = null)
-        : ApiError(message, statusCode: HttpStatusCode.NotFound, errorCode: code);
+        : ApiError(message, HttpStatusCode.NotFound, code);
 
-    public class AuthenticationError(string message)
-        : ApiError(message, statusCode: HttpStatusCode.BadRequest);
+    public class AuthenticationError(string message) : ApiError(message, HttpStatusCode.BadRequest);
 }
 
 public enum ErrorCode
@@ -175,33 +178,27 @@ public class ValidationError
         int minLength,
         int maxLength,
         int actualLength
-    )
-    {
-        return new ValidationError
+    ) =>
+        new()
         {
             Message = message,
             MinLength = minLength,
             MaxLength = maxLength,
             ActualLength = actualLength,
         };
-    }
 
     public static ValidationError DisallowedValueError(
         string message,
         IEnumerable<object> allowedValues,
         object actualValue
-    )
-    {
-        return new ValidationError
+    ) =>
+        new()
         {
             Message = message,
             AllowedValues = allowedValues,
             ActualValue = actualValue,
         };
-    }
 
-    public static ValidationError GenericValidationError(string message, object? actualValue)
-    {
-        return new ValidationError { Message = message, ActualValue = actualValue };
-    }
+    public static ValidationError GenericValidationError(string message, object? actualValue) =>
+        new() { Message = message, ActualValue = actualValue };
 }

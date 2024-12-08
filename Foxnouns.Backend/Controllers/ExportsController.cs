@@ -25,7 +25,7 @@ public class ExportsController(
     [HttpGet]
     public async Task<IActionResult> GetDataExportsAsync()
     {
-        var export = await db
+        DataExport? export = await db
             .DataExports.Where(d => d.UserId == CurrentUser!.Id)
             .OrderByDescending(d => d.Id)
             .FirstOrDefaultAsync();

@@ -24,9 +24,9 @@ public static class WebApplicationExtensions
     /// </summary>
     public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder)
     {
-        var config = builder.Configuration.Get<Config>() ?? new();
+        Config config = builder.Configuration.Get<Config>() ?? new Config();
 
-        var logCfg = new LoggerConfiguration()
+        LoggerConfiguration logCfg = new LoggerConfiguration()
             .Enrich.FromLogContext()
             .MinimumLevel.Is(config.Logging.LogEventLevel)
             // ASP.NET's built in request logs are extremely verbose, so we use Serilog's instead.
@@ -43,10 +43,7 @@ public static class WebApplicationExtensions
 
         if (config.Logging.SeqLogUrl != null)
         {
-            logCfg.WriteTo.Seq(
-                config.Logging.SeqLogUrl,
-                restrictedToMinimumLevel: LogEventLevel.Verbose
-            );
+            logCfg.WriteTo.Seq(config.Logging.SeqLogUrl, LogEventLevel.Verbose);
         }
 
         // AddSerilog doesn't seem to add an ILogger to the service collection, so add that manually.
@@ -60,19 +57,19 @@ public static class WebApplicationExtensions
         builder.Configuration.Sources.Clear();
         builder.Configuration.AddConfiguration();
 
-        var config = builder.Configuration.Get<Config>() ?? new();
+        Config config = builder.Configuration.Get<Config>() ?? new Config();
         builder.Services.AddSingleton(config);
         return config;
     }
 
     public static IConfigurationBuilder AddConfiguration(this IConfigurationBuilder builder)
     {
-        var file = Environment.GetEnvironmentVariable("FOXNOUNS_CONFIG_FILE") ?? "config.ini";
+        string file = Environment.GetEnvironmentVariable("FOXNOUNS_CONFIG_FILE") ?? "config.ini";
 
         return builder
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appSettings.json", true)
-            .AddIniFile(file, optional: false, reloadOnChange: true)
+            .AddIniFile(file, false, true)
             .AddEnvironmentVariables();
     }
 
@@ -142,11 +139,15 @@ public static class WebApplicationExtensions
         app.Services.ConfigureQueue()
             .LogQueuedTaskProgress(app.Services.GetRequiredService<ILogger<IQueue>>());
 
-        await using var scope = app.Services.CreateAsyncScope();
+        await using AsyncServiceScope scope = app.Services.CreateAsyncScope();
+
+        // The types of these variables are obvious from the methods being called to create them
+        // ReSharper disable SuggestVarOrType_SimpleTypes
         var logger = scope
             .ServiceProvider.GetRequiredService<ILogger>()
             .ForContext<WebApplication>();
         var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+        // ReSharper restore SuggestVarOrType_SimpleTypes
 
         logger.Information(
             "Starting Foxnouns.NET {Version} ({Hash})",

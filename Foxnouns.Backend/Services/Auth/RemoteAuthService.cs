@@ -29,7 +29,7 @@ public class RemoteAuthService(
     )
     {
         var redirectUri = $"{config.BaseUrl}/auth/callback/discord";
-        var resp = await _httpClient.PostAsync(
+        HttpResponseMessage resp = await _httpClient.PostAsync(
             _discordTokenUri,
             new FormUrlEncodedContent(
                 new Dictionary<string, string>
@@ -45,7 +45,7 @@ public class RemoteAuthService(
         );
         if (!resp.IsSuccessStatusCode)
         {
-            var respBody = await resp.Content.ReadAsStringAsync(ct);
+            string respBody = await resp.Content.ReadAsStringAsync(ct);
             _logger.Error(
                 "Received error status {StatusCode} when exchanging OAuth token: {ErrorBody}",
                 (int)resp.StatusCode,
@@ -55,16 +55,18 @@ public class RemoteAuthService(
         }
 
         resp.EnsureSuccessStatusCode();
-        var token = await resp.Content.ReadFromJsonAsync<DiscordTokenResponse>(ct);
+        DiscordTokenResponse? token = await resp.Content.ReadFromJsonAsync<DiscordTokenResponse>(
+            ct
+        );
         if (token == null)
             throw new FoxnounsError("Discord token response was null");
 
         var req = new HttpRequestMessage(HttpMethod.Get, _discordUserUri);
         req.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
 
-        var resp2 = await _httpClient.SendAsync(req, ct);
+        HttpResponseMessage resp2 = await _httpClient.SendAsync(req, ct);
         resp2.EnsureSuccessStatusCode();
-        var user = await resp2.Content.ReadFromJsonAsync<DiscordUserResponse>(ct);
+        DiscordUserResponse? user = await resp2.Content.ReadFromJsonAsync<DiscordUserResponse>(ct);
         if (user == null)
             throw new FoxnounsError("Discord user response was null");
 
@@ -104,7 +106,7 @@ public class RemoteAuthService(
         string? instance = null
     )
     {
-        var existingAccounts = await db
+        int existingAccounts = await db
             .AuthMethods.Where(m => m.UserId == userId && m.AuthType == authType)
             .CountAsync();
         if (existingAccounts > AuthUtils.MaxAuthMethodsPerType)
@@ -131,7 +133,9 @@ public class RemoteAuthService(
         string? instance = null
     )
     {
-        var accountState = await keyCacheService.GetAddExtraAccountStateAsync(state);
+        AddExtraAccountState? accountState = await keyCacheService.GetAddExtraAccountStateAsync(
+            state
+        );
         if (
             accountState == null
             || accountState.AuthType != authType

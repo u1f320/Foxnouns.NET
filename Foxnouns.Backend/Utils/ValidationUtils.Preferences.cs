@@ -29,6 +29,7 @@ public static partial class ValidationUtils
         var errors = new List<(string, ValidationError?)>();
 
         if (preferences.Count > MaxCustomPreferences)
+        {
             errors.Add(
                 (
                     "custom_preferences",
@@ -40,20 +41,29 @@ public static partial class ValidationUtils
                     )
                 )
             );
+        }
+
         if (preferences.Count > 50)
             return errors;
 
-        foreach (var (p, i) in preferences.Select((p, i) => (p, i)))
+        foreach (
+            (UsersController.CustomPreferenceUpdate? p, int i) in preferences.Select(
+                (p, i) => (p, i)
+            )
+        )
         {
             if (!BootstrapIcons.IsValid(p.Icon))
+            {
                 errors.Add(
                     (
                         $"custom_preferences.{i}.icon",
                         ValidationError.DisallowedValueError("Invalid icon name", [], p.Icon)
                     )
                 );
+            }
 
             if (p.Tooltip.Length is 1 or > MaxPreferenceTooltipLength)
+            {
                 errors.Add(
                     (
                         $"custom_preferences.{i}.tooltip",
@@ -65,6 +75,7 @@ public static partial class ValidationUtils
                         )
                     )
                 );
+            }
         }
 
         return errors;

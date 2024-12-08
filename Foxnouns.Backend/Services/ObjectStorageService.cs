@@ -1,4 +1,5 @@
 using Minio;
+using Minio.DataModel;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
 
@@ -45,15 +46,6 @@ public class ObjectStorageService(ILogger logger, Config config, IMinioClient mi
                 .WithObjectSize(data.Length)
                 .WithStreamData(data)
                 .WithContentType(contentType),
-            ct
-        );
-    }
-
-    public async Task GetObjectAsync(string path, CancellationToken ct = default)
-    {
-        var stream = new MemoryStream();
-        var resp = await minioClient.GetObjectAsync(
-            new GetObjectArgs().WithBucket(config.Storage.Bucket).WithObject(path),
             ct
         );
     }

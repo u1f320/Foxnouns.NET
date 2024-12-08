@@ -14,7 +14,7 @@ public static class KeyCacheExtensions
         CancellationToken ct = default
     )
     {
-        var state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
+        string state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
         await keyCacheService.SetKeyAsync($"oauth_state:{state}", "", Duration.FromMinutes(10), ct);
         return state;
     }
@@ -25,7 +25,7 @@ public static class KeyCacheExtensions
         CancellationToken ct = default
     )
     {
-        var val = await keyCacheService.GetKeyAsync($"oauth_state:{state}", ct: ct);
+        string? val = await keyCacheService.GetKeyAsync($"oauth_state:{state}", ct: ct);
         if (val == null)
             throw new ApiError.BadRequest("Invalid OAuth state");
     }
@@ -38,7 +38,7 @@ public static class KeyCacheExtensions
     )
     {
         // This state is used in links, not just as JSON values, so make it URL-safe
-        var state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
+        string state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
         await keyCacheService.SetKeyAsync(
             $"email_state:{state}",
             new RegisterEmailState(email, userId),
@@ -62,7 +62,7 @@ public static class KeyCacheExtensions
         CancellationToken ct = default
     )
     {
-        var state = AuthUtils.RandomToken();
+        string state = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"add_account:{state}",
             new AddExtraAccountState(authType, userId, instance),
@@ -76,12 +76,7 @@ public static class KeyCacheExtensions
         this KeyCacheService keyCacheService,
         string state,
         CancellationToken ct = default
-    ) =>
-        await keyCacheService.GetKeyAsync<AddExtraAccountState>(
-            $"add_account:{state}",
-            delete: true,
-            ct
-        );
+    ) => await keyCacheService.GetKeyAsync<AddExtraAccountState>($"add_account:{state}", true, ct);
 }
 
 public record RegisterEmailState(

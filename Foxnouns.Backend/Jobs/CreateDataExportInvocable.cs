@@ -40,7 +40,7 @@ public class CreateDataExportInvocable(
 
     private async Task InvokeAsync()
     {
-        var user = await db
+        User? user = await db
             .Users.Include(u => u.AuthMethods)
             .Include(u => u.Flags)
             .Include(u => u.ProfileFlags)
@@ -66,25 +66,19 @@ public class CreateDataExportInvocable(
         WriteJson(
             zip,
             "user.json",
-            await userRenderer.RenderUserInnerAsync(
-                user,
-                true,
-                ["*"],
-                renderMembers: false,
-                renderAuthMethods: true
-            )
+            await userRenderer.RenderUserInnerAsync(user, true, ["*"], false, true)
         );
         await WriteS3Object(zip, "user-avatar.webp", userRenderer.AvatarUrlFor(user));
 
-        foreach (var flag in user.Flags)
+        foreach (PrideFlag? flag in user.Flags)
             await WritePrideFlag(zip, flag);
 
-        var members = await db
+        List<Member> members = await db
             .Members.Include(m => m.User)
             .Include(m => m.ProfileFlags)
             .Where(m => m.UserId == user.Id)
             .ToListAsync();
-        foreach (var member in members)
+        foreach (Member? member in members)
             await WriteMember(zip, member);
 
         // We want to dispose the ZipArchive on an error, but we need to dispose it manually to upload to object storage.
@@ -94,7 +88,7 @@ public class CreateDataExportInvocable(
         stream.Seek(0, SeekOrigin.Begin);
 
         // Upload the file!
-        var filename = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
+        string filename = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
         await objectStorageService.PutObjectAsync(
             ExportPath(user.Id, filename),
             stream,
@@ -132,8 +126,8 @@ public class CreateDataExportInvocable(
             return;
         }
 
-        var entry = zip.CreateEntry($"flag-{flag.Id}/flag.txt");
-        await using var stream = entry.Open();
+        ZipArchiveEntry entry = zip.CreateEntry($"flag-{flag.Id}/flag.txt");
+        await using Stream stream = entry.Open();
         await using var writer = new StreamWriter(stream);
         await writer.WriteAsync(flagData);
     }
@@ -164,7 +158,7 @@ public class CreateDataExportInvocable(
 
     private void WriteJson(ZipArchive zip, string filename, object data)
     {
-        var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
 
         _logger.Debug(
             "Writing file {Filename} to archive with size {Length}",
@@ -172,8 +166,8 @@ public class CreateDataExportInvocable(
             json.Length
         );
 
-        var entry = zip.CreateEntry(filename);
-        using var stream = entry.Open();
+        ZipArchiveEntry entry = zip.CreateEntry(filename);
+        using Stream stream = entry.Open();
         using var writer = new StreamWriter(stream);
         writer.Write(json);
     }
@@ -183,14 +177,14 @@ public class CreateDataExportInvocable(
         if (s3Path == null)
             return;
 
-        var resp = await Client.GetAsync(s3Path);
+        HttpResponseMessage resp = await Client.GetAsync(s3Path);
         if (resp.StatusCode != HttpStatusCode.OK)
         {
             _logger.Warning("S3 path {S3Path} returned a non-200 status, not saving file", s3Path);
             return;
         }
 
-        await using var respStream = await resp.Content.ReadAsStreamAsync();
+        await using Stream respStream = await resp.Content.ReadAsStreamAsync();
 
         _logger.Debug(
             "Writing file {Filename} to archive with size {Length}",
@@ -198,8 +192,8 @@ public class CreateDataExportInvocable(
             respStream.Length
         );
 
-        var entry = zip.CreateEntry(filename);
-        await using var entryStream = entry.Open();
+        ZipArchiveEntry entry = zip.CreateEntry(filename);
+        await using Stream entryStream = entry.Open();
 
         respStream.Seek(0, SeekOrigin.Begin);
         await respStream.CopyToAsync(entryStream);

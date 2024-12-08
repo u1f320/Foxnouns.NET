@@ -1,5 +1,6 @@
 using Coravel.Invocable;
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 
@@ -26,7 +27,7 @@ public class UserAvatarUpdateInvocable(
     {
         _logger.Debug("Updating avatar for user {MemberId}", id);
 
-        var user = await db.Users.FindAsync(id);
+        User? user = await db.Users.FindAsync(id);
         if (user == null)
         {
             _logger.Warning(
@@ -38,13 +39,13 @@ public class UserAvatarUpdateInvocable(
 
         try
         {
-            var (hash, image) = await ImageObjectExtensions.ConvertBase64UriToImage(
+            (string? hash, Stream? image) = await ImageObjectExtensions.ConvertBase64UriToImage(
                 newAvatar,
-                size: 512,
-                crop: true
+                512,
+                true
             );
             image.Seek(0, SeekOrigin.Begin);
-            var prevHash = user.Avatar;
+            string? prevHash = user.Avatar;
 
             await objectStorageService.PutObjectAsync(Path(id, hash), image, "image/webp");
 
@@ -70,7 +71,7 @@ public class UserAvatarUpdateInvocable(
     {
         _logger.Debug("Clearing avatar for user {MemberId}", id);
 
-        var user = await db.Users.FindAsync(id);
+        User? user = await db.Users.FindAsync(id);
         if (user == null)
         {
             _logger.Warning(

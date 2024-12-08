@@ -1,4 +1,5 @@
 using System.Net;
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
 using Newtonsoft.Json;
 
@@ -14,9 +15,9 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
         }
         catch (Exception e)
         {
-            var type = e.TargetSite?.DeclaringType ?? typeof(ErrorHandlerMiddleware);
-            var typeName = e.TargetSite?.DeclaringType?.FullName ?? "<unknown>";
-            var logger = baseLogger.ForContext(type);
+            Type type = e.TargetSite?.DeclaringType ?? typeof(ErrorHandlerMiddleware);
+            string typeName = e.TargetSite?.DeclaringType?.FullName ?? "<unknown>";
+            ILogger logger = baseLogger.ForContext(type);
 
             if (ctx.Response.HasStarted)
             {
@@ -31,13 +32,15 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
                     e,
                     scope =>
                     {
-                        var user = ctx.GetUser();
+                        User? user = ctx.GetUser();
                         if (user != null)
+                        {
                             scope.User = new SentryUser
                             {
                                 Id = user.Id.ToString(),
                                 Username = user.Username,
                             };
+                        }
                     }
                 );
 
@@ -98,17 +101,19 @@ public class ErrorHandlerMiddleware(ILogger baseLogger, IHub sentry) : IMiddlewa
                 logger.Error(e, "Exception in {ClassName} ({Path})", typeName, ctx.Request.Path);
             }
 
-            var errorId = sentry.CaptureException(
+            SentryId errorId = sentry.CaptureException(
                 e,
                 scope =>
                 {
-                    var user = ctx.GetUser();
+                    User? user = ctx.GetUser();
                     if (user != null)
+                    {
                         scope.User = new SentryUser
                         {
                             Id = user.Id.ToString(),
                             Username = user.Username,
                         };
+                    }
                 }
             );
 

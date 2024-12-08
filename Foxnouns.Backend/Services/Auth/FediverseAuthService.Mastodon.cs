@@ -18,22 +18,25 @@ public partial class FediverseAuthService
         Snowflake? existingAppId = null
     )
     {
-        var resp = await _client.PostAsJsonAsync(
+        HttpResponseMessage resp = await _client.PostAsJsonAsync(
             $"https://{instance}/api/v1/apps",
             new CreateMastodonApplicationRequest(
-                ClientName: $"pronouns.cc (+{_config.BaseUrl})",
-                RedirectUris: MastodonRedirectUri(instance),
-                Scopes: "read read:accounts",
-                Website: _config.BaseUrl
+                $"pronouns.cc (+{_config.BaseUrl})",
+                MastodonRedirectUri(instance),
+                "read read:accounts",
+                _config.BaseUrl
             )
         );
         resp.EnsureSuccessStatusCode();
 
-        var mastodonApp = await resp.Content.ReadFromJsonAsync<PartialMastodonApplication>();
+        PartialMastodonApplication? mastodonApp =
+            await resp.Content.ReadFromJsonAsync<PartialMastodonApplication>();
         if (mastodonApp == null)
+        {
             throw new FoxnounsError(
                 $"Application created on Mastodon-compatible instance {instance} was null"
             );
+        }
 
         FediverseApplication app;
 
@@ -75,7 +78,7 @@ public partial class FediverseAuthService
         if (state != null)
             await _keyCacheService.ValidateAuthStateAsync(state);
 
-        var tokenResp = await _client.PostAsync(
+        HttpResponseMessage tokenResp = await _client.PostAsync(
             MastodonTokenUri(app.Domain),
             new FormUrlEncodedContent(
                 new Dictionary<string, string>
@@ -95,7 +98,7 @@ public partial class FediverseAuthService
         }
 
         tokenResp.EnsureSuccessStatusCode();
-        var token = (
+        string? token = (
             await tokenResp.Content.ReadFromJsonAsync<MastodonTokenResponse>()
         )?.AccessToken;
         if (token == null)
@@ -106,9 +109,9 @@ public partial class FediverseAuthService
         var req = new HttpRequestMessage(HttpMethod.Get, MastodonCurrentUserUri(app.Domain));
         req.Headers.Add("Authorization", $"Bearer {token}");
 
-        var currentUserResp = await _client.SendAsync(req);
+        HttpResponseMessage currentUserResp = await _client.SendAsync(req);
         currentUserResp.EnsureSuccessStatusCode();
-        var user = await currentUserResp.Content.ReadFromJsonAsync<FediverseUser>();
+        FediverseUser? user = await currentUserResp.Content.ReadFromJsonAsync<FediverseUser>();
         if (user == null)
         {
             throw new FoxnounsError($"User response from instance {app.Domain} was invalid");
@@ -131,7 +134,7 @@ public partial class FediverseAuthService
                 "An app credentials refresh was requested for {ApplicationId}, creating a new application",
                 app.Id
             );
-            app = await CreateMastodonApplicationAsync(app.Domain, existingAppId: app.Id);
+            app = await CreateMastodonApplicationAsync(app.Domain, app.Id);
         }
 
         state ??= HttpUtility.UrlEncode(await _keyCacheService.GenerateAuthStateAsync());

@@ -47,13 +47,13 @@ public static class ImageObjectExtensions
         if (!uri.StartsWith("data:image/"))
             throw new ArgumentException("Not a data URI", nameof(uri));
 
-        var split = uri.Remove(0, "data:".Length).Split(";base64,");
-        var contentType = split[0];
-        var encoded = split[1];
+        string[] split = uri.Remove(0, "data:".Length).Split(";base64,");
+        string contentType = split[0];
+        string encoded = split[1];
         if (!ValidContentTypes.Contains(contentType))
             throw new ArgumentException("Invalid content type for image", nameof(uri));
 
-        if (!AuthUtils.TryFromBase64String(encoded, out var rawImage))
+        if (!AuthUtils.TryFromBase64String(encoded, out byte[]? rawImage))
             throw new ArgumentException("Invalid base64 string", nameof(uri));
 
         var image = Image.Load(rawImage);
@@ -74,7 +74,7 @@ public static class ImageObjectExtensions
         await image.SaveAsync(stream, new WebpEncoder { Quality = 95, NearLossless = false });
 
         stream.Seek(0, SeekOrigin.Begin);
-        var hash = Convert.ToHexString(await SHA256.HashDataAsync(stream)).ToLower();
+        string hash = Convert.ToHexString(await SHA256.HashDataAsync(stream)).ToLower();
         stream.Seek(0, SeekOrigin.Begin);
 
         return (hash, stream);

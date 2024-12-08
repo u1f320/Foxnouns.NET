@@ -123,22 +123,27 @@ public class AuthService(
         CancellationToken ct = default
     )
     {
-        var user = await db.Users.FirstOrDefaultAsync(
+        User? user = await db.Users.FirstOrDefaultAsync(
             u => u.AuthMethods.Any(a => a.AuthType == AuthType.Email && a.RemoteId == email),
             ct
         );
         if (user == null)
+        {
             throw new ApiError.NotFound(
                 "No user with that email address found, or password is incorrect",
                 ErrorCode.UserNotFound
             );
+        }
 
-        var pwResult = await VerifyHashedPasswordAsync(user, password, ct);
+        PasswordVerificationResult pwResult = await VerifyHashedPasswordAsync(user, password, ct);
         if (pwResult == PasswordVerificationResult.Failed) // TODO: this seems to fail on some valid passwords?
+        {
             throw new ApiError.NotFound(
                 "No user with that email address found, or password is incorrect",
                 ErrorCode.UserNotFound
             );
+        }
+
         if (pwResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
             user.Password = await HashPasswordAsync(user, password, ct);
@@ -169,7 +174,7 @@ public class AuthService(
             throw new FoxnounsError("Password for user supplied to ValidatePasswordAsync was null");
         }
 
-        var pwResult = await VerifyHashedPasswordAsync(user, password, ct);
+        PasswordVerificationResult pwResult = await VerifyHashedPasswordAsync(user, password, ct);
         return pwResult
             is PasswordVerificationResult.SuccessRehashNeeded
                 or PasswordVerificationResult.Success;
@@ -231,13 +236,15 @@ public class AuthService(
         AssertValidAuthType(authType, app);
 
         // This is already checked when
-        var currentCount = await db
+        int currentCount = await db
             .AuthMethods.Where(m => m.UserId == userId && m.AuthType == authType)
             .CountAsync(ct);
         if (currentCount >= AuthUtils.MaxAuthMethodsPerType)
+        {
             throw new ApiError.BadRequest(
                 "Too many linked accounts of this type, maximum of 3 per account."
             );
+        }
 
         var authMethod = new AuthMethod
         {
@@ -262,13 +269,15 @@ public class AuthService(
     )
     {
         if (!AuthUtils.ValidateScopes(application, scopes))
+        {
             throw new ApiError.BadRequest(
                 "Invalid scopes requested for this token",
                 "scopes",
                 scopes
             );
+        }
 
-        var (token, hash) = GenerateToken();
+        (string? token, byte[]? hash) = GenerateToken();
         return (
             token,
             new Token
@@ -293,9 +302,9 @@ public class AuthService(
         CancellationToken ct = default
     )
     {
-        var frontendApp = await db.GetFrontendApplicationAsync(ct);
+        Application frontendApp = await db.GetFrontendApplicationAsync(ct);
 
-        var (tokenStr, token) = GenerateToken(
+        (string? tokenStr, Token? token) = GenerateToken(
             user,
             frontendApp,
             ["*"],
@@ -308,17 +317,12 @@ public class AuthService(
         await db.SaveChangesAsync(ct);
 
         return new CallbackResponse(
-            HasAccount: true,
-            Ticket: null,
-            RemoteUsername: null,
-            User: await userRenderer.RenderUserAsync(
-                user,
-                selfUser: user,
-                renderMembers: false,
-                ct: ct
-            ),
-            Token: tokenStr,
-            ExpiresAt: token.ExpiresAt
+            true,
+            null,
+            null,
+            await userRenderer.RenderUserAsync(user, user, renderMembers: false, ct: ct),
+            tokenStr,
+            token.ExpiresAt
         );
     }
 
@@ -340,8 +344,8 @@ public class AuthService(
 
     private static (string, byte[]) GenerateToken()
     {
-        var token = AuthUtils.RandomToken();
-        var hash = SHA512.HashData(Convert.FromBase64String(token));
+        string token = AuthUtils.RandomToken();
+        byte[] hash = SHA512.HashData(Convert.FromBase64String(token));
 
         return (token, hash);
     }

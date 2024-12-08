@@ -9,6 +9,7 @@ using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using NodaTime;
 
 namespace Foxnouns.Backend.Controllers;
@@ -29,16 +30,9 @@ public class UsersController(
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
     {
-        var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
+        User user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
         return Ok(
-            await userRenderer.RenderUserAsync(
-                user,
-                selfUser: CurrentUser,
-                token: CurrentToken,
-                renderMembers: true,
-                renderAuthMethods: true,
-                ct: ct
-            )
+            await userRenderer.RenderUserAsync(user, CurrentUser, CurrentToken, true, true, ct: ct)
         );
     }
 
@@ -50,8 +44,8 @@ public class UsersController(
         CancellationToken ct = default
     )
     {
-        await using var tx = await db.Database.BeginTransactionAsync(ct);
-        var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
+        await using IDbContextTransaction tx = await db.Database.BeginTransactionAsync(ct);
+        User user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
         var errors = new List<(string, ValidationError?)>();
 
         if (req.Username != null && req.Username != user.Username)
@@ -108,7 +102,7 @@ public class UsersController(
 
         if (req.Flags != null)
         {
-            var flagError = await db.SetUserFlagsAsync(CurrentUser!.Id, req.Flags);
+            ValidationError? flagError = await db.SetUserFlagsAsync(CurrentUser!.Id, req.Flags);
             if (flagError != null)
                 errors.Add(("flags", flagError));
         }
@@ -143,12 +137,14 @@ public class UsersController(
                 if (TimeZoneInfo.TryFindSystemTimeZoneById(req.Timezone, out _))
                     user.Timezone = req.Timezone;
                 else
+                {
                     errors.Add(
                         (
                             "timezone",
                             ValidationError.GenericValidationError("Invalid timezone", req.Timezone)
                         )
                     );
+                }
             }
         }
 
@@ -157,9 +153,11 @@ public class UsersController(
         // (atomic operations are hard when combined with background jobs)
         // so it's in a separate block to the validation above.
         if (req.HasProperty(nameof(req.Avatar)))
+        {
             queue.QueueInvocableWithPayload<UserAvatarUpdateInvocable, AvatarUpdatePayload>(
                 new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar)
             );
+        }
 
         try
         {
@@ -202,12 +200,12 @@ public class UsersController(
     {
         ValidationUtils.Validate(ValidationUtils.ValidateCustomPreferences(req));
 
-        var user = await db.ResolveUserAsync(CurrentUser!.Id, ct);
+        User user = await db.ResolveUserAsync(CurrentUser!.Id, ct);
         var preferences = user
             .CustomPreferences.Where(x => req.Any(r => r.Id == x.Key))
             .ToDictionary();
 
-        foreach (var r in req)
+        foreach (CustomPreferenceUpdate? r in req)
         {
             if (r.Id != null && preferences.ContainsKey(r.Id.Value))
             {
@@ -271,7 +269,7 @@ public class UsersController(
     [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserSettingsAsync(CancellationToken ct = default)
     {
-        var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
+        User user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
         return Ok(user.Settings);
     }
 
@@ -283,7 +281,7 @@ public class UsersController(
         CancellationToken ct = default
     )
     {
-        var user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
+        User user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
 
         if (req.HasProperty(nameof(req.DarkMode)))
             user.Settings.DarkMode = req.DarkMode;
@@ -304,7 +302,7 @@ public class UsersController(
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> RerollSidAsync()
     {
-        var minTimeAgo = clock.GetCurrentInstant() - Duration.FromHours(1);
+        Instant minTimeAgo = clock.GetCurrentInstant() - Duration.FromHours(1);
         if (CurrentUser!.LastSidReroll > minTimeAgo)
             throw new ApiError.BadRequest("Cannot reroll short ID yet");
 
@@ -318,18 +316,18 @@ public class UsersController(
             );
 
         // Get the user's new sid
-        var newSid = await db
+        string newSid = await db
             .Users.Where(u => u.Id == CurrentUser.Id)
             .Select(u => u.Sid)
             .FirstAsync();
 
-        var user = await db.ResolveUserAsync(CurrentUser.Id);
+        User user = await db.ResolveUserAsync(CurrentUser.Id);
         return Ok(
             await userRenderer.RenderUserAsync(
-                CurrentUser,
+                user,
                 CurrentUser,
                 CurrentToken,
-                renderMembers: false,
+                false,
                 overrideSid: newSid
             )
         );

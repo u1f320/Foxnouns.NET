@@ -39,11 +39,7 @@ public class EmailAuthController(
         if (!req.Email.Contains('@'))
             throw new ApiError.BadRequest("Email is invalid", "email", req.Email);
 
-        var state = await keyCacheService.GenerateRegisterEmailStateAsync(
-            req.Email,
-            userId: null,
-            ct
-        );
+        string state = await keyCacheService.GenerateRegisterEmailStateAsync(req.Email, null, ct);
 
         // If there's already a user with that email address, pretend we sent an email but actually ignore it
         if (
@@ -63,23 +59,14 @@ public class EmailAuthController(
     {
         CheckRequirements();
 
-        var state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
+        RegisterEmailState? state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
         if (state is not { ExistingUserId: null })
             throw new ApiError.BadRequest("Invalid state", "state", req.State);
 
-        var ticket = AuthUtils.RandomToken();
+        string ticket = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync($"email:{ticket}", state.Email, Duration.FromMinutes(20));
 
-        return Ok(
-            new CallbackResponse(
-                HasAccount: false,
-                Ticket: ticket,
-                RemoteUsername: state.Email,
-                User: null,
-                Token: null,
-                ExpiresAt: null
-            )
-        );
+        return Ok(new CallbackResponse(false, ticket, state.Email, null, null, null));
     }
 
     [HttpPost("register")]
@@ -89,14 +76,18 @@ public class EmailAuthController(
     {
         CheckRequirements();
 
-        var email = await keyCacheService.GetKeyAsync($"email:{req.Ticket}");
+        string? email = await keyCacheService.GetKeyAsync($"email:{req.Ticket}");
         if (email == null)
             throw new ApiError.BadRequest("Unknown ticket", "ticket", req.Ticket);
 
-        var user = await authService.CreateUserWithPasswordAsync(req.Username, email, req.Password);
-        var frontendApp = await db.GetFrontendApplicationAsync();
+        User user = await authService.CreateUserWithPasswordAsync(
+            req.Username,
+            email,
+            req.Password
+        );
+        Application frontendApp = await db.GetFrontendApplicationAsync();
 
-        var (tokenStr, token) = authService.GenerateToken(
+        (string? tokenStr, Token? token) = authService.GenerateToken(
             user,
             frontendApp,
             ["*"],
@@ -110,7 +101,7 @@ public class EmailAuthController(
 
         return Ok(
             new AuthController.AuthResponse(
-                await userRenderer.RenderUserAsync(user, selfUser: user, renderMembers: false),
+                await userRenderer.RenderUserAsync(user, user, renderMembers: false),
                 tokenStr,
                 token.ExpiresAt
             )
@@ -126,19 +117,16 @@ public class EmailAuthController(
     {
         CheckRequirements();
 
-        var (user, authenticationResult) = await authService.AuthenticateUserAsync(
-            req.Email,
-            req.Password,
-            ct
-        );
+        (User? user, AuthService.EmailAuthenticationResult authenticationResult) =
+            await authService.AuthenticateUserAsync(req.Email, req.Password, ct);
         if (authenticationResult == AuthService.EmailAuthenticationResult.MfaRequired)
             throw new NotImplementedException("MFA is not implemented yet");
 
-        var frontendApp = await db.GetFrontendApplicationAsync(ct);
+        Application frontendApp = await db.GetFrontendApplicationAsync(ct);
 
         _logger.Debug("Logging user {Id} in with email and password", user.Id);
 
-        var (tokenStr, token) = authService.GenerateToken(
+        (string? tokenStr, Token? token) = authService.GenerateToken(
             user,
             frontendApp,
             ["*"],
@@ -152,12 +140,7 @@ public class EmailAuthController(
 
         return Ok(
             new AuthController.AuthResponse(
-                await userRenderer.RenderUserAsync(
-                    user,
-                    selfUser: user,
-                    renderMembers: false,
-                    ct: ct
-                ),
+                await userRenderer.RenderUserAsync(user, user, renderMembers: false, ct: ct),
                 tokenStr,
                 token.ExpiresAt
             )
@@ -184,7 +167,7 @@ public class EmailAuthController(
     {
         CheckRequirements();
 
-        var emails = await db
+        List<AuthMethod> emails = await db
             .AuthMethods.Where(m => m.UserId == CurrentUser!.Id && m.AuthType == AuthType.Email)
             .ToListAsync();
         if (emails.Count > AuthUtils.MaxAuthMethodsPerType)
@@ -207,12 +190,12 @@ public class EmailAuthController(
             await db.SaveChangesAsync();
         }
 
-        var state = await keyCacheService.GenerateRegisterEmailStateAsync(
+        string state = await keyCacheService.GenerateRegisterEmailStateAsync(
             req.Email,
-            userId: CurrentUser!.Id
+            CurrentUser!.Id
         );
 
-        var emailExists = await db
+        bool emailExists = await db
             .AuthMethods.Where(m => m.AuthType == AuthType.Email && m.RemoteId == req.Email)
             .AnyAsync();
         if (emailExists)
@@ -230,13 +213,13 @@ public class EmailAuthController(
     {
         CheckRequirements();
 
-        var state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
+        RegisterEmailState? state = await keyCacheService.GetRegisterEmailStateAsync(req.State);
         if (state?.ExistingUserId != CurrentUser!.Id)
             throw new ApiError.BadRequest("Invalid state", "state", req.State);
 
         try
         {
-            var authMethod = await authService.AddAuthMethodAsync(
+            AuthMethod authMethod = await authService.AddAuthMethodAsync(
                 CurrentUser.Id,
                 AuthType.Email,
                 state.Email
@@ -252,7 +235,7 @@ public class EmailAuthController(
                     authMethod.Id,
                     AuthType.Email,
                     authMethod.RemoteId,
-                    RemoteUsername: null
+                    null
                 )
             );
         }

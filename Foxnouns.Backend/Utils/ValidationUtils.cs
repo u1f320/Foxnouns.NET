@@ -12,9 +12,9 @@ public static partial class ValidationUtils
             return;
 
         var errorDict = new Dictionary<string, IEnumerable<ValidationError>>();
-        foreach (var error in errors)
+        foreach ((string, ValidationError?) error in errors)
         {
-            if (errorDict.TryGetValue(error.Item1, out var value))
+            if (errorDict.TryGetValue(error.Item1, out IEnumerable<ValidationError>? value))
                 errorDict[error.Item1] = value.Append(error.Item2!);
             errorDict.Add(error.Item1, [error.Item2!]);
         }

@@ -18,8 +18,8 @@ public class Application : BaseModel
         string[] redirectUrls
     )
     {
-        var clientId = RandomNumberGenerator.GetHexString(32, true);
-        var clientSecret = AuthUtils.RandomToken();
+        string clientId = RandomNumberGenerator.GetHexString(32, true);
+        string clientSecret = AuthUtils.RandomToken();
 
         if (scopes.Except(AuthUtils.ApplicationScopes).Any())
         {

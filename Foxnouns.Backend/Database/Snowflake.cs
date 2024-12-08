@@ -59,7 +59,7 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
     public static bool TryParse(string input, [NotNullWhen(true)] out Snowflake? snowflake)
     {
         snowflake = null;
-        if (!ulong.TryParse(input, out var res))
+        if (!ulong.TryParse(input, out ulong res))
             return false;
         snowflake = new Snowflake(res);
         return true;
@@ -70,10 +70,7 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
 
     public override bool Equals(object? obj) => obj is Snowflake other && Value == other.Value;
 
-    public bool Equals(Snowflake other)
-    {
-        return Value == other.Value;
-    }
+    public bool Equals(Snowflake other) => Value == other.Value;
 
     public override int GetHashCode() => Value.GetHashCode();
 
@@ -83,11 +80,7 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
     /// An Entity Framework ValueConverter for Snowflakes to longs.
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
-    public class ValueConverter()
-        : ValueConverter<Snowflake, long>(
-            convertToProviderExpression: x => x,
-            convertFromProviderExpression: x => x
-        );
+    public class ValueConverter() : ValueConverter<Snowflake, long>(x => x, x => x);
 
     private class JsonConverter : JsonConverter<Snowflake>
     {
@@ -106,10 +99,7 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
             Snowflake existingValue,
             bool hasExistingValue,
             JsonSerializer serializer
-        )
-        {
-            return ulong.Parse((string)reader.Value!);
-        }
+        ) => ulong.Parse((string)reader.Value!);
     }
 
     private class TypeConverter : System.ComponentModel.TypeConverter
@@ -126,9 +116,6 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
             ITypeDescriptorContext? context,
             CultureInfo? culture,
             object value
-        )
-        {
-            return TryParse((string)value, out var snowflake) ? snowflake : null;
-        }
+        ) => TryParse((string)value, out Snowflake? snowflake) ? snowflake : null;
     }
 }

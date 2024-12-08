@@ -28,9 +28,9 @@ public class DataCleanupService(
 
     private async Task CleanUsersAsync(CancellationToken ct = default)
     {
-        var selfDeleteExpires = clock.GetCurrentInstant() - User.DeleteAfter;
-        var suspendExpires = clock.GetCurrentInstant() - User.DeleteSuspendedAfter;
-        var users = await db
+        Instant selfDeleteExpires = clock.GetCurrentInstant() - User.DeleteAfter;
+        Instant suspendExpires = clock.GetCurrentInstant() - User.DeleteSuspendedAfter;
+        List<User> users = await db
             .Users.Include(u => u.Members)
             .Include(u => u.DataExports)
             .Where(u =>
@@ -92,13 +92,15 @@ public class DataCleanupService(
     private async Task CleanExportsAsync(CancellationToken ct = default)
     {
         var minExpiredId = Snowflake.FromInstant(clock.GetCurrentInstant() - DataExport.Expiration);
-        var exports = await db.DataExports.Where(d => d.Id < minExpiredId).ToListAsync(ct);
+        List<DataExport> exports = await db
+            .DataExports.Where(d => d.Id < minExpiredId)
+            .ToListAsync(ct);
         if (exports.Count == 0)
             return;
 
         _logger.Debug("Deleting {Count} expired exports", exports.Count);
 
-        foreach (var export in exports)
+        foreach (DataExport? export in exports)
         {
             _logger.Debug("Deleting export {ExportId}", export.Id);
             await objectStorageService.RemoveObjectAsync(

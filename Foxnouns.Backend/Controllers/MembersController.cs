@@ -9,6 +9,7 @@ using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using NodaTime;
 
 namespace Foxnouns.Backend.Controllers;
@@ -32,7 +33,7 @@ public class MembersController(
     )]
     public async Task<IActionResult> GetMembersAsync(string userRef, CancellationToken ct = default)
     {
-        var user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
+        User user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
         return Ok(await memberRenderer.RenderUserMembersAsync(user, CurrentToken));
     }
 
@@ -44,7 +45,7 @@ public class MembersController(
         CancellationToken ct = default
     )
     {
-        var member = await db.ResolveMemberAsync(userRef, memberRef, CurrentToken, ct);
+        Member member = await db.ResolveMemberAsync(userRef, memberRef, CurrentToken, ct);
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
@@ -78,7 +79,7 @@ public class MembersController(
             ]
         );
 
-        var memberCount = await db.Members.CountAsync(m => m.UserId == CurrentUser.Id, ct);
+        int memberCount = await db.Members.CountAsync(m => m.UserId == CurrentUser.Id, ct);
         if (memberCount >= MaxMemberCount)
             throw new ApiError.BadRequest("Maximum number of members reached");
 
@@ -120,9 +121,11 @@ public class MembersController(
         }
 
         if (req.Avatar != null)
+        {
             queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
                 new AvatarUpdatePayload(member.Id, req.Avatar)
             );
+        }
 
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
@@ -134,8 +137,8 @@ public class MembersController(
         [FromBody] UpdateMemberRequest req
     )
     {
-        await using var tx = await db.Database.BeginTransactionAsync();
-        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+        await using IDbContextTransaction tx = await db.Database.BeginTransactionAsync();
+        Member member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
         var errors = new List<(string, ValidationError?)>();
 
         // We might add extra validations for names later down the line.
@@ -197,7 +200,11 @@ public class MembersController(
 
         if (req.Flags != null)
         {
-            var flagError = await db.SetMemberFlagsAsync(CurrentUser!.Id, member.Id, req.Flags);
+            ValidationError? flagError = await db.SetMemberFlagsAsync(
+                CurrentUser!.Id,
+                member.Id,
+                req.Flags
+            );
             if (flagError != null)
                 errors.Add(("flags", flagError));
         }
@@ -210,9 +217,12 @@ public class MembersController(
         // (atomic operations are hard when combined with background jobs)
         // so it's in a separate block to the validation above.
         if (req.HasProperty(nameof(req.Avatar)))
+        {
             queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
                 new AvatarUpdatePayload(member.Id, req.Avatar)
             );
+        }
+
         try
         {
             await db.SaveChangesAsync();
@@ -254,8 +264,8 @@ public class MembersController(
     [Authorize("member.update")]
     public async Task<IActionResult> DeleteMemberAsync(string memberRef)
     {
-        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
-        var deleteCount = await db
+        Member member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+        int deleteCount = await db
             .Members.Where(m => m.UserId == CurrentUser!.Id && m.Id == member.Id)
             .ExecuteDeleteAsync();
         if (deleteCount == 0)
@@ -289,9 +299,9 @@ public class MembersController(
     [ProducesResponseType<UserRendererService.UserResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> RerollSidAsync(string memberRef)
     {
-        var member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
+        Member member = await db.ResolveMemberAsync(CurrentUser!.Id, memberRef);
 
-        var minTimeAgo = clock.GetCurrentInstant() - Duration.FromHours(1);
+        Instant minTimeAgo = clock.GetCurrentInstant() - Duration.FromHours(1);
         if (CurrentUser!.LastSidReroll > minTimeAgo)
             throw new ApiError.BadRequest("Cannot reroll short ID yet");
 
@@ -308,7 +318,10 @@ public class MembersController(
             );
 
         // Fetch the new sid then pass that to RenderMember
-        var newSid = await db.Members.Where(m => m.Id == member.Id).Select(m => m.Sid).FirstAsync();
+        string newSid = await db
+            .Members.Where(m => m.Id == member.Id)
+            .Select(m => m.Sid)
+            .FirstAsync();
         return Ok(memberRenderer.RenderMember(member, CurrentToken, newSid));
     }
 }

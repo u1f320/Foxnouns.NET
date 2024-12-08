@@ -1,8 +1,49 @@
-[*.cs]
+[*]
 # We use PostgresSQL which doesn't recommend more specific string types
 resharper_entity_framework_model_validation_unlimited_string_length_highlighting = none
 # This is raised for every single property of records returned by endpoints
 resharper_not_accessed_positional_property_local_highlighting = none
+
+
+# Microsoft .NET properties
+csharp_new_line_before_members_in_object_initializers = false
+csharp_preferred_modifier_order = public, internal, protected, private, file, new, required, abstract, virtual, sealed, static, override, extern, unsafe, volatile, async, readonly:suggestion
+
+# ReSharper properties
+resharper_align_multiline_binary_expressions_chain = false
+resharper_arguments_skip_single = true
+resharper_blank_lines_after_start_comment = 0
+resharper_blank_lines_around_single_line_invocable = 0
+resharper_blank_lines_before_block_statements = 0
+resharper_braces_for_foreach = required_for_multiline
+resharper_braces_for_ifelse = required_for_multiline
+resharper_braces_redundant = false
+resharper_csharp_blank_lines_around_field = 0
+resharper_csharp_empty_block_style = together_same_line
+resharper_csharp_max_line_length = 166
+resharper_csharp_wrap_after_declaration_lpar = true
+resharper_csharp_wrap_before_binary_opsign = true
+resharper_csharp_wrap_before_declaration_rpar = true
+resharper_csharp_wrap_parameters_style = chop_if_long
+resharper_indent_preprocessor_other = do_not_change
+resharper_instance_members_qualify_declared_in =
+resharper_keep_existing_attribute_arrangement = true
+resharper_max_attribute_length_for_same_line = 70
+resharper_place_accessorholder_attribute_on_same_line = false
+resharper_place_expr_method_on_single_line = if_owner_is_single_line
+resharper_place_method_attribute_on_same_line = if_owner_is_single_line
+resharper_place_record_field_attribute_on_same_line = true
+resharper_place_simple_embedded_statement_on_same_line = false
+resharper_place_simple_initializer_on_single_line = false
+resharper_place_simple_list_pattern_on_single_line = false
+resharper_space_within_empty_braces = false
+resharper_trailing_comma_in_multiline_lists = true
+resharper_wrap_after_invocation_lpar = false
+resharper_wrap_before_invocation_rpar = false
+resharper_wrap_before_primary_constructor_declaration_rpar = true
+resharper_wrap_chained_binary_patterns = chop_if_long
+resharper_wrap_list_pattern = chop_always
+resharper_wrap_object_and_collection_initializer_style = chop_always
 
 [*generated.cs]
 generated_code = true

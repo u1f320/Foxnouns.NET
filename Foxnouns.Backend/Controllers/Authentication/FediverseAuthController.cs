@@ -34,7 +34,7 @@ public class FediverseAuthController(
         if (instance.Any(c => c is '@' or ':' or '/') || !instance.Contains('.'))
             throw new ApiError.BadRequest("Not a valid domain.", "instance", instance);
 
-        var url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh);
+        string url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh);
         return Ok(new AuthController.SingleUrlResponse(url));
     }
 
@@ -42,22 +42,19 @@ public class FediverseAuthController(
     [ProducesResponseType<CallbackResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> FediverseCallbackAsync([FromBody] CallbackRequest req)
     {
-        var app = await fediverseAuthService.GetApplicationAsync(req.Instance);
-        var remoteUser = await fediverseAuthService.GetRemoteFediverseUserAsync(
-            app,
-            req.Code,
-            req.State
-        );
+        FediverseApplication app = await fediverseAuthService.GetApplicationAsync(req.Instance);
+        FediverseAuthService.FediverseUser remoteUser =
+            await fediverseAuthService.GetRemoteFediverseUserAsync(app, req.Code, req.State);
 
-        var user = await authService.AuthenticateUserAsync(
+        User? user = await authService.AuthenticateUserAsync(
             AuthType.Fediverse,
             remoteUser.Id,
-            instance: app
+            app
         );
         if (user != null)
             return Ok(await authService.GenerateUserTokenAsync(user));
 
-        var ticket = AuthUtils.RandomToken();
+        string ticket = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"fediverse:{ticket}",
             new FediverseTicketData(app.Id, remoteUser),
@@ -66,12 +63,12 @@ public class FediverseAuthController(
 
         return Ok(
             new CallbackResponse(
-                HasAccount: false,
-                Ticket: ticket,
-                RemoteUsername: $"@{remoteUser.Username}@{app.Domain}",
-                User: null,
-                Token: null,
-                ExpiresAt: null
+                false,
+                ticket,
+                $"@{remoteUser.Username}@{app.Domain}",
+                null,
+                null,
+                null
             )
         );
     }
@@ -82,14 +79,16 @@ public class FediverseAuthController(
         [FromBody] AuthController.OauthRegisterRequest req
     )
     {
-        var ticketData = await keyCacheService.GetKeyAsync<FediverseTicketData>(
+        FediverseTicketData? ticketData = await keyCacheService.GetKeyAsync<FediverseTicketData>(
             $"fediverse:{req.Ticket}",
-            delete: true
+            true
         );
         if (ticketData == null)
             throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);
 
-        var app = await db.FediverseApplications.FindAsync(ticketData.ApplicationId);
+        FediverseApplication? app = await db.FediverseApplications.FindAsync(
+            ticketData.ApplicationId
+        );
         if (app == null)
             throw new FoxnounsError("Null application found for ticket");
 
@@ -111,12 +110,12 @@ public class FediverseAuthController(
             throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);
         }
 
-        var user = await authService.CreateUserWithRemoteAuthAsync(
+        User user = await authService.CreateUserWithRemoteAuthAsync(
             req.Username,
             AuthType.Fediverse,
             ticketData.User.Id,
             ticketData.User.Username,
-            instance: app
+            app
         );
 
         return Ok(await authService.GenerateUserTokenAsync(user));
@@ -132,13 +131,13 @@ public class FediverseAuthController(
         if (instance.Any(c => c is '@' or ':' or '/') || !instance.Contains('.'))
             throw new ApiError.BadRequest("Not a valid domain.", "instance", instance);
 
-        var state = await remoteAuthService.ValidateAddAccountRequestAsync(
+        string state = await remoteAuthService.ValidateAddAccountRequestAsync(
             CurrentUser!.Id,
             AuthType.Fediverse,
             instance
         );
 
-        var url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh, state);
+        string url = await fediverseAuthService.GenerateAuthUrlAsync(instance, forceRefresh, state);
         return Ok(new AuthController.SingleUrlResponse(url));
     }
 
@@ -153,11 +152,12 @@ public class FediverseAuthController(
             req.Instance
         );
 
-        var app = await fediverseAuthService.GetApplicationAsync(req.Instance);
-        var remoteUser = await fediverseAuthService.GetRemoteFediverseUserAsync(app, req.Code);
+        FediverseApplication app = await fediverseAuthService.GetApplicationAsync(req.Instance);
+        FediverseAuthService.FediverseUser remoteUser =
+            await fediverseAuthService.GetRemoteFediverseUserAsync(app, req.Code);
         try
         {
-            var authMethod = await authService.AddAuthMethodAsync(
+            AuthMethod authMethod = await authService.AddAuthMethodAsync(
                 CurrentUser.Id,
                 AuthType.Fediverse,
                 remoteUser.Id,

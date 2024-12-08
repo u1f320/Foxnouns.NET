@@ -10,9 +10,8 @@ public class MetaController : ApiControllerBase
 
     [HttpGet]
     [ProducesResponseType<MetaResponse>(StatusCodes.Status200OK)]
-    public IActionResult GetMeta()
-    {
-        return Ok(
+    public IActionResult GetMeta() =>
+        Ok(
             new MetaResponse(
                 Repository,
                 BuildInfo.Version,
@@ -25,14 +24,13 @@ public class MetaController : ApiControllerBase
                     (int)FoxnounsMetrics.UsersActiveDayCount.Value
                 ),
                 new Limits(
-                    MemberCount: MembersController.MaxMemberCount,
-                    BioLength: ValidationUtils.MaxBioLength,
-                    CustomPreferences: ValidationUtils.MaxCustomPreferences,
-                    MaxAuthMethods: AuthUtils.MaxAuthMethodsPerType
+                    MembersController.MaxMemberCount,
+                    ValidationUtils.MaxBioLength,
+                    ValidationUtils.MaxCustomPreferences,
+                    AuthUtils.MaxAuthMethodsPerType
                 )
             )
         );
-    }
 
     [HttpGet("/api/v2/coffee")]
     public IActionResult BrewCoffee() =>

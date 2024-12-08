@@ -26,7 +26,7 @@ public static class DatabaseQueryExtensions
         }
 
         User? user;
-        if (Snowflake.TryParse(userRef, out var snowflake))
+        if (Snowflake.TryParse(userRef, out Snowflake? snowflake))
         {
             user = await context
                 .Users.Where(u => !u.Deleted)
@@ -42,7 +42,7 @@ public static class DatabaseQueryExtensions
             return user;
         throw new ApiError.NotFound(
             "No user with that ID or username found.",
-            code: ErrorCode.UserNotFound
+            ErrorCode.UserNotFound
         );
     }
 
@@ -52,12 +52,12 @@ public static class DatabaseQueryExtensions
         CancellationToken ct = default
     )
     {
-        var user = await context
+        User? user = await context
             .Users.Where(u => !u.Deleted)
             .FirstOrDefaultAsync(u => u.Id == id, ct);
         if (user != null)
             return user;
-        throw new ApiError.NotFound("No user with that ID found.", code: ErrorCode.UserNotFound);
+        throw new ApiError.NotFound("No user with that ID found.", ErrorCode.UserNotFound);
     }
 
     public static async Task<Member> ResolveMemberAsync(
@@ -66,16 +66,13 @@ public static class DatabaseQueryExtensions
         CancellationToken ct = default
     )
     {
-        var member = await context
+        Member? member = await context
             .Members.Include(m => m.User)
             .Where(m => !m.User.Deleted)
             .FirstOrDefaultAsync(m => m.Id == id, ct);
         if (member != null)
             return member;
-        throw new ApiError.NotFound(
-            "No member with that ID found.",
-            code: ErrorCode.MemberNotFound
-        );
+        throw new ApiError.NotFound("No member with that ID found.", ErrorCode.MemberNotFound);
     }
 
     public static async Task<Member> ResolveMemberAsync(
@@ -86,7 +83,7 @@ public static class DatabaseQueryExtensions
         CancellationToken ct = default
     )
     {
-        var user = await context.ResolveUserAsync(userRef, token, ct);
+        User user = await context.ResolveUserAsync(userRef, token, ct);
         return await context.ResolveMemberAsync(user.Id, memberRef, ct);
     }
 
@@ -98,7 +95,7 @@ public static class DatabaseQueryExtensions
     )
     {
         Member? member;
-        if (Snowflake.TryParse(memberRef, out var snowflake))
+        if (Snowflake.TryParse(memberRef, out Snowflake? snowflake))
         {
             member = await context
                 .Members.Include(m => m.User)
@@ -118,7 +115,7 @@ public static class DatabaseQueryExtensions
             return member;
         throw new ApiError.NotFound(
             "No member with that ID or name found.",
-            code: ErrorCode.MemberNotFound
+            ErrorCode.MemberNotFound
         );
     }
 
@@ -127,7 +124,10 @@ public static class DatabaseQueryExtensions
         CancellationToken ct = default
     )
     {
-        var app = await context.Applications.FirstOrDefaultAsync(a => a.Id == new Snowflake(0), ct);
+        Application? app = await context.Applications.FirstOrDefaultAsync(
+            a => a.Id == new Snowflake(0),
+            ct
+        );
         if (app != null)
             return app;
 
@@ -152,9 +152,9 @@ public static class DatabaseQueryExtensions
         CancellationToken ct = default
     )
     {
-        var hash = SHA512.HashData(rawToken);
+        byte[] hash = SHA512.HashData(rawToken);
 
-        var oauthToken = await context
+        Token? oauthToken = await context
             .Tokens.Include(t => t.Application)
             .Include(t => t.User)
             .FirstOrDefaultAsync(
@@ -174,7 +174,7 @@ public static class DatabaseQueryExtensions
         CancellationToken ct = default
     )
     {
-        var hash = SHA512.HashData(rawToken);
+        byte[] hash = SHA512.HashData(rawToken);
         return await context
             .Tokens.Where(t =>
                 t.Hash == hash

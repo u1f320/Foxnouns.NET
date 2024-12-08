@@ -1,5 +1,6 @@
 using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
@@ -7,6 +8,7 @@ using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Foxnouns.Backend.Controllers;
 
@@ -29,7 +31,9 @@ public class FlagsController(
     )]
     public async Task<IActionResult> GetFlagsAsync(CancellationToken ct = default)
     {
-        var flags = await db.PrideFlags.Where(f => f.UserId == CurrentUser!.Id).ToListAsync(ct);
+        List<PrideFlag> flags = await db
+            .PrideFlags.Where(f => f.UserId == CurrentUser!.Id)
+            .ToListAsync(ct);
 
         return Ok(flags.Select(userRenderer.RenderPrideFlag));
     }
@@ -43,7 +47,7 @@ public class FlagsController(
     {
         ValidationUtils.Validate(ValidateFlag(req.Name, req.Description, req.Image));
 
-        var id = snowflakeGenerator.GenerateSnowflake();
+        Snowflake id = snowflakeGenerator.GenerateSnowflake();
 
         queue.QueueInvocableWithPayload<CreateFlagInvocable, CreateFlagPayload>(
             new CreateFlagPayload(id, CurrentUser!.Id, req.Name, req.Image, req.Description)
@@ -62,7 +66,7 @@ public class FlagsController(
     {
         ValidationUtils.Validate(ValidateFlag(req.Name, req.Description, null));
 
-        var flag = await db.PrideFlags.FirstOrDefaultAsync(f =>
+        PrideFlag? flag = await db.PrideFlags.FirstOrDefaultAsync(f =>
             f.Id == id && f.UserId == CurrentUser!.Id
         );
         if (flag == null)
@@ -90,20 +94,20 @@ public class FlagsController(
     [Authorize("user.update")]
     public async Task<IActionResult> DeleteFlagAsync(Snowflake id)
     {
-        await using var tx = await db.Database.BeginTransactionAsync();
+        await using IDbContextTransaction tx = await db.Database.BeginTransactionAsync();
 
-        var flag = await db.PrideFlags.FirstOrDefaultAsync(f =>
+        PrideFlag? flag = await db.PrideFlags.FirstOrDefaultAsync(f =>
             f.Id == id && f.UserId == CurrentUser!.Id
         );
         if (flag == null)
             throw new ApiError.NotFound("Unknown flag ID, or it's not your flag.");
 
-        var hash = flag.Hash;
+        string hash = flag.Hash;
 
         db.PrideFlags.Remove(flag);
         await db.SaveChangesAsync();
 
-        var flagCount = await db.PrideFlags.CountAsync(f => f.Hash == flag.Hash);
+        int flagCount = await db.PrideFlags.CountAsync(f => f.Hash == flag.Hash);
         if (flagCount == 0)
         {
             try

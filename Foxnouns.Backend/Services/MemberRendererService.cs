@@ -10,11 +10,11 @@ public class MemberRendererService(DatabaseContext db, Config config)
 {
     public async Task<IEnumerable<PartialMember>> RenderUserMembersAsync(User user, Token? token)
     {
-        var canReadHiddenMembers =
+        bool canReadHiddenMembers =
             token != null && token.UserId == user.Id && token.HasScope("member.read");
-        var renderUnlisted =
+        bool renderUnlisted =
             token != null && token.UserId == user.Id && token.HasScope("user.read_hidden");
-        var canReadMemberList = !user.ListHidden || canReadHiddenMembers;
+        bool canReadMemberList = !user.ListHidden || canReadHiddenMembers;
 
         IEnumerable<Member> members = canReadMemberList
             ? await db.Members.Where(m => m.UserId == user.Id).OrderBy(m => m.Name).ToListAsync()
@@ -30,7 +30,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
         string? overrideSid = null
     )
     {
-        var renderUnlisted = token?.UserId == member.UserId && token.HasScope("user.read_hidden");
+        bool renderUnlisted = token?.UserId == member.UserId && token.HasScope("user.read_hidden");
 
         return new MemberResponse(
             member.Id,

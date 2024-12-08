@@ -20,8 +20,10 @@ public static class FlagQueryExtensions
         Snowflake[] flagIds
     )
     {
-        var currentFlags = await db.UserFlags.Where(f => f.UserId == userId).ToListAsync();
-        foreach (var flag in currentFlags)
+        List<UserFlag> currentFlags = await db
+            .UserFlags.Where(f => f.UserId == userId)
+            .ToListAsync();
+        foreach (UserFlag flag in currentFlags)
             db.UserFlags.Remove(flag);
 
         // If there's no new flags to set, we're done
@@ -30,12 +32,16 @@ public static class FlagQueryExtensions
         if (flagIds.Length > 100)
             return ValidationError.LengthError("Too many profile flags", 0, 100, flagIds.Length);
 
-        var flags = await db.GetFlagsAsync(userId);
-        var unknownFlagIds = flagIds.Where(id => flags.All(f => f.Id != id)).ToArray();
+        List<PrideFlag> flags = await db.GetFlagsAsync(userId);
+        Snowflake[] unknownFlagIds = flagIds.Where(id => flags.All(f => f.Id != id)).ToArray();
         if (unknownFlagIds.Length != 0)
             return ValidationError.GenericValidationError("Unknown flag IDs", unknownFlagIds);
 
-        var userFlags = flagIds.Select(id => new UserFlag { PrideFlagId = id, UserId = userId });
+        IEnumerable<UserFlag> userFlags = flagIds.Select(id => new UserFlag
+        {
+            PrideFlagId = id,
+            UserId = userId,
+        });
         db.UserFlags.AddRange(userFlags);
 
         return null;
@@ -48,8 +54,10 @@ public static class FlagQueryExtensions
         Snowflake[] flagIds
     )
     {
-        var currentFlags = await db.MemberFlags.Where(f => f.MemberId == memberId).ToListAsync();
-        foreach (var flag in currentFlags)
+        List<MemberFlag> currentFlags = await db
+            .MemberFlags.Where(f => f.MemberId == memberId)
+            .ToListAsync();
+        foreach (MemberFlag flag in currentFlags)
             db.MemberFlags.Remove(flag);
 
         if (flagIds.Length == 0)
@@ -57,12 +65,12 @@ public static class FlagQueryExtensions
         if (flagIds.Length > 100)
             return ValidationError.LengthError("Too many profile flags", 0, 100, flagIds.Length);
 
-        var flags = await db.GetFlagsAsync(userId);
-        var unknownFlagIds = flagIds.Where(id => flags.All(f => f.Id != id)).ToArray();
+        List<PrideFlag> flags = await db.GetFlagsAsync(userId);
+        Snowflake[] unknownFlagIds = flagIds.Where(id => flags.All(f => f.Id != id)).ToArray();
         if (unknownFlagIds.Length != 0)
             return ValidationError.GenericValidationError("Unknown flag IDs", unknownFlagIds);
 
-        var memberFlags = flagIds.Select(id => new MemberFlag
+        IEnumerable<MemberFlag> memberFlags = flagIds.Select(id => new MemberFlag
         {
             PrideFlagId = id,
             MemberId = memberId,

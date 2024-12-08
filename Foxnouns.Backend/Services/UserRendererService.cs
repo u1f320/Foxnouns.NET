@@ -43,9 +43,9 @@ public class UserRendererService(
     )
     {
         scopes = scopes.ExpandScopes();
-        var tokenCanReadHiddenMembers = scopes.Contains("member.read") && isSelfUser;
-        var tokenHidden = scopes.Contains("user.read_hidden") && isSelfUser;
-        var tokenPrivileged = scopes.Contains("user.read_privileged") && isSelfUser;
+        bool tokenCanReadHiddenMembers = scopes.Contains("member.read") && isSelfUser;
+        bool tokenHidden = scopes.Contains("user.read_hidden") && isSelfUser;
+        bool tokenPrivileged = scopes.Contains("user.read_privileged") && isSelfUser;
 
         renderMembers = renderMembers && (!user.ListHidden || tokenCanReadHiddenMembers);
         renderAuthMethods = renderAuthMethods && tokenPrivileged;
@@ -57,12 +57,12 @@ public class UserRendererService(
         if (!(isSelfUser && tokenCanReadHiddenMembers))
             members = members.Where(m => !m.Unlisted);
 
-        var flags = await db
+        List<UserFlag> flags = await db
             .UserFlags.Where(f => f.UserId == user.Id)
             .OrderBy(f => f.Id)
             .ToListAsync(ct);
 
-        var authMethods = renderAuthMethods
+        List<AuthMethod> authMethods = renderAuthMethods
             ? await db
                 .AuthMethods.Where(a => a.UserId == user.Id)
                 .Include(a => a.FediverseApplication)
@@ -72,7 +72,7 @@ public class UserRendererService(
         int? utcOffset = null;
         if (
             user.Timezone != null
-            && TimeZoneInfo.TryFindSystemTimeZoneById(user.Timezone, out var tz)
+            && TimeZoneInfo.TryFindSystemTimeZoneById(user.Timezone, out TimeZoneInfo? tz)
         )
             utcOffset = (int)tz.GetUtcOffset(DateTimeOffset.UtcNow).TotalSeconds;
 

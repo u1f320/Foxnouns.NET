@@ -7,19 +7,21 @@ public static class BuildInfo
 
     public static async Task ReadBuildInfo()
     {
-        await using var stream = typeof(BuildInfo).Assembly.GetManifestResourceStream("version");
+        await using Stream? stream = typeof(BuildInfo).Assembly.GetManifestResourceStream(
+            "version"
+        );
         if (stream == null)
             return;
 
         using var reader = new StreamReader(stream);
-        var data = (await reader.ReadToEndAsync()).Trim().Split("\n");
+        string[] data = (await reader.ReadToEndAsync()).Trim().Split("\n");
         if (data.Length < 3)
             return;
 
         Hash = data[0];
-        var dirty = data[2] == "dirty";
+        bool dirty = data[2] == "dirty";
 
-        var versionData = data[1].Split("-");
+        string[] versionData = data[1].Split("-");
         if (versionData.Length < 3)
             return;
         Version = versionData[0];
