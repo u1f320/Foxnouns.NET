@@ -54,7 +54,9 @@
 		"confirm-password-label": "Confirm password",
 		"register-with-email-init-success": "Success! An email has been sent to your inbox, please press the link there to continue.",
 		"register-with-google": "Register with a Google account",
-		"remote-google-account-label": "Your Google account"
+		"remote-google-account-label": "Your Google account",
+		"register-with-tumblr": "Register with a Tumblr account",
+		"remote-tumblr-account-label": "Your Tumblr account"
 	},
 	"error": {
 		"bad-request-header": "Something was wrong with your input",

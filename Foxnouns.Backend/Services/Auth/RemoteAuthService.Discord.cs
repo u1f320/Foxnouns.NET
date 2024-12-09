@@ -53,14 +53,12 @@ public partial class RemoteAuthService
             throw new FoxnounsError("Invalid Discord OAuth response");
         }
 
-        DiscordTokenResponse? token = await resp.Content.ReadFromJsonAsync<DiscordTokenResponse>(
-            ct
-        );
+        OauthTokenResponse? token = await resp.Content.ReadFromJsonAsync<OauthTokenResponse>(ct);
         if (token == null)
             throw new FoxnounsError("Discord token response was null");
 
         var req = new HttpRequestMessage(HttpMethod.Get, _discordUserUri);
-        req.Headers.Add("Authorization", $"{token.token_type} {token.access_token}");
+        req.Headers.Add("Authorization", $"{token.TokenType} {token.AccessToken}");
 
         HttpResponseMessage resp2 = await _httpClient.SendAsync(req, ct);
         resp2.EnsureSuccessStatusCode();

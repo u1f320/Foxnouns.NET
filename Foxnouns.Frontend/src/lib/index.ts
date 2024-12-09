@@ -3,8 +3,7 @@
 import type { Cookies } from "@sveltejs/kit";
 import { DateTime } from "luxon";
 
-// export const TOKEN_COOKIE_NAME = "__Host-pronounscc-token";
-export const TOKEN_COOKIE_NAME = "pronounscc-token";
+export const TOKEN_COOKIE_NAME = "__Host-pronounscc-token";
 
 export const setToken = (cookies: Cookies, token: string) =>
 	cookies.set(TOKEN_COOKIE_NAME, token, { path: "/" });

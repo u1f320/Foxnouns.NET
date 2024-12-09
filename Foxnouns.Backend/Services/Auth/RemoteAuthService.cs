@@ -19,7 +19,6 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Utils;
 using Humanizer;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foxnouns.Backend.Services.Auth;

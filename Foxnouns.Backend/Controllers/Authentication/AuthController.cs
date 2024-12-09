@@ -48,6 +48,7 @@ public class AuthController(
         string state = HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync(ct));
         string? discord = null;
         string? google = null;
+        string? tumblr = null;
         if (config.DiscordAuth is { ClientId: not null, ClientSecret: not null })
         {
             discord =
@@ -67,7 +68,16 @@ public class AuthController(
                 + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/google")}";
         }
 
-        return Ok(new UrlsResponse(config.EmailAuth.Enabled, discord, google, null));
+        if (config.TumblrAuth is { ClientId: not null, ClientSecret: not null })
+        {
+            tumblr =
+                "https://www.tumblr.com/oauth2/authorize?response_type=code"
+                + $"&client_id={config.TumblrAuth.ClientId}"
+                + $"&scope=basic&state={state}"
+                + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/tumblr")}";
+        }
+
+        return Ok(new UrlsResponse(config.EmailAuth.Enabled, discord, google, tumblr));
     }
 
     [HttpPost("force-log-out")]
