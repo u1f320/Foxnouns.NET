@@ -29,4 +29,4 @@
 	};
 </script>
 
-<FieldsEditor {fields} {ok} {allPreferences} {update} />
+<FieldsEditor bind:fields {ok} {allPreferences} {update} />
