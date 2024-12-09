@@ -6,3 +6,7 @@ config.ini
 *.DotSettings.user
 proxy-config.json
 .DS_Store
+
+docker/config.ini
+docker/proxy-config.json
+docker/frontend.env

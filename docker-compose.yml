@@ -5,8 +5,8 @@ services:
       context: .
       dockerfile: ./Dockerfile.backend
     environment:
-      - "Database:Url=Host=pgbouncer;Database=postgres;Username=postgres;Password=postgres"
-      - "Database:EnablePooling=false"
+      - "Database:Url=Host=postgres;Database=postgres;Username=postgres;Password=postgres"
+      - "Database:EnablePooling=true"
       - "Host=0.0.0.0"
       - "Port=5000"
     restart: unless-stopped
@@ -15,13 +15,14 @@ services:
 
   frontend:
     image: frontend
-    build: ./Foxnouns.Frontend
-    environment:
-      - "API_BASE=http://rate:5003/api"
-      - "INTERNAL_API_BASE=http://backend:5000/api"
+    build:
+      context: ./
+      dockerfile: ./Foxnouns.Frontend/Dockerfile
     restart: unless-stopped
-    volumes:
-      - ./docker/frontend.env:/app/.env
+    env_file: ./docker/frontend.env
+    environment:
+      - "PRIVATE_API_HOST=http://rate:5003/api"
+      - "PRIVATE_INTERNAL_API_HOST=http://backend:5000/api"
 
   rate:
     image: rate
@@ -31,16 +32,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/proxy-config.json:/app/proxy-config.json
-
-  pgbouncer:
-    image: docker.io/edoburu/pgbouncer:latest
-    environment:
-      - "DATABASE_URL=postgres://postgres:postgres@postgres/postgres"
-      - "AUTH_TYPE=scram-sha-256"
-      - "MAX_CLIENT_CONN=100"
-      - "DEFAULT_POOL_SIZE=100"
-      - "MIN_POOL_SIZE=10"
-    restart: unless-stopped
 
   postgres:
     image: docker.io/postgres:16
@@ -61,6 +52,7 @@ services:
     restart: unless-stopped
     ports:
       - "5004:80"
+      - "5005:81"
     volumes:
       - ./docker/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
