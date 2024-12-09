@@ -33,6 +33,7 @@ public class AuthController(
         );
         string state = HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync(ct));
         string? discord = null;
+        string? google = null;
         if (config.DiscordAuth is { ClientId: not null, ClientSecret: not null })
         {
             discord =
@@ -42,7 +43,17 @@ public class AuthController(
                 + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/discord")}";
         }
 
-        return Ok(new UrlsResponse(config.EmailAuth.Enabled, discord, null, null));
+        if (config.GoogleAuth is { ClientId: not null, ClientSecret: not null })
+        {
+            google =
+                "https://accounts.google.com/o/oauth2/auth?response_type=code"
+                + $"&client_id={config.GoogleAuth.ClientId}"
+                + $"&scope=openid+{HttpUtility.UrlEncode("https://www.googleapis.com/auth/userinfo.email")}"
+                + $"&prompt=select_account&state={state}"
+                + $"&redirect_uri={HttpUtility.UrlEncode($"{config.BaseUrl}/auth/callback/google")}";
+        }
+
+        return Ok(new UrlsResponse(config.EmailAuth.Enabled, discord, google, null));
     }
 
     [HttpPost("force-log-out")]

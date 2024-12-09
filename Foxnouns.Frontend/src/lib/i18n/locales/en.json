@@ -52,7 +52,9 @@
 		"register-with-email": "Register with an email address",
 		"email-label": "Your email address",
 		"confirm-password-label": "Confirm password",
-		"register-with-email-init-success": "Success! An email has been sent to your inbox, please press the link there to continue."
+		"register-with-email-init-success": "Success! An email has been sent to your inbox, please press the link there to continue.",
+		"register-with-google": "Register with a Google account",
+		"remote-google-account-label": "Your Google account"
 	},
 	"error": {
 		"bad-request-header": "Something was wrong with your input",
