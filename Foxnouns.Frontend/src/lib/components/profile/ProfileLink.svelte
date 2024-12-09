@@ -9,7 +9,7 @@
 		if (raw.startsWith("https://")) out = raw.substring("https://".length);
 		else if (raw.startsWith("http://")) out = raw.substring("http://".length);
 
-		if (raw.endsWith("/")) out = raw.substring(0, raw.length - 1);
+		if (out.endsWith("/")) out = out.substring(0, out.length - 1);
 
 		return out;
 	};

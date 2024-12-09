@@ -2,6 +2,7 @@
 	import { fastRequest } from "$api";
 	import type { RawApiError } from "$api/error";
 	import ApiError from "$api/error";
+	import LinksEditor from "$components/editor/LinksEditor.svelte";
 	import ProfileFlagsEditor from "$components/editor/ProfileFlagsEditor.svelte";
 	import log from "$lib/log";
 	import type { PageData } from "./$types";
@@ -9,20 +10,41 @@
 	type Props = { data: PageData };
 	let { data }: Props = $props();
 
-	let form: { ok: boolean; error: RawApiError | null } | null = $state(null);
+	let flagForm: { ok: boolean; error: RawApiError | null } | null = $state(null);
+	let linksForm: { ok: boolean; error: RawApiError | null } | null = $state(null);
 
-	const save = async (flags: string[]) => {
+	const flagSave = async (flags: string[]) => {
 		try {
 			await fastRequest("PATCH", "/users/@me", {
 				body: { flags },
 				token: data.token,
 			});
-			form = { ok: true, error: null };
+			flagForm = { ok: true, error: null };
 		} catch (e) {
 			log.error("Could not update profile flags:", e);
-			if (e instanceof ApiError) form = { ok: false, error: e.obj };
+			if (e instanceof ApiError) flagForm = { ok: false, error: e.obj };
+		}
+	};
+
+	const linksSave = async (links: string[]) => {
+		try {
+			await fastRequest("PATCH", "/users/@me", {
+				body: { links },
+				token: data.token,
+			});
+			linksForm = { ok: true, error: null };
+		} catch (e) {
+			log.error("Could not update profile links:", e);
+			if (e instanceof ApiError) linksForm = { ok: false, error: e.obj };
 		}
 	};
 </script>
 
-<ProfileFlagsEditor profileFlags={data.user.flags} allFlags={data.flags} {save} {form} />
+<ProfileFlagsEditor
+	profileFlags={data.user.flags}
+	allFlags={data.flags}
+	save={flagSave}
+	form={flagForm}
+/>
+
+<LinksEditor currentLinks={data.user.links} save={linksSave} form={linksForm} />

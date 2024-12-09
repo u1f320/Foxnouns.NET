@@ -202,7 +202,8 @@
 		"flag-search-no-flags": "No flags matched your search query.",
 		"flag-search-no-account-flags": "You haven't uploaded any flags yet.",
 		"flag-search-hint": "Can't find the flag you're looking for? Try using the search bar above.",
-		"flag-manage-your-flags": "Manage your flags"
+		"flag-manage-your-flags": "Manage your flags",
+		"links-header": "Links"
 	},
 	"cancel": "Cancel"
 }
