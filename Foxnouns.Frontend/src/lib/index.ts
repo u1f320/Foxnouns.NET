@@ -11,6 +11,7 @@ export const clearToken = (cookies: Cookies) => cookies.delete(TOKEN_COOKIE_NAME
 
 // TODO: change this to something we actually clearly have the rights to use
 export const DEFAULT_AVATAR = "https://pronouns.cc/default/512.webp";
+export const DEFAULT_FLAG = "/unknown_flag.svg";
 
 export const idTimestamp = (id: string) =>
 	DateTime.fromMillis(parseInt(id, 10) / (1 << 22) + 1_640_995_200_000);

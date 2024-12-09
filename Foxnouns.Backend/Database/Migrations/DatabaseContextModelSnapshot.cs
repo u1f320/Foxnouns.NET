@@ -282,7 +282,6 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnName("description");
 
                     b.Property<string>("Hash")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("hash");
 
@@ -546,7 +545,7 @@ namespace Foxnouns.Backend.Database.Migrations
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.DataExport", b =>
                 {
                     b.HasOne("Foxnouns.Backend.Database.Models.User", "User")
-                        .WithMany()
+                        .WithMany("DataExports")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -644,6 +643,8 @@ namespace Foxnouns.Backend.Database.Migrations
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.User", b =>
                 {
                     b.Navigation("AuthMethods");
+
+                    b.Navigation("DataExports");
 
                     b.Navigation("Flags");
 

@@ -83,7 +83,8 @@ public class MemberRendererService(DatabaseContext db, Config config)
             ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp"
             : null;
 
-    private string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
+    private string? ImageUrlFor(PrideFlag flag) =>
+        flag.Hash != null ? $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp" : null;
 
     private PrideFlagResponse RenderPrideFlag(PrideFlag flag) =>
         new(flag.Id, ImageUrlFor(flag), flag.Name, flag.Description);

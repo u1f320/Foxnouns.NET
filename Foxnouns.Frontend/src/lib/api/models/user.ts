@@ -66,7 +66,7 @@ export type Field = {
 
 export type PrideFlag = {
 	id: string;
-	image_url: string;
+	image_url: string | null;
 	name: string;
 	description: string | null;
 };

@@ -108,6 +108,12 @@ public class CreateDataExportInvocable(
 
     private async Task WritePrideFlag(ZipArchive zip, PrideFlag flag)
     {
+        if (flag.Hash == null)
+        {
+            _logger.Debug("Flag {FlagId} has a null hash, ignoring it", flag.Id);
+            return;
+        }
+
         _logger.Debug("Writing flag {FlagId}", flag.Id);
 
         var flagData = $"""

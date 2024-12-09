@@ -33,3 +33,8 @@ Code taken entirely or almost entirely from external sources:
   taken from [PluralKit](https://github.com/PluralKit/PluralKit/blob/32a6e97342acc3b35e6f9e7b4dd169e21d888770/PluralKit.Core/Database/Functions/functions.sql)
 - `Foxnouns.Backend/Database/prune-designer-cs-files.sh`,
   taken from [Iceshrimp.NET](https://iceshrimp.dev/iceshrimp/Iceshrimp.NET/src/commit/7c93dcf79dda54fc1a4ea9772e3f80874e6bcefb/Iceshrimp.Backend/Core/Database/prune-designer-cs-files.sh)
+
+Files under a different license:
+
+- `Foxnouns.Frontend/static/unknown_flag.svg` is https://commons.wikimedia.org/wiki/File:Unknown_flag.svg, 
+  by 8938e on Wikimedia Commons, licensed as CC BY-SA 4.0.

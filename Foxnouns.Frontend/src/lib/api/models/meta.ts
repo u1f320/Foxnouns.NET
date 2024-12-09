@@ -17,4 +17,5 @@ export type Limits = {
 	bio_length: number;
 	custom_preferences: number;
 	max_auth_methods: number;
+	max_flags: number;
 };

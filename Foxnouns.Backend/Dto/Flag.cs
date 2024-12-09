@@ -4,7 +4,7 @@ using Foxnouns.Backend.Utils;
 
 namespace Foxnouns.Backend.Dto;
 
-public record PrideFlagResponse(Snowflake Id, string ImageUrl, string Name, string? Description);
+public record PrideFlagResponse(Snowflake Id, string? ImageUrl, string Name, string? Description);
 
 public record CreateFlagRequest(string Name, string Image, string? Description);
 

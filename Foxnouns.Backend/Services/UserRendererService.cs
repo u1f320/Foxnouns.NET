@@ -131,7 +131,8 @@ public class UserRendererService(
             ? $"{config.MediaBaseUrl}/users/{user.Id}/avatars/{user.Avatar}.webp"
             : null;
 
-    public string ImageUrlFor(PrideFlag flag) => $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp";
+    public string? ImageUrlFor(PrideFlag flag) =>
+        flag.Hash != null ? $"{config.MediaBaseUrl}/flags/{flag.Hash}.webp" : null;
 
     public PrideFlagResponse RenderPrideFlag(PrideFlag flag) =>
         new(flag.Id, ImageUrlFor(flag), flag.Name, flag.Description);

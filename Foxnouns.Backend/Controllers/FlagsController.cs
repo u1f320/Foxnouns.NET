@@ -46,13 +46,22 @@ public class FlagsController(
 
         ValidationUtils.Validate(ValidateFlag(req.Name, req.Description, req.Image));
 
-        Snowflake id = snowflakeGenerator.GenerateSnowflake();
+        var flag = new PrideFlag
+        {
+            Id = snowflakeGenerator.GenerateSnowflake(),
+            UserId = CurrentUser!.Id,
+            Name = req.Name,
+            Description = req.Description,
+        };
+
+        db.Add(flag);
+        await db.SaveChangesAsync();
 
         queue.QueueInvocableWithPayload<CreateFlagInvocable, CreateFlagPayload>(
-            new CreateFlagPayload(id, CurrentUser!.Id, req.Name, req.Image, req.Description)
+            new CreateFlagPayload(flag.Id, CurrentUser!.Id, req.Name, req.Image, req.Description)
         );
 
-        return Accepted(new CreateFlagResponse(id, req.Name, req.Description));
+        return Accepted(userRenderer.RenderPrideFlag(flag));
     }
 
     [HttpPatch("{id}")]

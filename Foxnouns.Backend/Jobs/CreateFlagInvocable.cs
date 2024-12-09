@@ -3,6 +3,7 @@ using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foxnouns.Backend.Jobs;
 
@@ -26,6 +27,18 @@ public class CreateFlagInvocable(
 
         try
         {
+            PrideFlag? flag = await db.PrideFlags.FirstOrDefaultAsync(f =>
+                f.Id == Payload.Id && f.UserId == Payload.UserId
+            );
+            if (flag == null)
+            {
+                _logger.Warning(
+                    "Got a flag create job for {FlagId} but it doesn't exist, aborting",
+                    Payload.Id
+                );
+                return;
+            }
+
             (string? hash, Stream? image) = await ImageObjectExtensions.ConvertBase64UriToImage(
                 Payload.ImageData,
                 256,
@@ -33,16 +46,8 @@ public class CreateFlagInvocable(
             );
             await objectStorageService.PutObjectAsync(Path(hash), image, "image/webp");
 
-            var flag = new PrideFlag
-            {
-                Id = Payload.Id,
-                UserId = Payload.UserId,
-                Hash = hash,
-                Name = Payload.Name,
-                Description = Payload.Description,
-            };
-            db.Add(flag);
-
+            flag.Hash = hash;
+            db.Update(flag);
             await db.SaveChangesAsync();
 
             _logger.Information("Uploaded flag {FlagId} with hash {Hash}", flag.Id, flag.Hash);
