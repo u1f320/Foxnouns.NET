@@ -6,6 +6,7 @@
 	import ApiError from "$api/error";
 	import log from "$lib/log";
 	import { Icon, InputGroup } from "@sveltestrap/sveltestrap";
+	import InfoCircleFill from "svelte-bootstrap-icons/lib/InfoCircleFill.svelte";
 	import { t } from "$lib/i18n";
 	import AvatarEditor from "$components/editor/AvatarEditor.svelte";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
@@ -133,7 +134,7 @@
 				</label>
 			</div>
 			<p class="text-muted mt-1">
-				<Icon name="info-circle-fill" aria-hidden />
+				<InfoCircleFill aria-hidden />
 				{$t("edit-profile.unlisted-note")}
 				<code>
 					{PUBLIC_BASE_URL.substring("https://".length)}/@{data.member.user.username}/{data.member

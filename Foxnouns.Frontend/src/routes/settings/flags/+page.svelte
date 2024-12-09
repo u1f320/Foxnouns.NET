@@ -78,10 +78,7 @@
 <NoscriptWarning />
 
 <form method="POST" action="?/upload" enctype="multipart/form-data">
-	<FormStatusMarker
-		{form}
-		successMessage="Successfully uploaded your flag! It may take a few seconds before it's saved."
-	/>
+	<FormStatusMarker {form} successMessage={$t("settings.flag-upload-success")} />
 	<h4>{$t("settings.flag-upload-title")}</h4>
 	<input
 		type="file"
@@ -90,8 +87,19 @@
 		class="mb-2 form-control"
 		required
 	/>
-	<input class="mb-2 form-control" name="name" placeholder="Name" autocomplete="off" required />
-	<input class="mb-2 form-control" name="desc" placeholder="Description" autocomplete="off" />
+	<input
+		class="mb-2 form-control"
+		name="name"
+		placeholder={$t("settings.flag-name-placeholder")}
+		autocomplete="off"
+		required
+	/>
+	<input
+		class="mb-2 form-control"
+		name="desc"
+		placeholder={$t("settings.flag-description-placeholder")}
+		autocomplete="off"
+	/>
 	<button type="submit" class="btn btn-primary">{$t("settings.flag-upload-button")}</button>
 </form>
 

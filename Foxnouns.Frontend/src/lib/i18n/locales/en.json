@@ -128,7 +128,10 @@
 		"flag-current-flags-title": "Current flags ({{count}}/{{max}})",
 		"flag-title": "Flags",
 		"flag-upload-title": "Upload a new flag",
-		"flag-upload-button": "Upload"
+		"flag-upload-button": "Upload",
+		"flag-description-placeholder": "Description",
+		"flag-name-placeholder": "Name",
+		"flag-upload-success": "Successfully uploaded your flag! It may take a few seconds before it's saved."
 	},
 	"yes": "Yes",
 	"no": "No",
@@ -188,7 +191,18 @@
 		"remove-field": "Remove field",
 		"field-name": "Field name",
 		"add-field": "Add field",
-		"new-entry": "New entry"
+		"new-entry": "New entry",
+		"add-this-flag": "Add this flag",
+		"add-flags-header": "Add flags",
+		"move-flag-up": "Move flag up",
+		"move-flag-down": "Move flag down",
+		"remove-this-flag": "Remove this flag",
+		"no-flags-hint": "This profile doesn't have any flags yet! Add some with the search box.",
+		"flag-search-placeholder": "Type to start searching",
+		"flag-search-no-flags": "No flags matched your search query.",
+		"flag-search-no-account-flags": "You haven't uploaded any flags yet.",
+		"flag-search-hint": "Can't find the flag you're looking for? Try using the search bar above.",
+		"flag-manage-your-flags": "Manage your flags"
 	},
 	"cancel": "Cancel"
 }

@@ -24,11 +24,16 @@
 		<img class="flag" src={flag.image_url ?? DEFAULT_FLAG} alt={flag.description ?? flag.name} />
 	</span>
 	<div class="w-lg-50">
-		<input class="mb-2 form-control" placeholder="Name" bind:value={name} autocomplete="off" />
+		<input
+			class="mb-2 form-control"
+			placeholder={$t("settings.flag-name-placeholder")}
+			bind:value={name}
+			autocomplete="off"
+		/>
 		<textarea
 			class="mb-2 form-control"
 			style="height: 5rem;"
-			placeholder="Description"
+			placeholder={$t("settings.flag-description-placeholder")}
 			bind:value={description}
 			autocomplete="off"
 		></textarea>
