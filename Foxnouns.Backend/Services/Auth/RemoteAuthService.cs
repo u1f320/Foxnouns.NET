@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using System.Web;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
@@ -34,6 +35,12 @@ public partial class RemoteAuthService(
     private readonly HttpClient _httpClient = new();
 
     public record RemoteUser(string Id, string Username);
+
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+    private record OauthTokenResponse(
+        [property: JsonPropertyName("access_token")] string AccessToken,
+        [property: JsonPropertyName("token_type")] string TokenType
+    );
 
     /// <summary>
     /// Validates whether a user can still add a new account of the given AuthType, and throws an error if they can't.

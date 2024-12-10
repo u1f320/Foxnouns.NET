@@ -12,8 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using System.Diagnostics.CodeAnalysis;
-using JetBrains.Annotations;
+using System.Text.Json.Serialization;
 
 namespace Foxnouns.Backend.Services.Auth;
 
@@ -66,22 +65,12 @@ public partial class RemoteAuthService
         if (user == null)
             throw new FoxnounsError("Discord user response was null");
 
-        return new RemoteUser(user.id, user.username);
+        return new RemoteUser(user.Id, user.Username);
     }
 
-    [SuppressMessage(
-        "ReSharper",
-        "InconsistentNaming",
-        Justification = "Easier to use snake_case here, rather than passing in JSON converter options"
-    )]
-    [UsedImplicitly]
-    private record DiscordTokenResponse(string access_token, string token_type);
-
-    [SuppressMessage(
-        "ReSharper",
-        "InconsistentNaming",
-        Justification = "Easier to use snake_case here, rather than passing in JSON converter options"
-    )]
-    [UsedImplicitly]
-    private record DiscordUserResponse(string id, string username);
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private record DiscordUserResponse(
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("username")] string Username
+    );
 }

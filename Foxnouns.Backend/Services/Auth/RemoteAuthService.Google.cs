@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -69,7 +68,7 @@ public partial class RemoteAuthService
         return new RemoteUser(user.Id, user.Email);
     }
 
-    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+    // ReSharper disable once ClassNeverInstantiated.Local
     private record GoogleTokenResponse([property: JsonPropertyName("id_token")] string IdToken);
 
     private record GoogleUser(

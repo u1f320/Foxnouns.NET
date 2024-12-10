@@ -14,6 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System.Text.Json.Serialization;
 
+// ReSharper disable ClassNeverInstantiated.Local
+
 namespace Foxnouns.Backend.Services.Auth;
 
 public partial class RemoteAuthService
@@ -82,11 +84,6 @@ public partial class RemoteAuthService
 
         return new RemoteUser(blog.Uuid, blog.Name);
     }
-
-    private record OauthTokenResponse(
-        [property: JsonPropertyName("access_token")] string AccessToken,
-        [property: JsonPropertyName("token_type")] string TokenType
-    );
 
     // tumblr why
     private record TumblrData(
