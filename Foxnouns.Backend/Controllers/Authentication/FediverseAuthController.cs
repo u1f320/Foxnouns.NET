@@ -28,6 +28,7 @@ using NodaTime;
 namespace Foxnouns.Backend.Controllers.Authentication;
 
 [Route("/api/internal/auth/fediverse")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class FediverseAuthController(
     ILogger logger,
     DatabaseContext db,

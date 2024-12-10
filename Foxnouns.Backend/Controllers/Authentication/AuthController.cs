@@ -26,6 +26,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Foxnouns.Backend.Controllers.Authentication;
 
 [Route("/api/internal/auth")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class AuthController(
     Config config,
     DatabaseContext db,

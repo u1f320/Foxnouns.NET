@@ -25,6 +25,7 @@ namespace Foxnouns.Backend.Controllers;
 
 [ApiController]
 [Route("/api/internal")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public partial class InternalController(DatabaseContext db) : ControllerBase
 {
     [GeneratedRegex(@"(\{\w+\})")]

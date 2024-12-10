@@ -17,6 +17,7 @@ using NodaTime;
 namespace Foxnouns.Backend.Controllers.Authentication;
 
 [Route("/api/internal/auth/tumblr")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class TumblrAuthController(
     [UsedImplicitly] Config config,
     ILogger logger,

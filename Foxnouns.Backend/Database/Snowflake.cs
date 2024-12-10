@@ -15,6 +15,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Newtonsoft.Json;
 using NodaTime;
@@ -23,6 +24,7 @@ using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 namespace Foxnouns.Backend.Database;
 
 [JsonConverter(typeof(JsonConverter))]
+[System.Text.Json.Serialization.JsonConverter(typeof(SystemJsonConverter))]
 [TypeConverter(typeof(TypeConverter))]
 public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
 {
@@ -95,6 +97,21 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
     public class ValueConverter() : ValueConverter<Snowflake, long>(x => x, x => x);
+
+    private class SystemJsonConverter : System.Text.Json.Serialization.JsonConverter<Snowflake>
+    {
+        public override Snowflake Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        ) => ulong.Parse(reader.GetString()!);
+
+        public override void Write(
+            Utf8JsonWriter writer,
+            Snowflake value,
+            JsonSerializerOptions options
+        ) => writer.WriteStringValue(value.Value.ToString());
+    }
 
     private class JsonConverter : JsonConverter<Snowflake>
     {

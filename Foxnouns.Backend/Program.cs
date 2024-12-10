@@ -12,14 +12,18 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Foxnouns.Backend;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
+using Foxnouns.Backend.Utils.OpenApi;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Prometheus;
+using Scalar.AspNetCore;
 using Sentry.Extensibility;
 using Serilog;
 
@@ -46,6 +50,13 @@ builder
 
 builder
     .Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper)
+        );
+    })
     .AddNewtonsoftJson(options =>
     {
         options.SerializerSettings.ContractResolver = new PatchRequestContractResolver
@@ -60,6 +71,16 @@ builder
         );
     });
 
+builder.Services.AddOpenApi(
+    "v2",
+    options =>
+    {
+        options.AddSchemaTransformer<PropertyKeySchemaTransformer>();
+        options.AddSchemaTransformer<ExampleFixingSchemaTransformer>();
+        options.AddDocumentTransformer(new DocumentTransformer(config));
+    }
+);
+
 // Set the default converter to snake case as we use it in a couple places.
 JsonConvert.DefaultSettings = () =>
     new JsonSerializerSettings
@@ -70,7 +91,7 @@ JsonConvert.DefaultSettings = () =>
         },
     };
 
-builder.AddServices(config).AddCustomMiddleware().AddEndpointsApiExplorer().AddSwaggerGen();
+builder.AddServices(config).AddCustomMiddleware();
 
 WebApplication app = builder.Build();
 
@@ -83,11 +104,16 @@ app.UseRouting();
 // so it's locked behind a config option.
 if (config.Logging.SentryTracing)
     app.UseSentryTracing();
-app.UseSwagger();
-app.UseSwaggerUI();
 app.UseCors();
 app.UseCustomMiddleware();
 app.MapControllers();
+app.MapOpenApi("/api-docs/openapi/{documentName}.json");
+app.MapScalarApiReference(options =>
+{
+    options.Title = "pronouns.cc API";
+    options.OpenApiRoutePattern = "/api-docs/openapi/{documentName}.json";
+    options.EndpointPathPrefix = "/api-docs/{documentName}";
+});
 
 app.Urls.Clear();
 app.Urls.Add(config.Address);

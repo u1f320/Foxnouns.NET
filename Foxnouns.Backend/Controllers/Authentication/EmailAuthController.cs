@@ -30,6 +30,7 @@ using NodaTime;
 namespace Foxnouns.Backend.Controllers.Authentication;
 
 [Route("/api/internal/auth/email")]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class EmailAuthController(
     [UsedImplicitly] Config config,
     DatabaseContext db,

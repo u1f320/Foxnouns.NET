@@ -25,6 +25,7 @@ namespace Foxnouns.Backend.Controllers;
     "CA1862:Use the \'StringComparison\' method overloads to perform case-insensitive string comparisons",
     Justification = "Not usable with EFCore"
 )]
+[ApiExplorerSettings(IgnoreApi = true)]
 public class SidController(Config config, DatabaseContext db) : ApiControllerBase
 {
     [HttpGet("{**id}")]

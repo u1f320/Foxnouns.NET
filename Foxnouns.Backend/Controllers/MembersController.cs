@@ -144,6 +144,7 @@ public class MembersController(
     }
 
     [HttpPatch("/api/v2/users/@me/members/{memberRef}")]
+    [ProducesResponseType<MemberResponse>(statusCode: StatusCodes.Status200OK)]
     [Authorize("member.update")]
     public async Task<IActionResult> UpdateMemberAsync(
         string memberRef,

@@ -80,6 +80,7 @@ public class FlagsController(
 
     [HttpPatch("{id}")]
     [Authorize("user.update")]
+    [ProducesResponseType<PrideFlagResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateFlagAsync(Snowflake id, [FromBody] UpdateFlagRequest req)
     {
         ValidationUtils.Validate(ValidateFlag(req.Name, req.Description, null));
