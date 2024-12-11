@@ -19,9 +19,21 @@ namespace Foxnouns.Backend.Mailables;
 public class AccountCreationMailable(Config config, AccountCreationMailableView view)
     : Mailable<AccountCreationMailableView>
 {
+    private string PlainText() =>
+        $"""
+            Please continue creating a new pronouns.cc account by using the following link:
+            {view.BaseUrl}/auth/callback/email/{view.Code}
+            Note that this link will expire in one hour.
+
+            If you didn't mean to create a new account, feel free to ignore this email.
+            """;
+
     public override void Build()
     {
-        To(view.To).From(config.EmailAuth.From!).View("~/Views/Mail/AccountCreation.cshtml", view);
+        To(view.To)
+            .From(config.EmailAuth.From!)
+            .View("~/Views/Mail/AccountCreation.cshtml", view)
+            .Text(PlainText());
     }
 }
 

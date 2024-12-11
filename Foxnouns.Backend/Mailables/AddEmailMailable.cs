@@ -19,9 +19,21 @@ namespace Foxnouns.Backend.Mailables;
 public class AddEmailMailable(Config config, AddEmailMailableView view)
     : Mailable<AddEmailMailableView>
 {
+    private string PlainText() =>
+        $"""
+            Hello @{view.Username}, please confirm adding this email address to your account by using the following link:
+            {view.BaseUrl}/auth/callback/email/{view.Code}
+            Note that this link will expire in one hour.
+
+            If you didn't mean to link this email address to @{view.Username}, feel free to ignore this email.
+            """;
+
     public override void Build()
     {
-        To(view.To).From(config.EmailAuth.From!).View("~/Views/Mail/AddEmail.cshtml", view);
+        To(view.To)
+            .From(config.EmailAuth.From!)
+            .View("~/Views/Mail/AddEmail.cshtml", view)
+            .Text(PlainText());
     }
 }
 
