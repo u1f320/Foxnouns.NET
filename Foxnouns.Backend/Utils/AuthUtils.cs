@@ -35,6 +35,9 @@ public static class AuthUtils
         "user.read_hidden",
         "user.read_privileged",
         "user.update",
+        "user.read_flags",
+        "user.create_flags",
+        "user.update_flags",
     ];
 
     public static readonly string[] MemberScopes =

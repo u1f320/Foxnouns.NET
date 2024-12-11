@@ -44,6 +44,7 @@ public class MembersController(
 
     [HttpGet]
     [ProducesResponseType<IEnumerable<PartialMember>>(StatusCodes.Status200OK)]
+    [Limit(UsableBySuspendedUsers = true)]
     public async Task<IActionResult> GetMembersAsync(string userRef, CancellationToken ct = default)
     {
         User user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
@@ -52,6 +53,7 @@ public class MembersController(
 
     [HttpGet("{memberRef}")]
     [ProducesResponseType<MemberResponse>(StatusCodes.Status200OK)]
+    [Limit(UsableBySuspendedUsers = true)]
     public async Task<IActionResult> GetMemberAsync(
         string userRef,
         string memberRef,

@@ -34,7 +34,8 @@ public class FlagsController(
 ) : ApiControllerBase
 {
     [HttpGet]
-    [Authorize("identify")]
+    [Limit(UsableBySuspendedUsers = true)]
+    [Authorize("user.read_flags")]
     [ProducesResponseType<IEnumerable<PrideFlagResponse>>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFlagsAsync(CancellationToken ct = default)
     {
@@ -50,7 +51,7 @@ public class FlagsController(
     public const int MaxFlagCount = 500;
 
     [HttpPost]
-    [Authorize("user.update")]
+    [Authorize("user.update_flags")]
     [ProducesResponseType<PrideFlagResponse>(statusCode: StatusCodes.Status202Accepted)]
     public async Task<IActionResult> CreateFlagAsync([FromBody] CreateFlagRequest req)
     {
@@ -79,7 +80,7 @@ public class FlagsController(
     }
 
     [HttpPatch("{id}")]
-    [Authorize("user.update")]
+    [Authorize("user.create_flags")]
     [ProducesResponseType<PrideFlagResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateFlagAsync(Snowflake id, [FromBody] UpdateFlagRequest req)
     {
@@ -104,7 +105,7 @@ public class FlagsController(
     }
 
     [HttpDelete("{id}")]
-    [Authorize("user.update")]
+    [Authorize("user.update_flags")]
     public async Task<IActionResult> DeleteFlagAsync(Snowflake id)
     {
         PrideFlag? flag = await db.PrideFlags.FirstOrDefaultAsync(f =>

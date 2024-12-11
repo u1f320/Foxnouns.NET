@@ -42,6 +42,7 @@ public class UsersController(
 
     [HttpGet("{userRef}")]
     [ProducesResponseType<UserResponse>(statusCode: StatusCodes.Status200OK)]
+    [Limit(UsableBySuspendedUsers = true)]
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
     {
         User user = await db.ResolveUserAsync(userRef, CurrentToken, ct);

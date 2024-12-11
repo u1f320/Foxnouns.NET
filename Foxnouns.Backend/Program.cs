@@ -66,9 +66,11 @@ builder
     })
     .ConfigureApiBehaviorOptions(options =>
     {
-        options.InvalidModelStateResponseFactory = actionContext => new BadRequestObjectResult(
-            new ApiError.AspBadRequest("Bad request", actionContext.ModelState).ToJson()
-        );
+        // the type isn't needed but without it, rider keeps complaining for no reason (it compiles just fine)
+        options.InvalidModelStateResponseFactory = (ActionContext actionContext) =>
+            new BadRequestObjectResult(
+                new ApiError.AspBadRequest("Bad request", actionContext.ModelState).ToJson()
+            );
     });
 
 builder.Services.AddOpenApi(

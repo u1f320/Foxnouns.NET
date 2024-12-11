@@ -31,6 +31,7 @@ public static class DatabaseQueryExtensions
     {
         if (userRef == "@me")
         {
+            // Not filtering deleted users, as a suspended user should still be able to look at their own profile.
             return token != null
                 ? await context.Users.FirstAsync(u => u.Id == token.UserId, ct)
                 : throw new ApiError.Unauthorized(
@@ -43,14 +44,14 @@ public static class DatabaseQueryExtensions
         if (Snowflake.TryParse(userRef, out Snowflake? snowflake))
         {
             user = await context
-                .Users.Where(u => !u.Deleted)
+                .Users.Where(u => !u.Deleted || (token != null && token.UserId == u.Id))
                 .FirstOrDefaultAsync(u => u.Id == snowflake, ct);
             if (user != null)
                 return user;
         }
 
         user = await context
-            .Users.Where(u => !u.Deleted)
+            .Users.Where(u => !u.Deleted || (token != null && token.UserId == u.Id))
             .FirstOrDefaultAsync(u => u.Username == userRef, ct);
         if (user != null)
             return user;
@@ -98,13 +99,14 @@ public static class DatabaseQueryExtensions
     )
     {
         User user = await context.ResolveUserAsync(userRef, token, ct);
-        return await context.ResolveMemberAsync(user.Id, memberRef, ct);
+        return await context.ResolveMemberAsync(user.Id, memberRef, token, ct);
     }
 
     public static async Task<Member> ResolveMemberAsync(
         this DatabaseContext context,
         Snowflake userId,
         string memberRef,
+        Token? token = null,
         CancellationToken ct = default
     )
     {
@@ -114,7 +116,8 @@ public static class DatabaseQueryExtensions
             member = await context
                 .Members.Include(m => m.User)
                 .Include(m => m.ProfileFlags)
-                .Where(m => !m.User.Deleted)
+                // Return members if their user isn't deleted or the user querying it is the member's owner
+                .Where(m => !m.User.Deleted || (token != null && token.UserId == m.UserId))
                 .FirstOrDefaultAsync(m => m.Id == snowflake && m.UserId == userId, ct);
             if (member != null)
                 return member;
@@ -123,7 +126,8 @@ public static class DatabaseQueryExtensions
         member = await context
             .Members.Include(m => m.User)
             .Include(m => m.ProfileFlags)
-            .Where(m => !m.User.Deleted)
+            // Return members if their user isn't deleted or the user querying it is the member's owner
+            .Where(m => !m.User.Deleted || (token != null && token.UserId == m.UserId))
             .FirstOrDefaultAsync(m => m.Name == memberRef && m.UserId == userId, ct);
         if (member != null)
             return member;
