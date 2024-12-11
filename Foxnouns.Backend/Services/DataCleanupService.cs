@@ -33,11 +33,22 @@ public class DataCleanupService(
 
     public async Task InvokeAsync(CancellationToken ct = default)
     {
-        _logger.Information("Cleaning up expired users");
+        _logger.Debug("Cleaning up sent email cache");
+        await CleanEmailsAsync(ct);
+
+        _logger.Debug("Cleaning up expired users");
         await CleanUsersAsync(ct);
 
-        _logger.Information("Cleaning up expired data exports");
+        _logger.Debug("Cleaning up expired data exports");
         await CleanExportsAsync(ct);
+    }
+
+    private async Task CleanEmailsAsync(CancellationToken ct = default)
+    {
+        Instant expiry = clock.GetCurrentInstant() - Duration.FromHours(2);
+        int count = await db.SentEmails.Where(e => e.SentAt < expiry).ExecuteDeleteAsync(ct);
+        if (count != 0)
+            _logger.Information("Deleted {Count} entries from the sent email cache", expiry);
     }
 
     private async Task CleanUsersAsync(CancellationToken ct = default)
