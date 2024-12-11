@@ -73,7 +73,7 @@ public class EmailAuthController(
     }
 
     [HttpPost("callback")]
-    public async Task<IActionResult> CallbackAsync([FromBody] CallbackRequest req)
+    public async Task<IActionResult> CallbackAsync([FromBody] EmailCallbackRequest req)
     {
         CheckRequirements();
 

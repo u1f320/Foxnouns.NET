@@ -1,11 +1,11 @@
 # Frontend and API
-http://localhost:80 {
+http://:80 {
     reverse_proxy /api/* http://rate:5003
     reverse_proxy http://frontend:3000
 }
 
 # prns.cc (profile URL shortener)
-http://localhost:81 {
+http://:81 {
     rewrite * /sid{uri}
     reverse_proxy http://backend:5000
 }
