@@ -15,22 +15,11 @@
 using Coravel.Mailer.Mail;
 using Coravel.Mailer.Mail.Interfaces;
 using Coravel.Queuing.Interfaces;
-using Foxnouns.Backend.Database;
-using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Mailables;
-using Microsoft.EntityFrameworkCore;
-using NodaTime;
 
 namespace Foxnouns.Backend.Services;
 
-public class MailService(
-    ILogger logger,
-    IMailer mailer,
-    IQueue queue,
-    IClock clock,
-    Config config,
-    IServiceProvider serviceProvider
-)
+public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config config)
 {
     private readonly ILogger _logger = logger.ForContext<MailService>();
 
@@ -78,29 +67,7 @@ public class MailService(
     {
         try
         {
-            // ReSharper disable SuggestVarOrType_SimpleTypes
-            await using var scope = serviceProvider.CreateAsyncScope();
-            await using var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-            // ReSharper restore SuggestVarOrType_SimpleTypes
-
-            Instant now = clock.GetCurrentInstant();
-
-            int count = await db.SentEmails.CountAsync(e =>
-                e.Email == to && e.SentAt > (now - Duration.FromHours(1))
-            );
-            if (count >= 2)
-            {
-                _logger.Information(
-                    "Have already sent 2 or more emails to {ToAddress} in the past hour, not sending new email",
-                    to
-                );
-                return;
-            }
-
             await mailer.SendAsync(mailable);
-
-            db.SentEmails.Add(new SentEmail { Email = to, SentAt = now });
-            await db.SaveChangesAsync();
         }
         catch (Exception exc)
         {

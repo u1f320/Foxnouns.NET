@@ -302,33 +302,6 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("pride_flags", (string)null);
                 });
 
-            modelBuilder.Entity("Foxnouns.Backend.Database.Models.SentEmail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<Instant>("SentAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sent_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_sent_emails");
-
-                    b.HasIndex("Email", "SentAt")
-                        .HasDatabaseName("ix_sent_emails_email_sent_at");
-
-                    b.ToTable("sent_emails", (string)null);
-                });
-
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.TemporaryKey", b =>
                 {
                     b.Property<long>("Id")

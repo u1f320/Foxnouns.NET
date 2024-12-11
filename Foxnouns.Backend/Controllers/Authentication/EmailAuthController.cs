@@ -36,6 +36,7 @@ public class EmailAuthController(
     DatabaseContext db,
     AuthService authService,
     MailService mailService,
+    EmailRateLimiter rateLimiter,
     KeyCacheService keyCacheService,
     UserRendererService userRenderer,
     IClock clock,
@@ -67,6 +68,9 @@ public class EmailAuthController(
         {
             return NoContent();
         }
+
+        if (IsRateLimited())
+            return NoContent();
 
         mailService.QueueAccountCreationEmail(req.Email, state);
         return NoContent();
@@ -221,6 +225,9 @@ public class EmailAuthController(
             return NoContent();
         }
 
+        if (IsRateLimited())
+            return NoContent();
+
         mailService.QueueAddEmailAddressEmail(req.Email, state, CurrentUser.Username);
         return NoContent();
     }
@@ -273,5 +280,35 @@ public class EmailAuthController(
     {
         if (!config.EmailAuth.Enabled)
             throw new ApiError.BadRequest("Email authentication is not enabled on this instance.");
+    }
+
+    /// <summary>
+    /// Checks whether the context's IP address is rate limited from dispatching emails.
+    /// </summary>
+    private bool IsRateLimited()
+    {
+        if (HttpContext.Connection.RemoteIpAddress == null)
+        {
+            _logger.Information(
+                "No remote IP address in HTTP context for email-related request, ignoring as we can't rate limit it"
+            );
+            return true;
+        }
+
+        if (
+            !rateLimiter.IsLimited(
+                HttpContext.Connection.RemoteIpAddress.ToString(),
+                out Duration retryAfter
+            )
+        )
+        {
+            return false;
+        }
+
+        _logger.Information(
+            "IP address cannot send email until {RetryAfter}, ignoring",
+            retryAfter
+        );
+        return true;
     }
 }

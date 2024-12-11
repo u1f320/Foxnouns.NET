@@ -110,6 +110,7 @@ public static class WebApplicationExtensions
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSnowflakeGenerator()
                     .AddSingleton<MailService>()
+                    .AddSingleton<EmailRateLimiter>()
                     .AddScoped<UserRendererService>()
                     .AddScoped<MemberRendererService>()
                     .AddScoped<AuthService>()
