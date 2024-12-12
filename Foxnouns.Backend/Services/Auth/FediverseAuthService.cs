@@ -81,11 +81,11 @@ public partial class FediverseAuthService
         string softwareName = await GetSoftwareNameAsync(instance);
 
         if (IsMastodonCompatible(softwareName))
-        {
             return await CreateMastodonApplicationAsync(instance);
-        }
+        if (IsMisskeyCompatible(softwareName))
+            return await CreateMisskeyApplicationAsync(instance);
 
-        throw new NotImplementedException();
+        throw new ApiError.BadRequest($"{softwareName} is not a supported instance type, sorry.");
     }
 
     private async Task<string> GetSoftwareNameAsync(string instance)
@@ -129,7 +129,11 @@ public partial class FediverseAuthService
                 forceRefresh,
                 state
             ),
-            FediverseInstanceType.MisskeyApi => throw new NotImplementedException(),
+            FediverseInstanceType.MisskeyApi => await GenerateMisskeyAuthUrlAsync(
+                app,
+                forceRefresh,
+                state
+            ),
             _ => throw new ArgumentOutOfRangeException(nameof(app), app.InstanceType, null),
         };
 
@@ -141,7 +145,7 @@ public partial class FediverseAuthService
         app.InstanceType switch
         {
             FediverseInstanceType.MastodonApi => await GetMastodonUserAsync(app, code, state),
-            FediverseInstanceType.MisskeyApi => throw new NotImplementedException(),
+            FediverseInstanceType.MisskeyApi => await GetMisskeyUserAsync(app, code),
             _ => throw new ArgumentOutOfRangeException(nameof(app), app.InstanceType, null),
         };
 

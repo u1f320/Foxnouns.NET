@@ -91,11 +91,41 @@ public static class KeyCacheExtensions
         string state,
         CancellationToken ct = default
     ) => await keyCacheService.GetKeyAsync<AddExtraAccountState>($"add_account:{state}", true, ct);
+
+    public static async Task<string> GenerateForgotPasswordStateAsync(
+        this KeyCacheService keyCacheService,
+        string email,
+        Snowflake userId,
+        CancellationToken ct = default
+    )
+    {
+        string state = AuthUtils.RandomToken();
+        await keyCacheService.SetKeyAsync(
+            $"forgot_password:{state}",
+            new ForgotPasswordState(email, userId),
+            Duration.FromHours(1),
+            ct
+        );
+        return state;
+    }
+
+    public static async Task<ForgotPasswordState?> GetForgotPasswordStateAsync(
+        this KeyCacheService keyCacheService,
+        string state,
+        CancellationToken ct = default
+    ) =>
+        await keyCacheService.GetKeyAsync<ForgotPasswordState>(
+            $"forgot_password:{state}",
+            true,
+            ct
+        );
 }
 
 public record RegisterEmailState(
     string Email,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Snowflake? ExistingUserId
 );
+
+public record ForgotPasswordState(string Email, Snowflake UserId);
 
 public record AddExtraAccountState(AuthType AuthType, Snowflake UserId, string? Instance = null);

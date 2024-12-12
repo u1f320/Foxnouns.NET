@@ -5,9 +5,10 @@ import createRegisterAction from "$lib/actions/register";
 export const load = createCallbackLoader("fediverse", async ({ params, url }) => {
 	const code = url.searchParams.get("code") as string | null;
 	const state = url.searchParams.get("state") as string | null;
-	if (!code || !state) throw new ApiError(undefined, ErrorCode.BadRequest).obj;
+	const token = url.searchParams.get("token") as string | null;
+	if ((!code || !state) && !token) throw new ApiError(undefined, ErrorCode.BadRequest).obj;
 
-	return { code, state, instance: params.instance! };
+	return { code: code || token, state, instance: params.instance! };
 });
 
 export const actions = {

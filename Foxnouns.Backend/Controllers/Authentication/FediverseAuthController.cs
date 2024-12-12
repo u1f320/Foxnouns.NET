@@ -161,20 +161,13 @@ public class FediverseAuthController(
         [FromBody] FediverseCallbackRequest req
     )
     {
-        await remoteAuthService.ValidateAddAccountStateAsync(
-            req.State,
-            CurrentUser!.Id,
-            AuthType.Fediverse,
-            req.Instance
-        );
-
         FediverseApplication app = await fediverseAuthService.GetApplicationAsync(req.Instance);
         FediverseAuthService.FediverseUser remoteUser =
             await fediverseAuthService.GetRemoteFediverseUserAsync(app, req.Code);
         try
         {
             AuthMethod authMethod = await authService.AddAuthMethodAsync(
-                CurrentUser.Id,
+                CurrentUser!.Id,
                 AuthType.Fediverse,
                 remoteUser.Id,
                 remoteUser.Username,
