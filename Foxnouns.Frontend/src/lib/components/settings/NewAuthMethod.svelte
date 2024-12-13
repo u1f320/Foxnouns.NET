@@ -19,6 +19,8 @@
 				return $t("auth.successful-link-tumblr");
 			case "FEDIVERSE":
 				return $t("auth.successful-link-fedi");
+			case "EMAIL":
+				return $t("auth.successful-link-email");
 			default:
 				return "<you shouldn't see this!>";
 		}

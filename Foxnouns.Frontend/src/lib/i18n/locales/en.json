@@ -56,7 +56,12 @@
 		"register-with-google": "Register with a Google account",
 		"remote-google-account-label": "Your Google account",
 		"register-with-tumblr": "Register with a Tumblr account",
-		"remote-tumblr-account-label": "Your Tumblr account"
+		"remote-tumblr-account-label": "Your Tumblr account",
+		"email-password-title": "Email and password",
+		"add-email-address": "Add email address",
+		"no-email-addresses": "You haven't linked any email addresses yet.",
+		"check-inbox-for-link-hint": "Check your inbox for a link!",
+		"successful-link-email": "Your account has successfully been linked to the following email address:"
 	},
 	"error": {
 		"bad-request-header": "Something was wrong with your input",

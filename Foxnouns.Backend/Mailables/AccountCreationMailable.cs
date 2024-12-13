@@ -32,6 +32,7 @@ public class AccountCreationMailable(Config config, AccountCreationMailableView 
     {
         To(view.To)
             .From(config.EmailAuth.From!)
+            .Subject("Create an account")
             .View("~/Views/Mail/AccountCreation.cshtml", view)
             .Text(PlainText());
     }

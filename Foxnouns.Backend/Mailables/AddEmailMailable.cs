@@ -32,6 +32,7 @@ public class AddEmailMailable(Config config, AddEmailMailableView view)
     {
         To(view.To)
             .From(config.EmailAuth.From!)
+            .Subject("Confirm adding this email address to an existing account")
             .View("~/Views/Mail/AddEmail.cshtml", view)
             .Text(PlainText());
     }

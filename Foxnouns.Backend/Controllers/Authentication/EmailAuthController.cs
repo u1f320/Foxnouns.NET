@@ -183,7 +183,7 @@ public class EmailAuthController(
         return NoContent();
     }
 
-    [HttpPost("add-email")]
+    [HttpPost("add-account")]
     [Authorize("*")]
     public async Task<IActionResult> AddEmailAddressAsync([FromBody] AddEmailAddressRequest req)
     {
@@ -208,6 +208,9 @@ public class EmailAuthController(
         }
         else
         {
+            ValidationUtils.Validate(
+                [("password", ValidationUtils.ValidatePassword(req.Password))]
+            );
             await authService.SetUserPasswordAsync(CurrentUser!, req.Password);
             await db.SaveChangesAsync();
         }
@@ -232,7 +235,7 @@ public class EmailAuthController(
         return NoContent();
     }
 
-    [HttpPost("add-email/callback")]
+    [HttpPost("add-account/callback")]
     [Authorize("*")]
     public async Task<IActionResult> AddEmailCallbackAsync([FromBody] EmailCallbackRequest req)
     {

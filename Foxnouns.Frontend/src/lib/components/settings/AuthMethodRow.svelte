@@ -8,7 +8,7 @@
 	let name = $derived(
 		method.type === "EMAIL" ? method.remote_id : (method.remote_username ?? method.remote_id),
 	);
-	let showId = $derived(method.type !== "FEDIVERSE");
+	let showId = $derived(method.type !== "EMAIL");
 </script>
 
 <div class="list-group-item">
