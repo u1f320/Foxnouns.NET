@@ -26,12 +26,4 @@
 	img {
 		object-fit: cover;
 	}
-
-	.identicon {
-		@media (prefers-color-scheme: dark) {
-			background-color: var(--bs-secondary-border-subtle);
-		}
-
-		background-color: var(--bs-light-border-subtle);
-	}
 </style>

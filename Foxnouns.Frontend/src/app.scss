@@ -49,3 +49,18 @@
 		}
 	}
 }
+
+// Give identicons a background distinguishable from the page
+.identicon {
+	@media (prefers-color-scheme: dark) {
+		background-color: var(--bs-secondary-border-subtle);
+	}
+
+	background-color: var(--bs-light-border-subtle);
+}
+
+.profile-flag {
+	height: 1.5rem;
+	max-width: 200px;
+	border-radius: 3px;
+}
