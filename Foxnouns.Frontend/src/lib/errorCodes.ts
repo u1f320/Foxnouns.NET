@@ -1,6 +1,7 @@
 import { ErrorCode } from "$api/error";
 import type { Modifier } from "sveltekit-i18n";
 
+// eslint-disable-next-line
 type TranslateFn = (key: string, payload?: any, props?: Modifier.Props<{}> | undefined) => any;
 
 export default function errorDescription(t: TranslateFn, code: ErrorCode): string {

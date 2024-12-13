@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { ActionData, PageData } from "./$types";
+	import type { ActionData } from "./$types";
 	import { t } from "$lib/i18n";
 	import { enhance } from "$app/forms";
 	import { Button, Input, InputGroup } from "@sveltestrap/sveltestrap";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
 
-	type Props = { data: PageData; form: ActionData };
-	let { data, form }: Props = $props();
+	type Props = { form: ActionData };
+	let { form }: Props = $props();
 </script>
 
 <svelte:head>

@@ -10,7 +10,7 @@ export default function createCallbackLoader(
 	bodyFn?: (event: ServerLoadEvent) => Promise<unknown>,
 ) {
 	return async (event: ServerLoadEvent) => {
-		const { url, parent, fetch, cookies } = event;
+		const { parent, fetch, cookies } = event;
 
 		bodyFn ??= async ({ url }) => {
 			const code = url.searchParams.get("code") as string | null;

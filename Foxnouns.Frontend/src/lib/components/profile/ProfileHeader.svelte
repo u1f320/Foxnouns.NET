@@ -47,6 +47,8 @@
 			{/if}
 			{#if bio}
 				<hr />
+				<!-- bios are sanitized before being passed to @html and the allowed markdown is heavily restricted -->
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 				<p>{@html bio}</p>
 			{/if}
 		</div>

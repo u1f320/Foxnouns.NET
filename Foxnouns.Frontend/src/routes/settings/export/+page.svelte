@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { DateTime } from "luxon";
 	import type { ActionData, PageData } from "./$types";
-	import ErrorAlert from "$components/ErrorAlert.svelte";
-	import { Icon } from "@sveltestrap/sveltestrap";
 	import { t } from "$lib/i18n";
 	import { enhance } from "$app/forms";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";

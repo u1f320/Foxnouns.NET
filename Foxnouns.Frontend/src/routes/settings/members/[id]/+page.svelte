@@ -5,12 +5,11 @@
 	import { apiRequest, fastRequest } from "$api";
 	import ApiError from "$api/error";
 	import log from "$lib/log";
-	import { Icon, InputGroup } from "@sveltestrap/sveltestrap";
+	import { InputGroup } from "@sveltestrap/sveltestrap";
 	import InfoCircleFill from "svelte-bootstrap-icons/lib/InfoCircleFill.svelte";
 	import { t } from "$lib/i18n";
 	import AvatarEditor from "$components/editor/AvatarEditor.svelte";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
-	import NoscriptWarning from "$components/editor/NoscriptWarning.svelte";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
 	import SidEditor from "$components/editor/SidEditor.svelte";
 	import BioEditor from "$components/editor/BioEditor.svelte";

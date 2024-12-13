@@ -23,7 +23,7 @@ export type RequestArgs = {
 	/**
 	 * The body for this request, which will be serialized to JSON. Should be a plain JS object.
 	 */
-	body?: any;
+	body?: unknown;
 	/**
 	 * The fetch function to use. Should be passed in loader and action functions, but can be safely ignored for client-side requests.
 	 */

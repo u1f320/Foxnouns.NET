@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ActionData, PageData } from "./$types";
 	import { t } from "$lib/i18n";
-	import { Button, FormGroup, Icon, Input, InputGroup, Label } from "@sveltestrap/sveltestrap";
+	import { Button, FormGroup, Icon, Input, InputGroup } from "@sveltestrap/sveltestrap";
 	import Avatar from "$components/Avatar.svelte";
 	import { firstErrorFor } from "$api/error";
 	import Error from "$components/Error.svelte";

@@ -11,7 +11,7 @@ export const actions = {
 		let timezone = body.get("timezone") as string | null;
 		if (!timezone || timezone === "") timezone = null;
 
-		let hideMemberList = !!body.get("hide-member-list");
+		const hideMemberList = !!body.get("hide-member-list");
 
 		try {
 			await fastRequest("PATCH", "/users/@me", {

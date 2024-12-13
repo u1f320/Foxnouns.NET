@@ -21,6 +21,8 @@
 {#if value !== ""}
 	<div class="card">
 		<div class="card-header">{$t("edit-profile.preview")}</div>
+		<!-- bios are sanitized before being passed to @html and the allowed markdown is heavily restricted -->
+		<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 		<div class="card-body">{@html renderMarkdown(value)}</div>
 	</div>
 {/if}

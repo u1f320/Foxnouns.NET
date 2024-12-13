@@ -82,7 +82,7 @@ export const actions = {
 	},
 	options: async ({ params, request, fetch, cookies }) => {
 		const body = await request.formData();
-		let unlisted = !!body.get("unlisted");
+		const unlisted = !!body.get("unlisted");
 
 		try {
 			await fastRequest("PATCH", `/users/@me/members/${params.id}`, {

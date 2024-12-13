@@ -4,7 +4,7 @@ import type { PrideFlag } from "$api/models/user";
 import log from "$lib/log";
 import { encode } from "base64-arraybuffer";
 
-export const load = async ({ url, fetch, cookies }) => {
+export const load = async ({ fetch, cookies }) => {
 	const resp = await apiRequest<PrideFlag[]>("GET", "/users/@me/flags", { fetch, cookies });
 
 	return {

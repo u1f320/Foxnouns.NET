@@ -1,7 +1,6 @@
 import { fastRequest } from "$api";
 import ApiError, { ErrorCode, type RawApiError } from "$api/error.js";
 import log from "$lib/log.js";
-import { redirect } from "@sveltejs/kit";
 
 export const load = async ({ parent }) => {
 	const { user } = await parent();

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { t } from "$lib/i18n";
-	import { Button } from "@sveltestrap/sveltestrap";
 	import type { ActionData, PageData } from "./$types";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
 
