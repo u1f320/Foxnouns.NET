@@ -147,7 +147,7 @@
 	</div>
 	<div class="row mb-3">
 		<h4>{$t("edit-profile.bio-tab")}</h4>
-		<form method="POST" action="?/bio" use:enhance>
+		<form method="POST" action="?/bio">
 			<BioEditor bind:value={bio} maxLength={data.meta.limits.bio_length} />
 		</form>
 	</div>

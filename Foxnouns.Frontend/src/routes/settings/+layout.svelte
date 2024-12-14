@@ -29,6 +29,12 @@
 		<NavLink active={isActive("/settings/profile", true)} href="/settings/profile">
 			{$t("settings.your-profile-tab")}
 		</NavLink>
+		<NavLink active={isActive("/settings/flags")} href="/settings/flags">
+			{$t("settings.flag-title")}
+		</NavLink>
+		<NavLink active={isActive("/settings/prefs")} href="/settings/prefs">
+			{$t("settings.custom-preferences-title")}
+		</NavLink>
 		<NavLink active={isActive("/settings/members", true)} href="/settings/members">
 			{$t("settings.members-tab")}
 		</NavLink>

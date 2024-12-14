@@ -112,7 +112,7 @@
 
 <ClientPaginator center bind:currentPage {pageCount} />
 
-<Accordion>
+<Accordion class="mb-3">
 	{#each arr as flag (flag.id)}
 		<AccordionItem>
 			<span slot="header">

@@ -146,7 +146,8 @@
 		"flag-upload-button": "Upload",
 		"flag-description-placeholder": "Description",
 		"flag-name-placeholder": "Name",
-		"flag-upload-success": "Successfully uploaded your flag! It may take a few seconds before it's saved."
+		"flag-upload-success": "Successfully uploaded your flag! It may take a few seconds before it's saved.",
+		"custom-preferences-title": "Custom preferences"
 	},
 	"yes": "Yes",
 	"no": "No",
@@ -218,7 +219,18 @@
 		"flag-search-no-account-flags": "You haven't uploaded any flags yet.",
 		"flag-search-hint": "Can't find the flag you're looking for? Try using the search bar above.",
 		"flag-manage-your-flags": "Manage your flags",
-		"links-header": "Links"
+		"links-header": "Links",
+		"icons-stop-showing-all": "Stop showing all results",
+		"icons-show-all": "Show all results ({{count}})",
+		"icons-change-icon": "Change icon",
+		"tooltip-hint": "Tooltip",
+		"add-custom-preference": "Add",
+		"custom-preference-size-large": "Large",
+		"custom-preference-size-medium": "Medium",
+		"custom-preference-size-small": "Small",
+		"custom-preference-size": "Text size",
+		"custom-preference-muted": "Show as muted text",
+		"custom-preference-favourite": "Treat like favourite"
 	},
 	"cancel": "Cancel"
 }

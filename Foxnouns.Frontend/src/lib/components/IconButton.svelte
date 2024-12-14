@@ -11,15 +11,29 @@
 		id?: string;
 		onclick?: MouseEventHandler<HTMLButtonElement>;
 		outline?: boolean;
+		active?: boolean;
+		class?: string;
 	};
-	let { icon, tooltip, color = "primary", type, id, onclick, outline }: Props = $props();
+	let {
+		icon,
+		tooltip,
+		color = "primary",
+		type,
+		id,
+		onclick,
+		outline,
+		active,
+		class: className,
+	}: Props = $props();
 </script>
 
 <button
 	{id}
 	{type}
 	use:tippy={{ content: tooltip }}
-	class="btn {outline ? `btn-outline-${color}` : `btn-${color}`}"
+	class="btn {outline ? `btn-outline-${color}` : `btn-${color}`} {className || ''}"
+	class:active
+	aria-pressed={active}
 	{onclick}
 >
 	<Icon name={icon} />
