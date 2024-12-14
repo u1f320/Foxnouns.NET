@@ -130,10 +130,11 @@ public static class AuthUtils
         return TryFromBase64String(input, out rawToken);
     }
 
+    public static string RandomUrlUnsafeToken(int bytes = 48) =>
+        Convert.ToBase64String(RandomNumberGenerator.GetBytes(bytes)).Trim('=');
+
     public static string RandomToken(int bytes = 48) =>
-        Convert
-            .ToBase64String(RandomNumberGenerator.GetBytes(bytes))
-            .Trim('=')
+        RandomUrlUnsafeToken()
             // Make the token URL-safe
             .Replace('+', '-')
             .Replace('/', '_');

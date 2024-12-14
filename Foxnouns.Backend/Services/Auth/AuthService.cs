@@ -358,7 +358,7 @@ public class AuthService(
 
     private static (string, byte[]) GenerateToken()
     {
-        string token = AuthUtils.RandomToken();
+        string token = AuthUtils.RandomUrlUnsafeToken();
         byte[] hash = SHA512.HashData(Convert.FromBase64String(token));
 
         return (token, hash);
