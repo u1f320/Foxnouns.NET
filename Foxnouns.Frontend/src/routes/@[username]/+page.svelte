@@ -25,7 +25,7 @@
 		<OwnProfileNotice editLink="/settings/profile" />
 	{/if}
 
-	<ProfileHeader name="@{data.user.username}" profile={data.user} />
+	<ProfileHeader name="@{data.user.username}" profile={data.user} offset={data.user.utc_offset} />
 	<ProfileFields profile={data.user} {allPreferences} />
 
 	{#if data.members.length > 0}

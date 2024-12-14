@@ -5,14 +5,16 @@
 	import ProfileLink from "./ProfileLink.svelte";
 	import ProfileFlag from "./ProfileFlag.svelte";
 	import Avatar from "$components/Avatar.svelte";
+	import TimeOffset from "./TimeOffset.svelte";
 
 	type Props = {
 		name: string;
 		profile: User | Member;
 		lazyLoadAvatar?: boolean;
+		offset?: number | null;
 	};
 
-	let { name, profile, lazyLoadAvatar }: Props = $props();
+	let { name, profile, lazyLoadAvatar, offset }: Props = $props();
 
 	// renderMarkdown sanitizes the output HTML for us
 	let bio = $derived(renderMarkdown(profile.bio));
@@ -45,6 +47,7 @@
 			{:else}
 				<h2>{name}</h2>
 			{/if}
+			{#if offset}<TimeOffset {offset} />{/if}
 			{#if bio}
 				<hr />
 				<!-- bios are sanitized before being passed to @html and the allowed markdown is heavily restricted -->
