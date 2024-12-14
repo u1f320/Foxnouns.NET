@@ -14,10 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System.Net;
 using System.Text.Json.Serialization;
-using System.Web;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
-using Foxnouns.Backend.Extensions;
 
 namespace Foxnouns.Backend.Services.Auth;
 
@@ -120,8 +118,7 @@ public partial class FediverseAuthService
 
     private async Task<string> GenerateMisskeyAuthUrlAsync(
         FediverseApplication app,
-        bool forceRefresh,
-        string? state = null
+        bool forceRefresh
     )
     {
         if (forceRefresh)

@@ -38,7 +38,7 @@ public class MetricsCollectionService(ILogger logger, IServiceProvider services,
         // ReSharper disable once SuggestVarOrType_SimpleTypes
         await using var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
-        List<Instant>? users = await db
+        List<Instant> users = await db
             .Users.Where(u => !u.Deleted)
             .Select(u => u.LastActive)
             .ToListAsync(ct);

@@ -14,7 +14,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Utils;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Foxnouns.Backend.Middleware;
 

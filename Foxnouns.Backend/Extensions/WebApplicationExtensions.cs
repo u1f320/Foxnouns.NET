@@ -57,7 +57,7 @@ public static class WebApplicationExtensions
 
         if (config.Logging.SeqLogUrl != null)
         {
-            logCfg.WriteTo.Seq(config.Logging.SeqLogUrl, LogEventLevel.Verbose);
+            logCfg.WriteTo.Seq(config.Logging.SeqLogUrl);
         }
 
         // AddSerilog doesn't seem to add an ILogger to the service collection, so add that manually.

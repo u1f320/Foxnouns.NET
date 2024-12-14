@@ -12,6 +12,8 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 using Serilog.Events;
 
 namespace Foxnouns.Backend;
@@ -20,8 +22,8 @@ public class Config
 {
     public string Host { get; init; } = "localhost";
     public int Port { get; init; } = 3000;
-    public string BaseUrl { get; set; } = null!;
-    public string MediaBaseUrl { get; set; } = null!;
+    public string BaseUrl { get; init; } = null!;
+    public string MediaBaseUrl { get; init; } = null!;
 
     public string Address => $"http://{Host}:{Port}";
     public string MetricsAddress => $"http://{Host}:{Logging.MetricsPort}";

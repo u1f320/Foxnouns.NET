@@ -14,6 +14,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // ReSharper disable NotAccessedPositionalProperty.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Utils;
 
@@ -22,8 +23,6 @@ namespace Foxnouns.Backend.Dto;
 public record PrideFlagResponse(Snowflake Id, string? ImageUrl, string Name, string? Description);
 
 public record CreateFlagRequest(string Name, string Image, string? Description);
-
-public record CreateFlagResponse(Snowflake Id, string Name, string? Description);
 
 public class UpdateFlagRequest : PatchRequest
 {

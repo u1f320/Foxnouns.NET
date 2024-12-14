@@ -12,6 +12,8 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 using System.ComponentModel.DataAnnotations.Schema;
 using Foxnouns.Backend.Utils;
 using Newtonsoft.Json;
@@ -89,5 +91,5 @@ public enum PreferenceSize
 
 public class UserSettings
 {
-    public bool? DarkMode { get; set; } = null;
+    public bool? DarkMode { get; set; }
 }

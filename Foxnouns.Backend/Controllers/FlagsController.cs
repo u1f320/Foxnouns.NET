@@ -73,7 +73,7 @@ public class FlagsController(
         await db.SaveChangesAsync();
 
         queue.QueueInvocableWithPayload<CreateFlagInvocable, CreateFlagPayload>(
-            new CreateFlagPayload(flag.Id, CurrentUser!.Id, req.Name, req.Image, req.Description)
+            new CreateFlagPayload(flag.Id, CurrentUser!.Id, req.Image)
         );
 
         return Accepted(userRenderer.RenderPrideFlag(flag));

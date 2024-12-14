@@ -131,8 +131,7 @@ public partial class FediverseAuthService
             ),
             FediverseInstanceType.MisskeyApi => await GenerateMisskeyAuthUrlAsync(
                 app,
-                forceRefresh,
-                state
+                forceRefresh
             ),
             _ => throw new ArgumentOutOfRangeException(nameof(app), app.InstanceType, null),
         };
