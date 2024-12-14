@@ -131,7 +131,12 @@ public static class AuthUtils
     }
 
     public static string RandomToken(int bytes = 48) =>
-        Convert.ToBase64String(RandomNumberGenerator.GetBytes(bytes)).Trim('=');
+        Convert
+            .ToBase64String(RandomNumberGenerator.GetBytes(bytes))
+            .Trim('=')
+            // Make the token URL-safe
+            .Replace('+', '-')
+            .Replace('/', '_');
 
     public const int MaxAuthMethodsPerType = 3; // Maximum of 3 Discord accounts, 3 emails, etc
 }

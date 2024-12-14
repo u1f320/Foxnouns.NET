@@ -102,7 +102,7 @@ public class CreateDataExportInvocable(
         stream.Seek(0, SeekOrigin.Begin);
 
         // Upload the file!
-        string filename = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
+        string filename = AuthUtils.RandomToken();
         await objectStorageService.PutObjectAsync(
             ExportPath(user.Id, filename),
             stream,

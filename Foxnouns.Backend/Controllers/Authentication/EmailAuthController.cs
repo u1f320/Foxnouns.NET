@@ -183,6 +183,63 @@ public class EmailAuthController(
         return NoContent();
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPasswordAsync([FromBody] EmailForgotPasswordRequest req)
+    {
+        CheckRequirements();
+
+        if (!req.Email.Contains('@'))
+            throw new ApiError.BadRequest("Email is invalid", "email", req.Email);
+
+        AuthMethod? authMethod = await db
+            .AuthMethods.Where(m => m.AuthType == AuthType.Email && m.RemoteId == req.Email)
+            .FirstOrDefaultAsync();
+        if (authMethod == null)
+            return NoContent();
+
+        string state = await keyCacheService.GenerateForgotPasswordStateAsync(
+            req.Email,
+            authMethod.UserId
+        );
+
+        if (IsRateLimited())
+            return NoContent();
+
+        mailService.QueueResetPasswordEmail(req.Email, state);
+        return NoContent();
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPasswordAsync([FromBody] EmailResetPasswordRequest req)
+    {
+        ForgotPasswordState? state = await keyCacheService.GetForgotPasswordStateAsync(req.State);
+        if (state == null)
+            throw new ApiError.BadRequest("Unknown state", "state", req.State);
+
+        if (
+            !await db
+                .AuthMethods.Where(m =>
+                    m.AuthType == AuthType.Email
+                    && m.RemoteId == state.Email
+                    && m.UserId == state.UserId
+                )
+                .AnyAsync()
+        )
+        {
+            throw new ApiError.BadRequest("Invalid state");
+        }
+
+        ValidationUtils.Validate([("password", ValidationUtils.ValidatePassword(req.Password))]);
+
+        User user = await db.Users.FirstAsync(u => u.Id == state.UserId);
+        await authService.SetUserPasswordAsync(user, req.Password);
+        await db.SaveChangesAsync();
+
+        mailService.QueuePasswordChangedEmail(state.Email);
+
+        return NoContent();
+    }
+
     [HttpPost("add-account")]
     [Authorize("*")]
     public async Task<IActionResult> AddEmailAddressAsync([FromBody] AddEmailAddressRequest req)

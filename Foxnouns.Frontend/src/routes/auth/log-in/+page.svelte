@@ -2,7 +2,6 @@
 	import type { ActionData, PageData } from "./$types";
 	import { t } from "$lib/i18n";
 	import { enhance } from "$app/forms";
-	import { Button, ButtonGroup, Input, InputGroup } from "@sveltestrap/sveltestrap";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
 
 	type Props = { data: PageData; form: ActionData };
@@ -21,29 +20,34 @@
 	</div>
 	<div class="row">
 		{#if data.urls.email_enabled}
-			<div class="col col-md mb-4">
+			<div class="col-md mb-4">
 				<h2>{$t("auth.log-in-form-title")}</h2>
 				<form method="POST" action="?/login" use:enhance>
 					<div class="mb-2">
 						<label class="form-label" for="email">{$t("auth.log-in-form-email-label")}</label>
-						<Input type="email" id="email" name="email" placeholder="me@example.com" />
+						<input
+							class="form-control"
+							type="email"
+							id="email"
+							name="email"
+							placeholder="me@example.com"
+						/>
 					</div>
 					<div class="mb-2">
 						<label class="form-label" for="password">{$t("auth.log-in-form-password-label")}</label>
-						<Input type="password" id="password" name="password" />
+						<input class="form-control" type="password" id="password" name="password" />
 					</div>
-					<ButtonGroup>
-						<Button type="submit" color="primary">{$t("auth.log-in-button")}</Button>
-						<a class="btn btn-secondary" href="/auth/register">
-							{$t("auth.register-with-email-button")}
-						</a>
-					</ButtonGroup>
+					<button class="btn btn-primary" type="submit">{$t("auth.log-in-button")}</button>
 				</form>
+				<p class="mt-2">
+					<a href="/auth/register">{$t("auth.log-in-sign-up-link")}</a> •
+					<a href="/auth/forgot-password">{$t("auth.log-in-forgot-password-link")}</a>
+				</p>
 			</div>
 		{:else}
 			<div class="col-lg-3"></div>
 		{/if}
-		<div class="col col-md">
+		<div class="col-md">
 			<h3>{$t("auth.log-in-3rd-party-header")}</h3>
 			<p>{$t("auth.log-in-3rd-party-desc")}</p>
 			<form method="POST" action="?/fediToggle" use:enhance>
@@ -71,19 +75,20 @@
 			{#if form?.showFediBox}
 				<h4 class="mt-4">{$t("auth.log-in-with-the-fediverse")}</h4>
 				<form method="POST" action="?/fedi" use:enhance>
-					<InputGroup>
-						<Input
+					<div class="input-group">
+						<input
+							class="form-control"
 							name="instance"
 							type="text"
 							placeholder={$t("auth.log-in-with-fediverse-instance-placeholder")}
 						/>
-						<Button type="submit" color="secondary">{$t("auth.log-in-button")}</Button>
-					</InputGroup>
+						<button class="btn btn-secondary" type="submit">{$t("auth.log-in-button")}</button>
+					</div>
 					<p>
 						{$t("auth.log-in-with-fediverse-error-blurb")}
-						<Button formaction="?/fediForceRefresh" type="submit" color="link">
+						<button class="btn btn-link" formaction="?/fediForceRefresh" type="submit">
 							{$t("auth.log-in-with-fediverse-force-refresh-button")}
-						</Button>
+						</button>
 					</p>
 				</form>
 			{/if}

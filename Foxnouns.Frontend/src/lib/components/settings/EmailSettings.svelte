@@ -35,7 +35,7 @@
 			</div>
 		</div>
 		<div class="col-md">
-			<FormStatusMarker {form} />
+			<FormStatusMarker {form} successMessage={$t("auth.password-changed-hint")} />
 			<h4>Change password</h4>
 			<form method="POST" action="?/password">
 				<div class="mb-1">

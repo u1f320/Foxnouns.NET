@@ -59,4 +59,8 @@ public record EmailCallbackRequest(string State);
 
 public record EmailChangePasswordRequest(string Current, string New);
 
+public record EmailForgotPasswordRequest(string Email);
+
+public record EmailResetPasswordRequest(string State, string Password);
+
 public record FediverseCallbackRequest(string Instance, string Code, string? State = null);

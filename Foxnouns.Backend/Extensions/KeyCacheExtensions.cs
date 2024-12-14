@@ -28,7 +28,7 @@ public static class KeyCacheExtensions
         CancellationToken ct = default
     )
     {
-        string state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
+        string state = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync($"oauth_state:{state}", "", Duration.FromMinutes(10), ct);
         return state;
     }
@@ -51,8 +51,7 @@ public static class KeyCacheExtensions
         CancellationToken ct = default
     )
     {
-        // This state is used in links, not just as JSON values, so make it URL-safe
-        string state = AuthUtils.RandomToken().Replace('+', '-').Replace('/', '_');
+        string state = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"email_state:{state}",
             new RegisterEmailState(email, userId),
@@ -112,11 +111,12 @@ public static class KeyCacheExtensions
     public static async Task<ForgotPasswordState?> GetForgotPasswordStateAsync(
         this KeyCacheService keyCacheService,
         string state,
+        bool delete = true,
         CancellationToken ct = default
     ) =>
         await keyCacheService.GetKeyAsync<ForgotPasswordState>(
             $"forgot_password:{state}",
-            true,
+            delete,
             ct
         );
 }

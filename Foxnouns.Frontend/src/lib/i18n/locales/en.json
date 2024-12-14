@@ -61,7 +61,13 @@
 		"add-email-address": "Add email address",
 		"no-email-addresses": "You haven't linked any email addresses yet.",
 		"check-inbox-for-link-hint": "Check your inbox for a link!",
-		"successful-link-email": "Your account has successfully been linked to the following email address:"
+		"successful-link-email": "Your account has successfully been linked to the following email address:",
+		"reset-password-button": "Reset password",
+		"log-in-forgot-password-link": "Forgot your password?",
+		"log-in-sign-up-link": "Sign up with email",
+		"forgot-password-title": "Forgot password",
+		"reset-password-title": "Reset password",
+		"password-changed-hint": "Your password has been changed!"
 	},
 	"error": {
 		"bad-request-header": "Something was wrong with your input",

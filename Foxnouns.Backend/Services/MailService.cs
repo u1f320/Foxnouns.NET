@@ -63,6 +63,41 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
         });
     }
 
+    public void QueueResetPasswordEmail(string to, string code)
+    {
+        _logger.Debug("Sending add email address email to {ToEmail}", to);
+        queue.QueueAsyncTask(async () =>
+        {
+            await SendEmailAsync(
+                to,
+                new ResetPasswordMailable(
+                    config,
+                    new ResetPasswordMailableView
+                    {
+                        BaseUrl = config.BaseUrl,
+                        To = to,
+                        Code = code,
+                    }
+                )
+            );
+        });
+    }
+
+    public void QueuePasswordChangedEmail(string to)
+    {
+        _logger.Debug("Sending add email address email to {ToEmail}", to);
+        queue.QueueAsyncTask(async () =>
+        {
+            await SendEmailAsync(
+                to,
+                new PasswordChangedMailable(
+                    config,
+                    new PasswordChangedMailableView { BaseUrl = config.BaseUrl, To = to }
+                )
+            );
+        });
+    }
+
     private async Task SendEmailAsync<T>(string to, Mailable<T> mailable)
     {
         try
