@@ -8,3 +8,6 @@
 
 The Caddy server will listen on `localhost:5004` for the frontend and API,
 and on `localhost:5005` for the profile URL shortener.
+
+The backend server listens on `localhost:5006` for unproxied API access,
+and `localhost:5007` for metrics.

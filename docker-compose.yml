@@ -9,7 +9,11 @@ services:
       - "Database:EnablePooling=true"
       - "Host=0.0.0.0"
       - "Port=5000"
+      - "Logging:MetricsPort=5001"
     restart: unless-stopped
+    ports:
+      - "5006:5000"
+      - "5007:5001"
     volumes:
       - ./docker/config.ini:/app/config.ini
 
