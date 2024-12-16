@@ -19,7 +19,7 @@ namespace Foxnouns.Backend.Utils;
 
 public static partial class ValidationUtils
 {
-    private static readonly string[] DefaultStatusOptions =
+    public static readonly string[] DefaultStatusOptions =
     [
         "favourite",
         "okay",
