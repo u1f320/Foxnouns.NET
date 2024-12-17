@@ -8,7 +8,7 @@
 		NavLink,
 		NavItem,
 	} from "@sveltestrap/sveltestrap";
-	import { page } from "$app/stores";
+	import { page } from "$app/state";
 	import type { Meta, MeUser } from "$api/models/index";
 	import Logo from "$components/Logo.svelte";
 	import { t } from "$lib/i18n";
@@ -51,19 +51,19 @@
 				<NavItem>
 					<NavLink
 						href="/@{user.username}"
-						active={$page.url.pathname.startsWith(`/@${user.username}`)}
+						active={page.url.pathname.startsWith(`/@${user.username}`)}
 					>
 						@{user.username}
 					</NavLink>
 				</NavItem>
 				<NavItem>
-					<NavLink href="/settings" active={$page.url.pathname.startsWith("/settings")}>
+					<NavLink href="/settings" active={page.url.pathname.startsWith("/settings")}>
 						{$t("nav.settings")}
 					</NavLink>
 				</NavItem>
 			{:else}
 				<NavItem>
-					<NavLink href="/auth/log-in" active={$page.url.pathname === "/auth/log-in"}>
+					<NavLink href="/auth/log-in" active={page.url.pathname === "/auth/log-in"}>
 						{$t("nav.log-in")}
 					</NavLink>
 				</NavItem>

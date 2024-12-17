@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
-	import { page } from "$app/stores";
+	import { page } from "$app/state";
 	import { t } from "$lib/i18n";
 	import type { LayoutData } from "./$types";
 
 	type Props = { data: LayoutData; children: Snippet };
 	let { data, children }: Props = $props();
 
-	const isActive = (path: string) => $page.url.pathname === path;
+	const isActive = (path: string) => page.url.pathname === path;
 
 	let name = $derived(
 		data.member.display_name === data.member.name
