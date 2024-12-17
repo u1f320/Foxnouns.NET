@@ -44,7 +44,7 @@ public class FediverseAuthController(
     [ProducesResponseType<SingleUrlResponse>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFediverseUrlAsync(
         [FromQuery] string instance,
-        [FromQuery] bool forceRefresh = false
+        [FromQuery(Name = "force-refresh")] bool forceRefresh = false
     )
     {
         if (instance.Any(c => c is '@' or ':' or '/') || !instance.Contains('.'))
@@ -139,7 +139,7 @@ public class FediverseAuthController(
     [Authorize("*")]
     public async Task<IActionResult> AddFediverseAccountAsync(
         [FromQuery] string instance,
-        [FromQuery] bool forceRefresh = false
+        [FromQuery(Name = "force-refresh")] bool forceRefresh = false
     )
     {
         if (instance.Any(c => c is '@' or ':' or '/') || !instance.Contains('.'))

@@ -65,7 +65,7 @@ export const actions = {
 		try {
 			const resp = await apiRequest<{ url: string }>(
 				"GET",
-				`/auth/fediverse?instance=${encodeURIComponent(instance)}&forceRefresh=true`,
+				`/auth/fediverse?instance=${encodeURIComponent(instance)}&force-refresh=true`,
 				{ fetch, isInternal: true },
 			);
 			redirect(303, resp.url);

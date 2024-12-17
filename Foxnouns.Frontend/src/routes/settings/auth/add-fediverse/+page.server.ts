@@ -24,7 +24,7 @@ export const actions = {
 
 		const { url } = await apiRequest<{ url: string }>(
 			"GET",
-			`/auth/fediverse/add-account?instance=${encodeURIComponent(instance)}&forceRefresh=true`,
+			`/auth/fediverse/add-account?instance=${encodeURIComponent(instance)}&force-refresh=true`,
 			{
 				isInternal: true,
 				fetch,
