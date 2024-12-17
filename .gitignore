@@ -10,3 +10,5 @@ proxy-config.json
 docker/config.ini
 docker/proxy-config.json
 docker/frontend.env
+
+Foxnouns.DataMigrator/apps.json

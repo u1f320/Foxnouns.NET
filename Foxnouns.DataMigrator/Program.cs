@@ -6,6 +6,7 @@ using Foxnouns.Backend.Extensions;
 using Foxnouns.DataMigrator.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Npgsql;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -22,6 +23,12 @@ internal class Program
             .WriteTo.Console(theme: AnsiConsoleTheme.Sixteen)
             .CreateLogger();
 
+        var minUserId = new Snowflake(0);
+        if (args.Length > 0)
+            minUserId = ulong.Parse(args[0]);
+
+        Log.Information("Starting migration from user ID {MinUserId}", minUserId);
+
         Config config =
             new ConfigurationBuilder()
                 .AddConfiguration()
@@ -35,11 +42,30 @@ internal class Program
 
         await context.Database.MigrateAsync();
 
-        Log.Information("Migrating applications");
-        Dictionary<int, Snowflake> appIds = await MigrateAppsAsync(conn, context);
+        Dictionary<int, Snowflake> appIds;
+        if (minUserId == new Snowflake(0))
+        {
+            Log.Information("Migrating applications");
+            appIds = await MigrateAppsAsync(conn, context);
+
+            string appJson = JsonConvert.SerializeObject(appIds);
+            await File.WriteAllTextAsync("apps.json", appJson);
+        }
+        else
+        {
+            Log.Information(
+                "Not the first migration, reading application IDs from {Filename}",
+                "apps.json"
+            );
+
+            string appJson = await File.ReadAllTextAsync("apps.json");
+            appIds =
+                JsonConvert.DeserializeObject<Dictionary<int, Snowflake>>(appJson)
+                ?? throw new Exception("invalid apps.json file");
+        }
 
         Log.Information("Migrating users");
-        List<GoUser> users = await Queries.GetUsersAsync(conn);
+        List<GoUser> users = await Queries.GetUsersAsync(conn, minUserId);
         List<GoUserField> userFields = await Queries.GetUserFieldsAsync(conn);
         List<GoMemberField> memberFields = await Queries.GetMemberFieldsAsync(conn);
         List<GoPrideFlag> prideFlags = await Queries.GetUserFlagsAsync(conn);
@@ -70,6 +96,12 @@ internal class Program
 
         await context.SaveChangesAsync();
         Log.Information("Migration complete!");
+        Log.Information(
+            "Migrated {Count} users, last user was {UserId}. Complete? {Complete}",
+            users.Count,
+            users.Last().SnowflakeId,
+            users.Count != 1000
+        );
     }
 
     private static async Task<Dictionary<int, Snowflake>> MigrateAppsAsync(
@@ -92,6 +124,7 @@ internal class Program
                     ClientId = app.ClientId,
                     ClientSecret = app.ClientSecret,
                     InstanceType = app.TypeToEnum(),
+                    ForceRefresh = true,
                 }
             );
         }

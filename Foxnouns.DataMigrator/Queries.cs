@@ -13,8 +13,13 @@ public static class Queries
     public static async Task<List<GoFediverseApp>> GetFediverseAppsAsync(NpgsqlConnection conn) =>
         (await conn.QueryAsync<GoFediverseApp>("select * from fediverse_apps")).ToList();
 
-    public static async Task<List<GoUser>> GetUsersAsync(NpgsqlConnection conn) =>
-        (await conn.QueryAsync<GoUser>("select * from users order by id")).ToList();
+    public static async Task<List<GoUser>> GetUsersAsync(NpgsqlConnection conn, Snowflake minId) =>
+        (
+            await conn.QueryAsync<GoUser>(
+                "select * from users where snowflake_id > @Id order by snowflake_id limit 1000",
+                new { Id = minId.Value }
+            )
+        ).ToList();
 
     public static async Task<List<GoUserField>> GetUserFieldsAsync(NpgsqlConnection conn) =>
         (await conn.QueryAsync<GoUserField>("select * from user_fields order by id")).ToList();

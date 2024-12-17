@@ -20,6 +20,7 @@ public class FediverseApplication : BaseModel
     public required string ClientId { get; set; }
     public required string ClientSecret { get; set; }
     public required FediverseInstanceType InstanceType { get; set; }
+    public bool ForceRefresh { get; set; }
 }
 
 public enum FediverseInstanceType

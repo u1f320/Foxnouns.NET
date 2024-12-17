@@ -216,6 +216,10 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("domain");
 
+                    b.Property<bool>("ForceRefresh")
+                        .HasColumnType("boolean")
+                        .HasColumnName("force_refresh");
+
                     b.Property<int>("InstanceType")
                         .HasColumnType("integer")
                         .HasColumnName("instance_type");
@@ -342,6 +346,7 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnName("localization_key");
 
                     b.Property<Dictionary<string, string>>("LocalizationParams")
+                        .IsRequired()
                         .HasColumnType("hstore")
                         .HasColumnName("localization_params");
 
@@ -411,7 +416,7 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.Property<long>("ReporterId")
                         .HasColumnType("bigint")
                         .HasColumnName("reporter_id");
-                    
+
                     b.Property<int>("Status")
                         .HasColumnType("integer")
                         .HasColumnName("status");

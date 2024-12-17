@@ -58,7 +58,7 @@ public partial class FediverseAuthService
     )
     {
         FediverseApplication app = await GetApplicationAsync(instance);
-        return await GenerateAuthUrlAsync(app, forceRefresh, state);
+        return await GenerateAuthUrlAsync(app, forceRefresh || app.ForceRefresh, state);
     }
 
     // thank you, gargron and syuilo, for agreeing on a name for *once* in your lives,
