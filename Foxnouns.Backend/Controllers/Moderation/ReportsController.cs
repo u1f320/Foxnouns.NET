@@ -173,6 +173,9 @@ public class ReportsController(
     public async Task<IActionResult> GetReportsAsync(
         [FromQuery] int? limit = null,
         [FromQuery] Snowflake? before = null,
+        [FromQuery] Snowflake? after = null,
+        [FromQuery(Name = "by-reporter")] Snowflake? byReporter = null,
+        [FromQuery(Name = "by-target")] Snowflake? byTarget = null,
         [FromQuery(Name = "include-closed")] bool includeClosed = false
     )
     {
@@ -187,11 +190,21 @@ public class ReportsController(
         IQueryable<Report> query = db
             .Reports.Include(r => r.Reporter)
             .Include(r => r.TargetUser)
-            .Include(r => r.TargetMember)
-            .OrderByDescending(r => r.Id);
+            .Include(r => r.TargetMember);
+
+        if (byTarget != null && await db.Users.AnyAsync(u => u.Id == byTarget.Value))
+            query = query.Where(r => r.TargetUserId == byTarget.Value);
+
+        if (byReporter != null && await db.Users.AnyAsync(u => u.Id == byReporter.Value))
+            query = query.Where(r => r.ReporterId == byReporter.Value);
 
         if (before != null)
-            query = query.Where(r => r.Id < before.Value);
+            query = query.Where(r => r.Id < before.Value).OrderByDescending(r => r.Id);
+        else if (after != null)
+            query = query.Where(r => r.Id > after.Value).OrderBy(r => r.Id);
+        else
+            query = query.OrderByDescending(r => r.Id);
+
         if (!includeClosed)
             query = query.Where(r => r.Status == ReportStatus.Open);
 
