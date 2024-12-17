@@ -22,17 +22,16 @@ public class AuthorizationMiddleware : IMiddleware
     public async Task InvokeAsync(HttpContext ctx, RequestDelegate next)
     {
         Endpoint? endpoint = ctx.GetEndpoint();
-        AuthorizeAttribute? authorizeAttribute =
-            endpoint?.Metadata.GetMetadata<AuthorizeAttribute>();
-        LimitAttribute? limitAttribute = endpoint?.Metadata.GetMetadata<LimitAttribute>();
+        AuthorizeAttribute? attribute = endpoint?.Metadata.GetMetadata<AuthorizeAttribute>();
 
-        if (authorizeAttribute == null || authorizeAttribute.Scopes.Length == 0)
+        if (attribute == null || attribute.Scopes.Length == 0)
         {
             await next(ctx);
             return;
         }
 
         Token? token = ctx.GetToken();
+
         if (token == null)
         {
             throw new ApiError.Unauthorized(
@@ -41,38 +40,13 @@ public class AuthorizationMiddleware : IMiddleware
             );
         }
 
-        // Users who got suspended by a moderator can still access *some* endpoints.
-        if (
-            token.User.Deleted
-            && (limitAttribute?.UsableBySuspendedUsers != true || token.User.DeletedBy == null)
-        )
-        {
-            throw new ApiError.Forbidden("Deleted users cannot access this endpoint.");
-        }
-
-        if (
-            authorizeAttribute.Scopes.Length > 0
-            && authorizeAttribute.Scopes.Except(token.Scopes.ExpandScopes()).Any()
-        )
+        if (attribute.Scopes.Except(token.Scopes.ExpandScopes()).Any())
         {
             throw new ApiError.Forbidden(
                 "This endpoint requires ungranted scopes.",
-                authorizeAttribute.Scopes.Except(token.Scopes.ExpandScopes()),
+                attribute.Scopes.Except(token.Scopes.ExpandScopes()),
                 ErrorCode.MissingScopes
             );
-        }
-
-        if (limitAttribute?.RequireAdmin == true && token.User.Role != UserRole.Admin)
-        {
-            throw new ApiError.Forbidden("This endpoint can only be used by admins.");
-        }
-
-        if (
-            limitAttribute?.RequireModerator == true
-            && token.User.Role is not (UserRole.Admin or UserRole.Moderator)
-        )
-        {
-            throw new ApiError.Forbidden("This endpoint can only be used by moderators.");
         }
 
         await next(ctx);
@@ -83,12 +57,4 @@ public class AuthorizationMiddleware : IMiddleware
 public class AuthorizeAttribute(params string[] scopes) : Attribute
 {
     public readonly string[] Scopes = scopes.Except([":admin", ":moderator", ":deleted"]).ToArray();
-}
-
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class LimitAttribute : Attribute
-{
-    public bool UsableBySuspendedUsers { get; init; }
-    public bool RequireAdmin { get; init; }
-    public bool RequireModerator { get; init; }
 }

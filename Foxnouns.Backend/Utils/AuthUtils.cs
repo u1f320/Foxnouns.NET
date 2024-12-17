@@ -38,6 +38,7 @@ public static class AuthUtils
         "user.read_flags",
         "user.create_flags",
         "user.update_flags",
+        "user.moderation",
     ];
 
     public static readonly string[] MemberScopes =

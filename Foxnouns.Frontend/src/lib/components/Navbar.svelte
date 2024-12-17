@@ -9,16 +9,24 @@
 		NavItem,
 	} from "@sveltestrap/sveltestrap";
 	import { page } from "$app/stores";
-	import type { User, Meta } from "$api/models/index";
+	import type { Meta, MeUser } from "$api/models/index";
 	import Logo from "$components/Logo.svelte";
 	import { t } from "$lib/i18n";
 
-	type Props = { user: User | null; meta: Meta };
+	type Props = { user: MeUser | null; meta: Meta };
 	let { user, meta }: Props = $props();
 
 	let isOpen = $state(true);
 	const toggleMenu = () => (isOpen = !isOpen);
 </script>
+
+{#if user && user.deleted}
+	<div class="suspended-alert text-center py-3 mb-2 px-2">
+		<strong>{$t("nav.suspended-account-hint")}</strong>
+		<br />
+		<a href="/contact">{$t("nav.appeal-suspension-link")}</a>
+	</div>
+{/if}
 
 <Navbar expand="lg" class="mb-4 mx-2">
 	<NavbarBrand href="/">
@@ -58,6 +66,11 @@
 </Navbar>
 
 <style>
+	.suspended-alert {
+		color: var(--bs-danger-text-emphasis);
+		background-color: var(--bs-danger-bg-subtle);
+	}
+
 	/* These exact values make it look almost identical to the SVG version, which is what we want */
 	#beta-text {
 		font-size: 0.7em;

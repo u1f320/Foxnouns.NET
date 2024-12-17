@@ -22,6 +22,7 @@ namespace Foxnouns.Backend.Database.Migrations
                 .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "hstore");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Application", b =>
@@ -59,6 +60,62 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasName("pk_applications");
 
                     b.ToTable("applications", (string)null);
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.AuditLogEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.PrimitiveCollection<string[]>("ClearedFields")
+                        .HasColumnType("text[]")
+                        .HasColumnName("cleared_fields");
+
+                    b.Property<long>("ModeratorId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("moderator_id");
+
+                    b.Property<string>("ModeratorUsername")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("moderator_username");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("text")
+                        .HasColumnName("reason");
+
+                    b.Property<long?>("ReportId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("report_id");
+
+                    b.Property<long?>("TargetMemberId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("target_member_id");
+
+                    b.Property<string>("TargetMemberName")
+                        .HasColumnType("text")
+                        .HasColumnName("target_member_name");
+
+                    b.Property<long?>("TargetUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("target_user_id");
+
+                    b.Property<string>("TargetUsername")
+                        .HasColumnType("text")
+                        .HasColumnName("target_username");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_log");
+
+                    b.HasIndex("ReportId")
+                        .HasDatabaseName("ix_audit_log_report_id");
+
+                    b.ToTable("audit_log", (string)null);
                 });
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.AuthMethod", b =>
@@ -270,6 +327,45 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("member_flags", (string)null);
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Notification", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<Instant?>("AcknowledgedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("acknowledged_at");
+
+                    b.Property<string>("LocalizationKey")
+                        .HasColumnType("text")
+                        .HasColumnName("localization_key");
+
+                    b.Property<Dictionary<string, string>>("LocalizationParams")
+                        .HasColumnType("hstore")
+                        .HasColumnName("localization_params");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<long>("TargetId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("target_id");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.HasIndex("TargetId")
+                        .HasDatabaseName("ix_notifications_target_id");
+
+                    b.ToTable("notifications", (string)null);
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.PrideFlag", b =>
                 {
                     b.Property<long>("Id")
@@ -300,6 +396,55 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasDatabaseName("ix_pride_flags_user_id");
 
                     b.ToTable("pride_flags", (string)null);
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Report", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Reason")
+                        .HasColumnType("integer")
+                        .HasColumnName("reason");
+
+                    b.Property<long>("ReporterId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("reporter_id");
+                    
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<long?>("TargetMemberId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("target_member_id");
+
+                    b.Property<string>("TargetSnapshot")
+                        .HasColumnType("text")
+                        .HasColumnName("target_snapshot");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_type");
+
+                    b.Property<long>("TargetUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("target_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_reports");
+
+                    b.HasIndex("ReporterId")
+                        .HasDatabaseName("ix_reports_reporter_id");
+
+                    b.HasIndex("TargetMemberId")
+                        .HasDatabaseName("ix_reports_target_member_id");
+
+                    b.HasIndex("TargetUserId")
+                        .HasDatabaseName("ix_reports_target_user_id");
+
+                    b.ToTable("reports", (string)null);
                 });
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.TemporaryKey", b =>
@@ -522,6 +667,16 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("user_flags", (string)null);
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.AuditLogEntry", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .HasConstraintName("fk_audit_log_reports_report_id");
+
+                    b.Navigation("Report");
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.AuthMethod", b =>
                 {
                     b.HasOne("Foxnouns.Backend.Database.Models.FediverseApplication", "FediverseApplication")
@@ -584,6 +739,18 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.Navigation("PrideFlag");
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Notification", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.User", "Target")
+                        .WithMany()
+                        .HasForeignKey("TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notifications_users_target_id");
+
+                    b.Navigation("Target");
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.PrideFlag", b =>
                 {
                     b.HasOne("Foxnouns.Backend.Database.Models.User", null)
@@ -592,6 +759,34 @@ namespace Foxnouns.Backend.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_pride_flags_users_user_id");
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Report", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.User", "Reporter")
+                        .WithMany()
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_reports_users_reporter_id");
+
+                    b.HasOne("Foxnouns.Backend.Database.Models.Member", "TargetMember")
+                        .WithMany()
+                        .HasForeignKey("TargetMemberId")
+                        .HasConstraintName("fk_reports_members_target_member_id");
+
+                    b.HasOne("Foxnouns.Backend.Database.Models.User", "TargetUser")
+                        .WithMany()
+                        .HasForeignKey("TargetUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_reports_users_target_user_id");
+
+                    b.Navigation("Reporter");
+
+                    b.Navigation("TargetMember");
+
+                    b.Navigation("TargetUser");
                 });
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Token", b =>

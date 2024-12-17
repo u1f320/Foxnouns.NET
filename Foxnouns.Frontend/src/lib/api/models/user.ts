@@ -26,6 +26,7 @@ export type MeUser = UserWithMembers & {
 	last_active: string;
 	last_sid_reroll: string;
 	timezone: string;
+	deleted: boolean;
 };
 
 export type UserWithMembers = User & { members: PartialMember[] | null };

@@ -71,6 +71,10 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
     public DbSet<UserFlag> UserFlags { get; init; } = null!;
     public DbSet<MemberFlag> MemberFlags { get; init; } = null!;
 
+    public DbSet<Report> Reports { get; init; } = null!;
+    public DbSet<AuditLogEntry> AuditLog { get; init; } = null!;
+    public DbSet<Notification> Notifications { get; init; } = null!;
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         // Snowflakes are stored as longs

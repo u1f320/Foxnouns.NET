@@ -113,6 +113,8 @@ public static class WebApplicationExtensions
                     .AddSingleton<EmailRateLimiter>()
                     .AddScoped<UserRendererService>()
                     .AddScoped<MemberRendererService>()
+                    .AddScoped<ModerationRendererService>()
+                    .AddScoped<ModerationService>()
                     .AddScoped<AuthService>()
                     .AddScoped<KeyCacheService>()
                     .AddScoped<RemoteAuthService>()
@@ -139,11 +141,13 @@ public static class WebApplicationExtensions
         services
             .AddScoped<ErrorHandlerMiddleware>()
             .AddScoped<AuthenticationMiddleware>()
+            .AddScoped<LimitMiddleware>()
             .AddScoped<AuthorizationMiddleware>();
 
     public static IApplicationBuilder UseCustomMiddleware(this IApplicationBuilder app) =>
         app.UseMiddleware<ErrorHandlerMiddleware>()
             .UseMiddleware<AuthenticationMiddleware>()
+            .UseMiddleware<LimitMiddleware>()
             .UseMiddleware<AuthorizationMiddleware>();
 
     public static async Task Initialize(this WebApplication app, string[] args)

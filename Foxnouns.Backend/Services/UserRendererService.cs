@@ -114,7 +114,8 @@ public class UserRendererService(
             tokenHidden ? user.ListHidden : null,
             tokenHidden ? user.LastActive : null,
             tokenHidden ? user.LastSidReroll : null,
-            tokenHidden ? user.Timezone ?? "<none>" : null
+            tokenHidden ? user.Timezone ?? "<none>" : null,
+            tokenHidden ? user.Deleted : null
         );
     }
 

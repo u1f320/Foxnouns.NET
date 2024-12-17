@@ -166,6 +166,8 @@ public enum ErrorCode
     MemberNotFound,
     AccountAlreadyLinked,
     LastAuthMethod,
+    InvalidReportTarget,
+    InvalidWarningTarget,
 }
 
 public class ValidationError

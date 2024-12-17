@@ -47,7 +47,8 @@ public record UserResponse(
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? MemberListHidden,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? LastActive,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Instant? LastSidReroll,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Timezone
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Timezone,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? Deleted
 );
 
 public record AuthMethodResponse(
