@@ -115,6 +115,7 @@ public class UserRendererService(
             tokenHidden ? user.LastActive : null,
             tokenHidden ? user.LastSidReroll : null,
             tokenHidden ? user.Timezone ?? "<none>" : null,
+            tokenHidden ? user is { Deleted: true, DeletedBy: not null } : null,
             tokenHidden ? user.Deleted : null
         );
     }

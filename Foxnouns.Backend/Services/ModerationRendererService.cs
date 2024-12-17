@@ -21,7 +21,6 @@ using Newtonsoft.Json.Linq;
 namespace Foxnouns.Backend.Services;
 
 public class ModerationRendererService(
-    DatabaseContext db,
     UserRendererService userRenderer,
     MemberRendererService memberRenderer
 )

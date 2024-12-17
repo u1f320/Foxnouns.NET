@@ -23,25 +23,29 @@ public class LimitMiddleware : IMiddleware
         Endpoint? endpoint = ctx.GetEndpoint();
         LimitAttribute? attribute = endpoint?.Metadata.GetMetadata<LimitAttribute>();
 
+        Token? token = ctx.GetToken();
+
         if (attribute == null)
         {
+            // Check for authorize attribute
+            // If it exists, and the user is deleted, throw an error.
+            if (
+                endpoint?.Metadata.GetMetadata<AuthorizeAttribute>() != null
+                && token?.User.Deleted == true
+            )
+            {
+                throw new ApiError.Forbidden("Deleted users cannot access this endpoint.");
+            }
+
             await next(ctx);
             return;
         }
 
-        Token? token = ctx.GetToken();
-        if (
-            token?.User.Deleted == true
-            && (!attribute.UsableBySuspendedUsers || token.User.DeletedBy == null)
-        )
-        {
+        if (token?.User.Deleted == true && !attribute.UsableBySuspendedUsers)
             throw new ApiError.Forbidden("Deleted users cannot access this endpoint.");
-        }
 
         if (attribute.RequireAdmin && token?.User.Role != UserRole.Admin)
-        {
             throw new ApiError.Forbidden("This endpoint can only be used by admins.");
-        }
 
         if (
             attribute.RequireModerator

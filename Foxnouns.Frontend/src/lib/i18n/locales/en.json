@@ -4,7 +4,10 @@
 		"log-in": "Log in or sign up",
 		"settings": "Settings",
 		"suspended-account-hint": "Your account has been suspended. Your profile has been hidden and you will not be able to change any settings.",
-		"appeal-suspension-link": "I want to appeal"
+		"appeal-suspension-link": "I want to appeal",
+		"deleted-account-hint": "You have requested deletion of your account. If you want to reactivate it, click the link below.",
+		"reactivate-account-link": "Reactivate account",
+		"delete-permanently-link": "I want my account deleted permanently"
 	},
 	"avatar-tooltip": "Avatar for {{name}}",
 	"profile": {

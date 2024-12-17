@@ -21,10 +21,17 @@
 </script>
 
 {#if user && user.deleted}
-	<div class="suspended-alert text-center py-3 mb-2 px-2">
-		<strong>{$t("nav.suspended-account-hint")}</strong>
-		<br />
-		<a href="/contact">{$t("nav.appeal-suspension-link")}</a>
+	<div class="deleted-alert text-center py-3 mb-2 px-2">
+		{#if user.suspended}
+			<strong>{$t("nav.suspended-account-hint")}</strong>
+			<br />
+			<a href="/contact">{$t("nav.appeal-suspension-link")}</a>
+		{:else}
+			<strong>{$t("nav.deleted-account-hint")}</strong>
+			<br />
+			<a href="/settings/reactivate">{$t("nav.reactivate-account-link")}</a> •
+			<a href="/contact">{$t("nav.delete-permanently-link")}</a>
+		{/if}
 	</div>
 {/if}
 
@@ -66,7 +73,7 @@
 </Navbar>
 
 <style>
-	.suspended-alert {
+	.deleted-alert {
 		color: var(--bs-danger-text-emphasis);
 		background-color: var(--bs-danger-bg-subtle);
 	}
