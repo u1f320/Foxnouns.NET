@@ -7,6 +7,7 @@
 	import { Icon } from "@sveltestrap/sveltestrap";
 	import { t } from "$lib/i18n";
 	import ProfileButtons from "$components/profile/ProfileButtons.svelte";
+	import PreferenceCheatsheet from "$components/profile/PreferenceCheatsheet.svelte";
 
 	type Props = { data: PageData };
 	let { data }: Props = $props();
@@ -38,7 +39,7 @@
 
 	<ProfileHeader name="{data.member.name} (@{data.member.user.username})" profile={data.member} />
 	<ProfileFields profile={data.member} {allPreferences} />
-
+	<PreferenceCheatsheet profile={data.member} {allPreferences} />
 	<ProfileButtons
 		meUser={data.meUser}
 		user={data.member.user.username}

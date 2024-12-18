@@ -9,6 +9,7 @@
 	import Paginator from "$components/Paginator.svelte";
 	import MemberCard from "$components/profile/user/MemberCard.svelte";
 	import ProfileButtons from "$components/profile/ProfileButtons.svelte";
+	import PreferenceCheatsheet from "$components/profile/PreferenceCheatsheet.svelte";
 
 	type Props = { data: PageData };
 	let { data }: Props = $props();
@@ -28,7 +29,7 @@
 
 	<ProfileHeader name="@{data.user.username}" profile={data.user} offset={data.user.utc_offset} />
 	<ProfileFields profile={data.user} {allPreferences} />
-
+	<PreferenceCheatsheet profile={data.user} {allPreferences} />
 	<ProfileButtons
 		meUser={data.meUser}
 		user={data.user.username}
