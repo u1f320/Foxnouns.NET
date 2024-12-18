@@ -9,7 +9,7 @@ export type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 /**
  * Optional arguments for a request. `load` and `action` functions should always pass `fetch` and `cookies`.
  */
-export type RequestArgs = {
+export type RequestArgs<T> = {
 	/**
 	 * The token for this request. Where possible, `cookies` should be passed instead.
 	 * Will override `cookies` if both are passed.
@@ -23,7 +23,7 @@ export type RequestArgs = {
 	/**
 	 * The body for this request, which will be serialized to JSON. Should be a plain JS object.
 	 */
-	body?: unknown;
+	body?: T;
 	/**
 	 * The fetch function to use. Should be passed in loader and action functions, but can be safely ignored for client-side requests.
 	 */
@@ -41,10 +41,10 @@ export type RequestArgs = {
  * @param args Optional arguments to the request function.
  * @returns A Response object.
  */
-export async function baseRequest(
+export async function baseRequest<T = unknown>(
 	method: Method,
 	path: string,
-	args: RequestArgs = {},
+	args: RequestArgs<T> = {},
 ): Promise<Response> {
 	const token = args.token ?? args.cookies?.get(TOKEN_COOKIE_NAME);
 
@@ -72,11 +72,11 @@ export async function baseRequest(
  * @param args Optional arguments to the request function.
  * @returns The response deserialized as `T`.
  */
-export async function apiRequest<T>(
+export async function apiRequest<TResponse, TRequest = unknown>(
 	method: Method,
 	path: string,
-	args: RequestArgs = {},
-): Promise<T> {
+	args: RequestArgs<TRequest> = {},
+): Promise<TResponse> {
 	const resp = await baseRequest(method, path, args);
 
 	if (resp.status < 200 || resp.status > 299) {
@@ -84,7 +84,7 @@ export async function apiRequest<T>(
 		if ("code" in err) throw new ApiError(err);
 		else throw new ApiError();
 	}
-	return (await resp.json()) as T;
+	return (await resp.json()) as TResponse;
 }
 
 /**
@@ -94,10 +94,10 @@ export async function apiRequest<T>(
  * @param args Optional arguments to the request function.
  * @param enforce204 Whether to throw an error on a non-204 status code.
  */
-export async function fastRequest(
+export async function fastRequest<T = unknown>(
 	method: Method,
 	path: string,
-	args: RequestArgs = {},
+	args: RequestArgs<T> = {},
 	enforce204: boolean = false,
 ): Promise<void> {
 	const resp = await baseRequest(method, path, args);

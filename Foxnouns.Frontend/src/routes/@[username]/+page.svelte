@@ -8,6 +8,7 @@
 	import { Icon } from "@sveltestrap/sveltestrap";
 	import Paginator from "$components/Paginator.svelte";
 	import MemberCard from "$components/profile/user/MemberCard.svelte";
+	import ProfileButtons from "$components/profile/ProfileButtons.svelte";
 
 	type Props = { data: PageData };
 	let { data }: Props = $props();
@@ -27,6 +28,13 @@
 
 	<ProfileHeader name="@{data.user.username}" profile={data.user} offset={data.user.utc_offset} />
 	<ProfileFields profile={data.user} {allPreferences} />
+
+	<ProfileButtons
+		meUser={data.meUser}
+		user={data.user.username}
+		sid={data.user.sid}
+		reportUrl="/report/{data.user.id}"
+	/>
 
 	{#if data.members.length > 0}
 		<hr />

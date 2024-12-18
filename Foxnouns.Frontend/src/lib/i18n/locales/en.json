@@ -18,7 +18,10 @@
 		"pronouns-header": "Pronouns",
 		"default-members-header": "Members",
 		"create-member-button": "Create member",
-		"back-to-user": "Back to {{name}}"
+		"back-to-user": "Back to {{name}}",
+		"copy-link-button": "Copy link",
+		"copy-short-link-button": "Copy short link",
+		"report-button": "Report profile"
 	},
 	"title": {
 		"log-in": "Log in",
@@ -237,5 +240,35 @@
 		"custom-preference-muted": "Show as muted text",
 		"custom-preference-favourite": "Treat like favourite"
 	},
-	"cancel": "Cancel"
+	"cancel": "Cancel",
+	"report": {
+		"title": "Reporting {{name}}",
+		"totalitarianism": "Support of totalitarian regimes",
+		"hate-speech": "Hate speech",
+		"racism": "Racism or xenophobia",
+		"homophobia": "Homophobia",
+		"transphobia": "Transphobia",
+		"queerphobia": "Queerphobia (other)",
+		"exclusionism": "Queer or plural exclusionism",
+		"sexism": "Sexism or misogyny",
+		"ableism": "Ableism",
+		"child-pornography": "Child pornography",
+		"pedophilia-advocacy": "Pedophilia advocacy",
+		"harassment": "Harassment",
+		"impersonation": "Impersonation",
+		"doxxing": "Doxxing",
+		"encouraging-self-harm": "Encouraging self-harm or suicide",
+		"spam": "Spam",
+		"trolling": "Trolling",
+		"advertisement": "Advertising",
+		"copyright-violation": "Copyright or trademark violation",
+		"success": "Successfully submitted report!",
+		"reason-label": "Why are you reporting this profile?",
+		"context-label": "Is there any context you'd like to give us?",
+		"submit-button": "Submit report"
+	},
+	"form": {
+		"optional": "(optional)",
+		"required": "Required"
+	}
 }
