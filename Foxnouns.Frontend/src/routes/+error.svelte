@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from "$app/stores";
+	import Error from "$components/Error.svelte";
 	import { t } from "$lib/i18n";
 	import type { LayoutData } from "./$types";
 
@@ -14,22 +15,8 @@
 </svelte:head>
 
 <div class="container">
-	<h3>{$t("title.an-error-occurred")}</h3>
-	<p>
-		<strong>{$page.status}</strong>: {error.message}
-	</p>
-	<p>
-		{#if $page.status === 400}
-			{$t("error.400-description")}
-		{:else if $page.status === 404}
-			{$t("error.404-description")}
-		{:else if $page.status === 500}
-			{$t("error.500-description")}
-		{:else}
-			{$t("error.unknown-status-description")}
-		{/if}
-	</p>
-	<div class="btn-group">
+	<Error {error} headerElem="h3" />
+	<div class="btn-group mt-2">
 		{#if data.meUser}
 			<a class="btn btn-primary" href="/@{data.meUser.username}">
 				{$t("error.back-to-profile-button")}
