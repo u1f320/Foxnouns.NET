@@ -4,14 +4,31 @@
     {
       "name": "run-prettier",
       "command": "pnpm",
-      "args": ["format"],
+      "args": [
+        "prettier",
+        "-w",
+        "${staged}"
+      ],
+      "include": [
+        "Foxnouns.Frontend/**/*.ts",
+        "Foxnouns.Frontend/**/*.json",
+        "Foxnouns.Frontend/**/*.scss",
+        "Foxnouns.Frontend/**/*.js",
+        "Foxnouns.Frontend/**/*.svelte"
+      ],
+      "cwd": "Foxnouns.Frontend/",
       "pathMode": "absolute"
     },
     {
       "name": "run-csharpier",
       "command": "dotnet",
-      "args": [ "csharpier", "${staged}" ],
-      "include": [ "**/*.cs" ]
+      "args": [
+        "csharpier",
+        "${staged}"
+      ],
+      "include": [
+        "**/*.cs"
+      ]
     }
   ]
 }
