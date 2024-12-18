@@ -57,7 +57,7 @@ public record NotificationResponse(
 
 public record AuditLogEntity(Snowflake Id, string Username);
 
-public record CreateReportRequest(ReportReason Reason);
+public record CreateReportRequest(ReportReason Reason, string? Context = null);
 
 public record IgnoreReportRequest(string? Reason = null);
 

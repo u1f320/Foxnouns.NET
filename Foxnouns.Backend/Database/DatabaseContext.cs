@@ -108,6 +108,12 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
             .HasFilter("fediverse_application_id IS NULL")
             .IsUnique();
 
+        modelBuilder
+            .Entity<AuditLogEntry>()
+            .HasOne(e => e.Report)
+            .WithOne(e => e.AuditLogEntry)
+            .OnDelete(DeleteBehavior.SetNull);
+
         modelBuilder.Entity<User>().Property(u => u.Sid).HasDefaultValueSql("find_free_user_sid()");
         modelBuilder.Entity<User>().Property(u => u.Fields).HasColumnType("jsonb");
         modelBuilder.Entity<User>().Property(u => u.Names).HasColumnType("jsonb");

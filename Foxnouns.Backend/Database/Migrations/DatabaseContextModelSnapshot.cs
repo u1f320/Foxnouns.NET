@@ -113,6 +113,7 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasName("pk_audit_log");
 
                     b.HasIndex("ReportId")
+                        .IsUnique()
                         .HasDatabaseName("ix_audit_log_report_id");
 
                     b.ToTable("audit_log", (string)null);
@@ -409,6 +410,10 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("id");
 
+                    b.Property<string>("Context")
+                        .HasColumnType("text")
+                        .HasColumnName("context");
+
                     b.Property<int>("Reason")
                         .HasColumnType("integer")
                         .HasColumnName("reason");
@@ -675,8 +680,9 @@ namespace Foxnouns.Backend.Database.Migrations
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.AuditLogEntry", b =>
                 {
                     b.HasOne("Foxnouns.Backend.Database.Models.Report", "Report")
-                        .WithMany()
-                        .HasForeignKey("ReportId")
+                        .WithOne("AuditLogEntry")
+                        .HasForeignKey("Foxnouns.Backend.Database.Models.AuditLogEntry", "ReportId")
+                        .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_audit_log_reports_report_id");
 
                     b.Navigation("Report");
@@ -837,6 +843,11 @@ namespace Foxnouns.Backend.Database.Migrations
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Member", b =>
                 {
                     b.Navigation("ProfileFlags");
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Report", b =>
+                {
+                    b.Navigation("AuditLogEntry");
                 });
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.User", b =>

@@ -29,9 +29,12 @@ public class Report : BaseModel
 
     public ReportStatus Status { get; set; }
     public ReportReason Reason { get; init; }
+    public string? Context { get; init; }
 
     public ReportTargetType TargetType { get; init; }
     public string? TargetSnapshot { get; init; }
+
+    public AuditLogEntry? AuditLogEntry { get; set; }
 }
 
 [JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]

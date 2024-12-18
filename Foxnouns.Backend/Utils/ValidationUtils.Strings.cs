@@ -196,6 +196,13 @@ public static partial class ValidationUtils
         };
     }
 
+    public const int MaximumReportContextLength = 512;
+
+    public static ValidationError? ValidateReportContext(string? context) =>
+        context?.Length > MaximumReportContextLength
+            ? ValidationError.GenericValidationError("Avatar is too large", null)
+            : null;
+
     public const int MinimumPasswordLength = 12;
     public const int MaximumPasswordLength = 1024;
 

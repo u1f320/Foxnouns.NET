@@ -18,6 +18,7 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
+using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -49,6 +50,8 @@ public class ReportsController(
         [FromBody] CreateReportRequest req
     )
     {
+        ValidationUtils.Validate([("context", ValidationUtils.ValidateReportContext(req.Context))]);
+
         User target = await db.ResolveUserAsync(id);
 
         if (target.Id == CurrentUser!.Id)
@@ -96,6 +99,7 @@ public class ReportsController(
             TargetUserId = target.Id,
             TargetMemberId = null,
             Reason = req.Reason,
+            Context = req.Context,
             TargetType = ReportTargetType.User,
             TargetSnapshot = snapshot,
         };
@@ -112,6 +116,8 @@ public class ReportsController(
         [FromBody] CreateReportRequest req
     )
     {
+        ValidationUtils.Validate([("context", ValidationUtils.ValidateReportContext(req.Context))]);
+
         Member target = await db.ResolveMemberAsync(id);
 
         if (target.User.Id == CurrentUser!.Id)
@@ -158,6 +164,7 @@ public class ReportsController(
             TargetUserId = target.User.Id,
             TargetMemberId = target.Id,
             Reason = req.Reason,
+            Context = req.Context,
             TargetType = ReportTargetType.Member,
             TargetSnapshot = snapshot,
         };
