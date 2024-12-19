@@ -58,7 +58,7 @@ public class ExportsController(
     }
 
     private string ExportUrl(Snowflake userId, string filename) =>
-        $"{config.MediaBaseUrl}/data-exports/{userId}/{filename}.zip";
+        $"{config.MediaBaseUrl}/data-exports/{userId}/{filename}/data-export.zip";
 
     [HttpPost]
     public async Task<IActionResult> QueueDataExportAsync()

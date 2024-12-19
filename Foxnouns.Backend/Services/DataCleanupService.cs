@@ -128,5 +128,5 @@ public class DataCleanupService(
     }
 
     private static string ExportPath(Snowflake userId, string b64) =>
-        $"data-exports/{userId}/{b64}.zip";
+        $"data-exports/{userId}/{b64}/data-export.zip";
 }
