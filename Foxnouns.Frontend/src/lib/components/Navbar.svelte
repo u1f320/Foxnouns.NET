@@ -25,12 +25,14 @@
 		{#if user.suspended}
 			<strong>{$t("nav.suspended-account-hint")}</strong>
 			<br />
-			<a href="/contact">{$t("nav.appeal-suspension-link")}</a>
+			<a href="/settings">{$t("nav.delete-permanently-link")}</a> •
+			<a href="/contact">{$t("nav.appeal-suspension-link")}</a> •
+			<a href="/settings/export">{$t("nav.export-link")}</a>
 		{:else}
 			<strong>{$t("nav.deleted-account-hint")}</strong>
 			<br />
-			<a href="/settings/reactivate">{$t("nav.reactivate-account-link")}</a> •
-			<a href="/contact">{$t("nav.delete-permanently-link")}</a>
+			<a href="/settings">{$t("nav.reactivate-or-delete-link")}</a> •
+			<a href="/settings/export">{$t("nav.export-link")}</a>
 		{/if}
 	</div>
 {/if}

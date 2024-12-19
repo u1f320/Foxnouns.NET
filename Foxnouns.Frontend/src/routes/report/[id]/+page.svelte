@@ -16,8 +16,6 @@
 		data.member ? `/@${data.user.username}/${data.member.name}` : `/@${data.user.username}`,
 	);
 
-	console.log(data.user, !!data.member);
-
 	let reasons = $derived.by(() => {
 		const reasons = [];
 		for (const value of Object.values(ReportReason)) {

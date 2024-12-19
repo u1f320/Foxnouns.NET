@@ -41,7 +41,7 @@ public class LimitMiddleware : IMiddleware
             return;
         }
 
-        if (token?.User.Deleted == true && !attribute.UsableBySuspendedUsers)
+        if (token?.User.Deleted == true && !attribute.UsableByDeletedUsers)
             throw new ApiError.Forbidden("Deleted users cannot access this endpoint.");
 
         if (attribute.RequireAdmin && token?.User.Role != UserRole.Admin)
@@ -62,7 +62,7 @@ public class LimitMiddleware : IMiddleware
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class LimitAttribute : Attribute
 {
-    public bool UsableBySuspendedUsers { get; init; }
+    public bool UsableByDeletedUsers { get; init; }
     public bool RequireAdmin { get; init; }
     public bool RequireModerator { get; init; }
 }

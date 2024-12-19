@@ -18,9 +18,37 @@
 
 <h3>{$t("settings.general-information-tab")}</h3>
 
+{#if data.user.deleted}
+	<div class="row mb-3">
+		{#if !data.user.suspended}
+			<div class="col-md">
+				<h4>{$t("settings.reactivate-header")}</h4>
+				<p>
+					{$t("settings.reactivate-explanation")}
+				</p>
+				<a href="/settings/reactivate" class="btn btn-success">
+					{$t("settings.reactivate-button")}
+				</a>
+			</div>
+		{/if}
+		<div class="col-md">
+			<h4>{$t("settings.force-delete-header")}</h4>
+			<p>
+				{$t("settings.force-delete-explanation")}
+				<strong>
+					{$t("settings.force-delete-warning")}
+				</strong>
+			</p>
+			<a href="/settings/force-delete" class="btn btn-danger">
+				{$t("settings.force-delete-button")}
+			</a>
+		</div>
+	</div>
+{/if}
+
 <div class="row mb-3">
 	<div class="col-md-9">
-		<h5>Change your username</h5>
+		<h5>{$t("settings.change-username-header")}</h5>
 		<form method="POST" action="?/changeUsername" use:enhance>
 			<FormGroup class="mb-3">
 				<InputGroup class="m-1 mt-3 w-md-75">
@@ -79,6 +107,13 @@
 	<p>{$t("settings.force-log-out-hint")}</p>
 	<a class="btn btn-danger" href="/settings/force-log-out">{$t("settings.force-log-out-button")}</a>
 </div>
+
+{#if !data.user.deleted}
+	<div class="mb-3">
+		<h4>Delete your account</h4>
+		<p></p>
+	</div>
+{/if}
 
 <div>
 	<h4>{$t("settings.table-title")}</h4>

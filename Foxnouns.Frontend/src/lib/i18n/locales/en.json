@@ -5,9 +5,11 @@
 		"settings": "Settings",
 		"suspended-account-hint": "Your account has been suspended. Your profile has been hidden and you will not be able to change any settings.",
 		"appeal-suspension-link": "I want to appeal",
-		"deleted-account-hint": "You have requested deletion of your account. If you want to reactivate it, click the link below.",
+		"deleted-account-hint": "You have requested deletion of your account.",
 		"reactivate-account-link": "Reactivate account",
-		"delete-permanently-link": "I want my account deleted permanently"
+		"delete-permanently-link": "I want my account deleted permanently",
+		"reactivate-or-delete-link": "I want to reactivate my account or delete all my data",
+		"export-link": "I want to export a copy of my data"
 	},
 	"avatar-tooltip": "Avatar for {{name}}",
 	"profile": {
@@ -155,7 +157,17 @@
 		"flag-description-placeholder": "Description",
 		"flag-name-placeholder": "Name",
 		"flag-upload-success": "Successfully uploaded your flag! It may take a few seconds before it's saved.",
-		"custom-preferences-title": "Custom preferences"
+		"custom-preferences-title": "Custom preferences",
+		"change-username-header": "Change your username",
+		"force-delete-button": "Delete my account permanently",
+		"force-delete-warning": "This is irreversible. Consider exporting a copy of your data before doing this.",
+		"force-delete-explanation": "Your account is currently pending deletion. If you want your data deleted permanently, use the button below.",
+		"reactivate-explanation": "Your account is currently pending deletion. If you want to cancel this and keep using your account, use the link below.",
+		"reactivate-header": "Reactivate your account",
+		"force-delete-header": "Permanently delete your account",
+		"reactivate-button": "Reactivate my account",
+		"reactivated-header": "Account reactivated",
+		"reactivated-explanation": "Your account has been reactivated!"
 	},
 	"yes": "Yes",
 	"no": "No",

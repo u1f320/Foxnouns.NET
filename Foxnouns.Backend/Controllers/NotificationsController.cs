@@ -17,7 +17,7 @@ public class NotificationsController(
 {
     [HttpGet]
     [Authorize("user.moderation")]
-    [Limit(UsableBySuspendedUsers = true)]
+    [Limit(UsableByDeletedUsers = true)]
     public async Task<IActionResult> GetNotificationsAsync([FromQuery] bool all = false)
     {
         IQueryable<Notification> query = db.Notifications.Where(n => n.TargetId == CurrentUser!.Id);
@@ -31,7 +31,7 @@ public class NotificationsController(
 
     [HttpPut("{id}/ack")]
     [Authorize("user.moderation")]
-    [Limit(UsableBySuspendedUsers = true)]
+    [Limit(UsableByDeletedUsers = true)]
     public async Task<IActionResult> AcknowledgeNotificationAsync(Snowflake id)
     {
         Notification? notification = await db.Notifications.FirstOrDefaultAsync(n =>

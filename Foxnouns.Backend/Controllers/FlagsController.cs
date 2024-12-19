@@ -34,7 +34,7 @@ public class FlagsController(
 ) : ApiControllerBase
 {
     [HttpGet]
-    [Limit(UsableBySuspendedUsers = true)]
+    [Limit(UsableByDeletedUsers = true)]
     [Authorize("user.read_flags")]
     [ProducesResponseType<IEnumerable<PrideFlagResponse>>(statusCode: StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFlagsAsync(CancellationToken ct = default)

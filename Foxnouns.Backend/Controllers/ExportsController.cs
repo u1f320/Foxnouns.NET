@@ -26,6 +26,7 @@ namespace Foxnouns.Backend.Controllers;
 
 [Route("/api/internal/data-exports")]
 [Authorize("identify")]
+[Limit(UsableByDeletedUsers = true)]
 [ApiExplorerSettings(IgnoreApi = true)]
 public class ExportsController(
     ILogger logger,
