@@ -110,8 +110,9 @@
 
 {#if !data.user.deleted}
 	<div class="mb-3">
-		<h4>Delete your account</h4>
-		<p></p>
+		<h4>{$t("settings.soft-delete-header")}</h4>
+		<p>{$t("settings.soft-delete-hint")}</p>
+		<a href="/settings/delete" class="btn btn-danger">{$t("settings.soft-delete-button")}</a>
 	</div>
 {/if}
 
