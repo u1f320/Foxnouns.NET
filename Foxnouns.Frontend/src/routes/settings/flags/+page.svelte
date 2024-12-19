@@ -48,7 +48,6 @@
 
 			const idx = flags.findIndex((f) => f.id === id);
 			if (idx === -1) return;
-			console.log("yippee");
 			flags[idx] = { ...flags[idx], name, description };
 		} catch (e) {
 			log.error("Could not update flag %s:", id, e);
