@@ -38,6 +38,8 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
     {
         if (template.StartsWith("api/v2"))
             template = template["api/v2".Length..];
+        else if (template.StartsWith("api/v1"))
+            template = template["api/v1".Length..];
         template = PathVarRegex()
             .Replace(template, "{id}") // Replace all path variables (almost always IDs) with `{id}`
             .Replace("@me", "{id}"); // Also replace hardcoded `@me` with `{id}`

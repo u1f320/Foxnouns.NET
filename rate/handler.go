@@ -38,7 +38,7 @@ func (hn *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// all public api endpoints are prefixed with this
-	if !strings.HasPrefix(r.URL.Path, "/api/v2") {
+	if !strings.HasPrefix(r.URL.Path, "/api/v2") && !strings.HasPrefix(r.URL.Path, "/api/v1") {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
