@@ -64,3 +64,11 @@
 	max-width: 200px;
 	border-radius: 3px;
 }
+
+.big-footer {
+	@media (prefers-color-scheme: dark) {
+		background-color: bootstrap.shade-color(bootstrap.$dark, 20%);
+	}
+
+	background-color: bootstrap.shade-color(bootstrap.$light, 5%);
+}
