@@ -1,6 +1,6 @@
 {
     "port": 5003,
-    "proxy_target": "http://localhost:5000",
+    "proxy_target": "http://localhost:6000",
     "debug": true,
     "powered_by": "5 gay rats"
 }
