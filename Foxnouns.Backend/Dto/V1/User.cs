@@ -21,6 +21,8 @@ public record UserResponse(
     FieldEntry[] Names,
     PronounEntry[] Pronouns,
     ProfileField[] Fields,
+    PrideFlag[] Flags,
+    PartialMember[] Members,
     int? UtcOffset,
     Dictionary<Guid, CustomPreference> CustomPreferences
 );
@@ -75,3 +77,5 @@ public record PronounEntry(string Pronouns, string? DisplayText, string Status)
             ))
             .ToArray();
 }
+
+public record PrideFlag(string Id, Snowflake IdNew, string Hash, string Name, string? Description);

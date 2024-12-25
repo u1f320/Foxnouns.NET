@@ -130,7 +130,8 @@ public static class WebApplicationExtensions
                     .AddTransient<CreateFlagInvocable>()
                     .AddTransient<CreateDataExportInvocable>()
                     // Legacy services
-                    .AddScoped<UsersV1Service>();
+                    .AddScoped<UsersV1Service>()
+                    .AddScoped<MembersV1Service>();
 
                 if (!config.Logging.EnableMetrics)
                     services.AddHostedService<BackgroundMetricsCollectionService>();
