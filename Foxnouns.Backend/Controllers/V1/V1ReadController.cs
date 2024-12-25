@@ -22,7 +22,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Foxnouns.Backend.Controllers.V1;
 
 [Route("/api/v1")]
-public class UsersV1Controller(
+public class V1ReadController(
     UsersV1Service usersV1Service,
     MembersV1Service membersV1Service,
     DatabaseContext db
@@ -84,5 +84,28 @@ public class UsersV1Controller(
         }
 
         return Ok(responses);
+    }
+
+    [HttpGet("users/{userRef}/members/{memberRef}")]
+    public async Task<IActionResult> GetUserMemberAsync(
+        string userRef,
+        string memberRef,
+        CancellationToken ct = default
+    )
+    {
+        Member member = await membersV1Service.ResolveMemberAsync(
+            userRef,
+            memberRef,
+            CurrentToken,
+            ct
+        );
+        return Ok(
+            await membersV1Service.RenderMemberAsync(
+                member,
+                CurrentToken,
+                renderFlags: true,
+                ct: ct
+            )
+        );
     }
 }

@@ -21,7 +21,7 @@ using PrideFlag = Foxnouns.Backend.Dto.V1.PrideFlag;
 
 namespace Foxnouns.Backend.Services.V1;
 
-public class MembersV1Service(DatabaseContext db)
+public class MembersV1Service(DatabaseContext db, UsersV1Service usersV1Service)
 {
     public async Task<Member> ResolveMemberAsync(string id, CancellationToken ct = default)
     {
@@ -42,6 +42,43 @@ public class MembersV1Service(DatabaseContext db)
             return member;
 
         throw new ApiError.NotFound("No member with that ID found.", ErrorCode.MemberNotFound);
+    }
+
+    public async Task<Member> ResolveMemberAsync(
+        string userRef,
+        string memberRef,
+        Token? token,
+        CancellationToken ct = default
+    )
+    {
+        User user = await usersV1Service.ResolveUserAsync(userRef, token, ct);
+
+        Member? member;
+        if (Snowflake.TryParse(memberRef, out Snowflake? sf))
+        {
+            member = await db
+                .Members.Include(m => m.User)
+                .FirstOrDefaultAsync(m => m.Id == sf && m.UserId == user.Id, ct);
+            if (member != null)
+                return member;
+        }
+
+        member = await db
+            .Members.Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.LegacyId == memberRef && m.UserId == user.Id, ct);
+        if (member != null)
+            return member;
+
+        member = await db
+            .Members.Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.Name == memberRef && m.UserId == user.Id, ct);
+        if (member != null)
+            return member;
+
+        throw new ApiError.NotFound(
+            "No member with that ID or name found.",
+            ErrorCode.MemberNotFound
+        );
     }
 
     public async Task<MemberResponse> RenderMemberAsync(
