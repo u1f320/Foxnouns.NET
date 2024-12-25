@@ -7,11 +7,7 @@ const md = new MarkdownIt({
 	linkify: true,
 }).disable(["heading", "lheading", "link", "table", "blockquote"]);
 
-const unsafeMd = new MarkdownIt({
-	html: false,
-	breaks: true,
-	linkify: true,
-});
+const unsafeMd = new MarkdownIt();
 
 export const renderMarkdown = (src: string | null) => (src ? sanitize(md.render(src)) : null);
 
