@@ -20,6 +20,7 @@ using Foxnouns.Backend.Services.V1;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using NodaTime;
 
 namespace Foxnouns.Backend.Dto.V1;
 
@@ -40,6 +41,39 @@ public record UserResponse(
     PartialMember[] Members,
     int? UtcOffset,
     Dictionary<Guid, CustomPreference> CustomPreferences
+);
+
+public record CurrentUserResponse(
+    string Id,
+    Snowflake IdNew,
+    string Sid,
+    string Name,
+    string? DisplayName,
+    string? Bio,
+    string? MemberTitle,
+    string? Avatar,
+    string[] Links,
+    FieldEntry[] Names,
+    PronounEntry[] Pronouns,
+    ProfileField[] Fields,
+    PrideFlag[] Flags,
+    PartialMember[] Members,
+    int? UtcOffset,
+    Dictionary<Guid, CustomPreference> CustomPreferences,
+    Instant CreatedAt,
+    string? Timezone,
+    bool IsAdmin,
+    bool ListPrivate,
+    Instant LastSidReroll,
+    string? Discord,
+    string? DiscordUsername,
+    string? Google,
+    string? GoogleUsername,
+    string? Tumblr,
+    string? TumblrUsername,
+    string? Fediverse,
+    string? FediverseUsername,
+    string? FediverseInstance
 );
 
 public record CustomPreference(

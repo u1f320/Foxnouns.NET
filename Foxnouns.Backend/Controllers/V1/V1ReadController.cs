@@ -15,6 +15,7 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto.V1;
+using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services.V1;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,14 @@ public class V1ReadController(
     DatabaseContext db
 ) : ApiControllerBase
 {
+    [HttpGet("users/@me")]
+    [Authorize("identify")]
+    public async Task<IActionResult> GetMeAsync(CancellationToken ct = default)
+    {
+        User user = await usersV1Service.ResolveUserAsync("@me", CurrentToken, ct);
+        return Ok(await usersV1Service.RenderCurrentUserAsync(user, ct));
+    }
+
     [HttpGet("users/{userRef}")]
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
     {

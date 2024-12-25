@@ -122,6 +122,84 @@ public class UsersV1Service(DatabaseContext db)
         );
     }
 
+    public async Task<CurrentUserResponse> RenderCurrentUserAsync(
+        User user,
+        CancellationToken ct = default
+    )
+    {
+        List<Member> members = await db
+            .Members.Where(m => m.UserId == user.Id)
+            .OrderBy(m => m.Name)
+            .ToListAsync(ct);
+
+        List<UserFlag> flags = await db
+            .UserFlags.Where(f => f.UserId == user.Id)
+            .OrderBy(f => f.Id)
+            .ToListAsync(ct);
+
+        int? utcOffset = null;
+        if (
+            user.Timezone != null
+            && TimeZoneInfo.TryFindSystemTimeZoneById(user.Timezone, out TimeZoneInfo? tz)
+        )
+        {
+            utcOffset = (int)tz.GetUtcOffset(DateTimeOffset.UtcNow).TotalSeconds;
+        }
+
+        List<AuthMethod> authMethods = await db
+            .AuthMethods.Include(a => a.FediverseApplication)
+            .Where(a => a.UserId == user.Id)
+            .OrderBy(a => a.Id)
+            .ToListAsync(ct);
+
+        AuthMethod? discord = authMethods.FirstOrDefault(a => a.AuthType is AuthType.Discord);
+        AuthMethod? google = authMethods.FirstOrDefault(a => a.AuthType is AuthType.Google);
+        AuthMethod? tumblr = authMethods.FirstOrDefault(a => a.AuthType is AuthType.Tumblr);
+        AuthMethod? fediverse = authMethods.FirstOrDefault(a => a.AuthType is AuthType.Fediverse);
+
+        return new CurrentUserResponse(
+            user.LegacyId,
+            user.Id,
+            user.Sid,
+            user.Username,
+            user.DisplayName,
+            user.Bio,
+            user.MemberTitle,
+            user.Avatar,
+            user.Links,
+            Names: FieldEntry.FromEntries(user.Names, user.CustomPreferences),
+            Pronouns: PronounEntry.FromPronouns(user.Pronouns, user.CustomPreferences),
+            Fields: ProfileField.FromFields(user.Fields, user.CustomPreferences),
+            Flags: flags
+                .Where(f => f.PrideFlag.Hash != null)
+                .Select(f => new PrideFlag(
+                    f.PrideFlag.LegacyId,
+                    f.PrideFlag.Id,
+                    f.PrideFlag.Hash!,
+                    f.PrideFlag.Name,
+                    f.PrideFlag.Description
+                ))
+                .ToArray(),
+            Members: members.Select(m => RenderPartialMember(m, user.CustomPreferences)).ToArray(),
+            utcOffset,
+            CustomPreferences: RenderCustomPreferences(user.CustomPreferences),
+            user.Id.Time,
+            user.Timezone,
+            user.Role is UserRole.Admin,
+            user.ListHidden,
+            user.LastSidReroll,
+            discord?.RemoteId,
+            discord?.RemoteUsername,
+            google?.RemoteId,
+            google?.RemoteUsername,
+            tumblr?.RemoteId,
+            tumblr?.RemoteUsername,
+            fediverse?.RemoteId,
+            fediverse?.RemoteUsername,
+            fediverse?.FediverseApplication?.Domain
+        );
+    }
+
     private static Dictionary<Guid, CustomPreference> RenderCustomPreferences(
         Dictionary<Snowflake, User.CustomPreference> customPreferences
     ) =>
