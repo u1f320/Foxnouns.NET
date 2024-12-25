@@ -12,15 +12,21 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Dto.V1;
 using Foxnouns.Backend.Services.V1;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Foxnouns.Backend.Controllers.V1;
 
 [Route("/api/v1")]
-public class UsersV1Controller(UsersV1Service usersV1Service, MembersV1Service membersV1Service)
-    : ApiControllerBase
+public class UsersV1Controller(
+    UsersV1Service usersV1Service,
+    MembersV1Service membersV1Service,
+    DatabaseContext db
+) : ApiControllerBase
 {
     [HttpGet("users/{userRef}")]
     public async Task<IActionResult> GetUserAsync(string userRef, CancellationToken ct = default)
@@ -49,5 +55,34 @@ public class UsersV1Controller(UsersV1Service usersV1Service, MembersV1Service m
                 ct: ct
             )
         );
+    }
+
+    [HttpGet("users/{userRef}/members")]
+    public async Task<IActionResult> GetUserMembersAsync(
+        string userRef,
+        CancellationToken ct = default
+    )
+    {
+        User user = await usersV1Service.ResolveUserAsync(userRef, CurrentToken, ct);
+        List<Member> members = await db
+            .Members.Where(m => m.UserId == user.Id)
+            .OrderBy(m => m.Name)
+            .ToListAsync(ct);
+
+        List<MemberResponse> responses = [];
+        foreach (Member member in members)
+        {
+            responses.Add(
+                await membersV1Service.RenderMemberAsync(
+                    member,
+                    CurrentToken,
+                    user,
+                    renderFlags: true,
+                    ct: ct
+                )
+            );
+        }
+
+        return Ok(responses);
     }
 }

@@ -47,10 +47,12 @@ public class MembersV1Service(DatabaseContext db)
     public async Task<MemberResponse> RenderMemberAsync(
         Member m,
         Token? token = default,
+        User? user = null,
         bool renderFlags = true,
         CancellationToken ct = default
     )
     {
+        user ??= m.User;
         bool renderUnlisted = m.UserId == token?.UserId;
 
         List<MemberFlag> flags = renderFlags
@@ -66,9 +68,9 @@ public class MembersV1Service(DatabaseContext db)
             m.Bio,
             m.Avatar,
             m.Links,
-            Names: FieldEntry.FromEntries(m.Names, m.User.CustomPreferences),
-            Pronouns: PronounEntry.FromPronouns(m.Pronouns, m.User.CustomPreferences),
-            Fields: ProfileField.FromFields(m.Fields, m.User.CustomPreferences),
+            Names: FieldEntry.FromEntries(m.Names, user.CustomPreferences),
+            Pronouns: PronounEntry.FromPronouns(m.Pronouns, user.CustomPreferences),
+            Fields: ProfileField.FromFields(m.Fields, user.CustomPreferences),
             Flags: flags
                 .Where(f => f.PrideFlag.Hash != null)
                 .Select(f => new PrideFlag(
@@ -79,7 +81,7 @@ public class MembersV1Service(DatabaseContext db)
                     f.PrideFlag.Description
                 ))
                 .ToArray(),
-            User: UsersV1Service.RenderPartialUser(m.User),
+            User: UsersV1Service.RenderPartialUser(user),
             Unlisted: renderUnlisted ? m.Unlisted : null
         );
     }
