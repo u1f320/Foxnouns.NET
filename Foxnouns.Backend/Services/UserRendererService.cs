@@ -103,7 +103,8 @@ public class UserRendererService(
             user.Names,
             user.Pronouns,
             user.Fields,
-            user.CustomPreferences,
+            user.CustomPreferences.Select(x => (x.Key, RenderCustomPreference(x.Value)))
+                .ToDictionary(),
             flags.Select(f => RenderPrideFlag(f.PrideFlag)),
             utcOffset,
             user.Role,
@@ -129,6 +130,14 @@ public class UserRendererService(
                 ? $"@{a.RemoteUsername}@{a.FediverseApplication.Domain}"
                 : a.RemoteUsername
         );
+
+    public static CustomPreferenceResponse RenderCustomPreference(User.CustomPreference pref) =>
+        new(pref.Icon, pref.Tooltip, pref.Muted, pref.Favourite, pref.Size);
+
+    public static Dictionary<Snowflake, CustomPreferenceResponse> RenderCustomPreferences(
+        User user
+    ) =>
+        user.CustomPreferences.Select(x => (x.Key, RenderCustomPreference(x.Value))).ToDictionary();
 
     public PartialUser RenderPartialUser(User user) =>
         new(

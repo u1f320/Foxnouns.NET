@@ -20,6 +20,7 @@ using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NodaTime;
+using XidNet;
 
 namespace Foxnouns.Backend.Services.Auth;
 
@@ -70,6 +71,7 @@ public class AuthService(
             },
             LastActive = clock.GetCurrentInstant(),
             Sid = null!,
+            LegacyId = Xid.NewXid().ToString(),
         };
 
         db.Add(user);
@@ -116,6 +118,7 @@ public class AuthService(
             },
             LastActive = clock.GetCurrentInstant(),
             Sid = null!,
+            LegacyId = Xid.NewXid().ToString(),
         };
 
         db.Add(user);

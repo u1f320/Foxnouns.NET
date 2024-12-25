@@ -254,6 +254,13 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("fields");
 
+                    b.Property<string>("LegacyId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("legacy_id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
                     b.PrimitiveCollection<string[]>("Links")
                         .IsRequired()
                         .HasColumnType("text[]")
@@ -291,6 +298,10 @@ namespace Foxnouns.Backend.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_members");
+
+                    b.HasIndex("LegacyId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_members_legacy_id");
 
                     b.HasIndex("Sid")
                         .IsUnique()
@@ -386,6 +397,13 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("hash");
 
+                    b.Property<string>("LegacyId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("legacy_id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -397,6 +415,10 @@ namespace Foxnouns.Backend.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_pride_flags");
+
+                    b.HasIndex("LegacyId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_pride_flags_legacy_id");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("ix_pride_flags_user_id");
@@ -582,6 +604,13 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_sid_reroll");
 
+                    b.Property<string>("LegacyId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasColumnName("legacy_id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
                     b.PrimitiveCollection<string[]>("Links")
                         .IsRequired()
                         .HasColumnType("text[]")
@@ -636,6 +665,10 @@ namespace Foxnouns.Backend.Database.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_users");
+
+                    b.HasIndex("LegacyId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_legacy_id");
 
                     b.HasIndex("Sid")
                         .IsUnique()

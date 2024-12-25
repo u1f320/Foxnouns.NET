@@ -17,6 +17,7 @@ namespace Foxnouns.Backend.Database.Models;
 public class PrideFlag : BaseModel
 {
     public required Snowflake UserId { get; init; }
+    public required string LegacyId { get; init; }
 
     // A null hash means the flag hasn't been processed yet.
     public string? Hash { get; set; }

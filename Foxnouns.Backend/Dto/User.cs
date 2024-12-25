@@ -36,7 +36,7 @@ public record UserResponse(
     IEnumerable<FieldEntry> Names,
     IEnumerable<Pronoun> Pronouns,
     IEnumerable<Field> Fields,
-    Dictionary<Snowflake, User.CustomPreference> CustomPreferences,
+    Dictionary<Snowflake, CustomPreferenceResponse> CustomPreferences,
     IEnumerable<PrideFlagResponse> Flags,
     int? UtcOffset,
     [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] UserRole Role,
@@ -50,6 +50,14 @@ public record UserResponse(
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Timezone,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? Suspended,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? Deleted
+);
+
+public record CustomPreferenceResponse(
+    string Icon,
+    string Tooltip,
+    bool Muted,
+    bool Favourite,
+    [property: JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))] PreferenceSize Size
 );
 
 public record AuthMethodResponse(

@@ -39,6 +39,7 @@ public class UserMigrator(
         _user = new User
         {
             Id = goUser.SnowflakeId,
+            LegacyId = goUser.Id,
             Username = goUser.Username,
             DisplayName = goUser.DisplayName,
             Bio = goUser.Bio,
@@ -139,6 +140,7 @@ public class UserMigrator(
                 new PrideFlag
                 {
                     Id = flag.SnowflakeId,
+                    LegacyId = flag.Id,
                     UserId = _user!.Id,
                     Hash = flag.Hash,
                     Name = flag.Name,
@@ -190,6 +192,7 @@ public class UserMigrator(
             UserId = _user!.Id,
             Name = goMember.Name,
             Sid = goMember.Sid,
+            LegacyId = goMember.Id,
             DisplayName = goMember.DisplayName,
             Bio = goMember.Bio,
             Avatar = goMember.Avatar,
@@ -235,6 +238,7 @@ public class UserMigrator(
                     "small" => PreferenceSize.Small,
                     _ => PreferenceSize.Normal,
                 },
+                LegacyId = new Guid(id),
             };
         }
 

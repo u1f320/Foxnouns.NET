@@ -293,6 +293,12 @@
           "System.Runtime": "4.3.1"
         }
       },
+      "Yort.Xid.Net": {
+        "type": "Direct",
+        "requested": "[2.0.1, )",
+        "resolved": "2.0.1",
+        "contentHash": "+3sNX7/RKSKheVuMz9jtWLazD+R4PXpx8va2d9SdDgvKOhETbEb0VYis8K/fD1qm/qOQT57LadToSpzReGMZlw=="
+      },
       "BouncyCastle.Cryptography": {
         "type": "Transitive",
         "resolved": "2.5.0",

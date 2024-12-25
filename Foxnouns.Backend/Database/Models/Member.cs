@@ -18,6 +18,7 @@ public class Member : BaseModel
 {
     public required string Name { get; set; }
     public string Sid { get; set; } = string.Empty;
+    public required string LegacyId { get; init; }
     public string? DisplayName { get; set; }
     public string? Bio { get; set; }
     public string? Avatar { get; set; }

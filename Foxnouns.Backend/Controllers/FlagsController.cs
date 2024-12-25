@@ -22,6 +22,7 @@ using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using XidNet;
 
 namespace Foxnouns.Backend.Controllers;
 
@@ -64,6 +65,7 @@ public class FlagsController(
         var flag = new PrideFlag
         {
             Id = snowflakeGenerator.GenerateSnowflake(),
+            LegacyId = Xid.NewXid().ToString(),
             UserId = CurrentUser!.Id,
             Name = req.Name,
             Description = req.Description,

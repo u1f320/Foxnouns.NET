@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using NodaTime;
+using XidNet;
 
 namespace Foxnouns.Backend.Controllers;
 
@@ -101,6 +102,7 @@ public class MembersController(
         var member = new Member
         {
             Id = snowflakeGenerator.GenerateSnowflake(),
+            LegacyId = Xid.NewXid().ToString(),
             User = CurrentUser!,
             Name = req.Name,
             DisplayName = req.DisplayName,

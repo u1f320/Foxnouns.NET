@@ -19,6 +19,7 @@ using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Services.Auth;
+using Foxnouns.Backend.Services.V1;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using NodaTime;
@@ -127,7 +128,9 @@ public static class WebApplicationExtensions
                     .AddTransient<MemberAvatarUpdateInvocable>()
                     .AddTransient<UserAvatarUpdateInvocable>()
                     .AddTransient<CreateFlagInvocable>()
-                    .AddTransient<CreateDataExportInvocable>();
+                    .AddTransient<CreateDataExportInvocable>()
+                    // Legacy services
+                    .AddScoped<UsersV1Service>();
 
                 if (!config.Logging.EnableMetrics)
                     services.AddHostedService<BackgroundMetricsCollectionService>();

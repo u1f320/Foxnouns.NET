@@ -139,6 +139,26 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
         modelBuilder
             .HasDbFunction(typeof(DatabaseContext).GetMethod(nameof(FindFreeMemberSid))!)
             .HasName("find_free_member_sid");
+
+        // Indexes for legacy IDs for APIv1
+        modelBuilder.Entity<User>().HasIndex(u => u.LegacyId).IsUnique();
+        modelBuilder.Entity<Member>().HasIndex(m => m.LegacyId).IsUnique();
+        modelBuilder.Entity<PrideFlag>().HasIndex(f => f.LegacyId).IsUnique();
+
+        // a UUID is not an xid, but this should always be set by the application anyway.
+        // we're just setting it here to shut EFCore up because squashing migrations is for nerds
+        modelBuilder
+            .Entity<User>()
+            .Property(u => u.LegacyId)
+            .HasDefaultValueSql("gen_random_uuid()");
+        modelBuilder
+            .Entity<Member>()
+            .Property(m => m.LegacyId)
+            .HasDefaultValueSql("gen_random_uuid()");
+        modelBuilder
+            .Entity<PrideFlag>()
+            .Property(f => f.LegacyId)
+            .HasDefaultValueSql("gen_random_uuid()");
     }
 
     /// <summary>

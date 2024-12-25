@@ -25,6 +25,7 @@ public class User : BaseModel
 {
     public required string Username { get; set; }
     public string Sid { get; set; } = string.Empty;
+    public required string LegacyId { get; init; }
     public string? DisplayName { get; set; }
     public string? Bio { get; set; }
     public string? MemberTitle { get; set; }
@@ -69,6 +70,8 @@ public class User : BaseModel
         // This type is generally serialized directly, so the converter is applied here.
         [JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
         public PreferenceSize Size { get; set; }
+
+        public Guid LegacyId { get; init; } = Guid.NewGuid();
     }
 
     public static readonly Duration DeleteAfter = Duration.FromDays(30);

@@ -222,7 +222,7 @@ public class UsersController(
             .CustomPreferences.Where(x => req.Any(r => r.Id == x.Key))
             .ToDictionary();
 
-        foreach (CustomPreferenceUpdateRequest? r in req)
+        foreach (CustomPreferenceUpdateRequest r in req)
         {
             if (r.Id != null && preferences.ContainsKey(r.Id.Value))
             {
@@ -233,6 +233,7 @@ public class UsersController(
                     Muted = r.Muted,
                     Size = r.Size,
                     Tooltip = r.Tooltip,
+                    LegacyId = preferences[r.Id.Value].LegacyId,
                 };
             }
             else
@@ -244,6 +245,7 @@ public class UsersController(
                     Muted = r.Muted,
                     Size = r.Size,
                     Tooltip = r.Tooltip,
+                    LegacyId = Guid.NewGuid(),
                 };
             }
         }
