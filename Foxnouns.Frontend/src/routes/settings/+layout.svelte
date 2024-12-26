@@ -1,20 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
-	import { page } from "$app/state";
 	import { t } from "$lib/i18n";
 	import { Nav, NavLink } from "@sveltestrap/sveltestrap";
+	import { isActive } from "$lib/pageUtils.svelte";
 
 	type Props = { children: Snippet };
 	let { children }: Props = $props();
-
-	const isActive = (path: string | string[], prefix: boolean = false) =>
-		typeof path === "string"
-			? prefix
-				? page.url.pathname.startsWith(path)
-				: page.url.pathname === path
-			: prefix
-				? path.some((p) => page.url.pathname.startsWith(p))
-				: path.some((p) => page.url.pathname === p);
 </script>
 
 <svelte:head>
