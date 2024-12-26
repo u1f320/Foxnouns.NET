@@ -16,6 +16,7 @@ services:
       - "5007:5001"
     volumes:
       - ./docker/config.ini:/app/config.ini
+      - ./docker/static-pages:/app/static-pages
 
   frontend:
     image: frontend
