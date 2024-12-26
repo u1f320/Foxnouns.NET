@@ -36,6 +36,7 @@ public class ModerationRendererService(
                 : null,
             report.Status,
             report.Reason,
+            report.Context,
             report.TargetType,
             report.TargetSnapshot != null
                 ? JsonConvert.DeserializeObject<JObject>(report.TargetSnapshot)

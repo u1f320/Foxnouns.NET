@@ -29,6 +29,7 @@ public record ReportResponse(
         PartialMember? TargetMember,
     ReportStatus Status,
     ReportReason Reason,
+    string? Context,
     ReportTargetType TargetType,
     JObject? Snapshot
 );
