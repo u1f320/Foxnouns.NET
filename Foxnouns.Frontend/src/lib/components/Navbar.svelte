@@ -58,6 +58,13 @@
 						@{user.username}
 					</NavLink>
 				</NavItem>
+				{#if user.role === "ADMIN" || user.role === "MODERATOR"}
+					<NavItem>
+						<NavLink href="/admin" active={page.url.pathname.startsWith(`/admin`)}>
+							Administration
+						</NavLink>
+					</NavItem>
+				{/if}
 				<NavItem>
 					<NavLink href="/settings" active={page.url.pathname.startsWith("/settings")}>
 						{$t("nav.settings")}

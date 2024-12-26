@@ -30,7 +30,9 @@ public class AuditLogController(DatabaseContext db, ModerationRendererService mo
     public async Task<IActionResult> GetAuditLogAsync(
         [FromQuery] AuditLogEntryType? type = null,
         [FromQuery] int? limit = null,
-        [FromQuery] Snowflake? before = null
+        [FromQuery] Snowflake? before = null,
+        [FromQuery] Snowflake? after = null,
+        [FromQuery(Name = "by-moderator")] Snowflake? byModerator = null
     )
     {
         limit = limit switch
@@ -45,11 +47,30 @@ public class AuditLogController(DatabaseContext db, ModerationRendererService mo
 
         if (before != null)
             query = query.Where(e => e.Id < before.Value);
+        else if (after != null)
+            query = query.Where(e => e.Id > after.Value);
+
         if (type != null)
             query = query.Where(e => e.Type == type);
+        if (byModerator != null)
+            query = query.Where(e => e.ModeratorId == byModerator.Value);
 
         List<AuditLogEntry> entries = await query.Take(limit!.Value).ToListAsync();
 
         return Ok(entries.Select(moderationRenderer.RenderAuditLogEntry));
+    }
+
+    [HttpGet("moderators")]
+    public async Task<IActionResult> GetModeratorsAsync(CancellationToken ct = default)
+    {
+        var moderators = await db
+            .Users.Where(u =>
+                !u.Deleted && (u.Role == UserRole.Admin || u.Role == UserRole.Moderator)
+            )
+            .Select(u => new { u.Id, u.Username })
+            .OrderBy(u => u.Id)
+            .ToListAsync(ct);
+
+        return Ok(moderators);
     }
 }
