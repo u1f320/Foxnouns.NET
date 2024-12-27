@@ -6,6 +6,10 @@
 	let { data }: Props = $props();
 </script>
 
+<svelte:head>
+	<title>Admin dashboard • pronouns.cc</title>
+</svelte:head>
+
 <h1>Dashboard</h1>
 
 <div class="row gx-3 gy-3">

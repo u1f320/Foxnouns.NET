@@ -12,10 +12,6 @@
 	let date = $derived(idTimestamp(entry.id).toLocaleString(DateTime.DATETIME_MED));
 </script>
 
-<svelte:head>
-	<title>Audit log</title>
-</svelte:head>
-
 <div class="card my-1 p-2">
 	<h6 class="d-flex">
 		<span class="flex-grow-1">
@@ -26,6 +22,8 @@
 				warned
 			{:else if entry.type === "SUSPEND_USER"}
 				suspended
+			{:else if entry.type === "QUERY_SENSITIVE_USER_DATA"}
+				looked up sensitive data of
 			{:else}
 				(unknown action <code>{entry.type}</code>)
 			{/if}

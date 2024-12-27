@@ -58,6 +58,7 @@ export enum AuditLogEntryType {
 	WarnUser = "WARN_USER",
 	WarnUserAndClearProfile = "WARN_USER_AND_CLEAR_PROFILE",
 	SuspendUser = "SUSPEND_USER",
+	QuerySensitiveUserData = "QUERY_SENSITIVE_USER_DATA",
 }
 
 export type PartialReport = {

@@ -45,6 +45,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>Audit log • pronouns.cc</title>
+</svelte:head>
+
 <h1>Audit log</h1>
 
 <div class="btn-group">
@@ -67,6 +71,12 @@
 			</DropdownItem>
 			<DropdownItem href={addTypeFilter("SuspendUser")} active={data.type === "SuspendUser"}>
 				Suspend user
+			</DropdownItem>
+			<DropdownItem
+				href={addTypeFilter("QuerySensitiveUserData")}
+				active={data.type === "QuerySensitiveUserData"}
+			>
+				Query sensitive user data
 			</DropdownItem>
 			{#if data.type}
 				<DropdownItem href={addTypeFilter(null)}>Remove filter</DropdownItem>
