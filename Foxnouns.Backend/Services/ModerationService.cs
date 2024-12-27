@@ -18,6 +18,7 @@ using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto;
 using Foxnouns.Backend.Jobs;
 using Humanizer;
+using Microsoft.EntityFrameworkCore;
 using NodaTime;
 
 namespace Foxnouns.Backend.Services;
@@ -61,6 +62,54 @@ public class ModerationService(
 
         await db.SaveChangesAsync();
         return entry;
+    }
+
+    public async Task<AuditLogEntry> QuerySensitiveDataAsync(
+        User moderator,
+        User target,
+        string reason
+    )
+    {
+        _logger.Information(
+            "Moderator {ModeratorId} is querying sensitive data for {TargetId}",
+            moderator.Id,
+            target.Id
+        );
+
+        var entry = new AuditLogEntry
+        {
+            Id = snowflakeGenerator.GenerateSnowflake(),
+            ModeratorId = moderator.Id,
+            ModeratorUsername = moderator.Username,
+            TargetUserId = target.Id,
+            TargetUsername = target.Username,
+            Type = AuditLogEntryType.QuerySensitiveUserData,
+            Reason = reason,
+        };
+        db.AuditLog.Add(entry);
+
+        await db.SaveChangesAsync();
+        return entry;
+    }
+
+    public async Task<bool> ShowSensitiveDataAsync(
+        User moderator,
+        User target,
+        CancellationToken ct = default
+    )
+    {
+        Snowflake cutoff = snowflakeGenerator.GenerateSnowflake(
+            clock.GetCurrentInstant() - Duration.FromDays(1)
+        );
+
+        return await db.AuditLog.AnyAsync(
+            e =>
+                e.ModeratorId == moderator.Id
+                && e.TargetUserId == target.Id
+                && e.Type == AuditLogEntryType.QuerySensitiveUserData
+                && e.Id > cutoff,
+            ct
+        );
     }
 
     public async Task<AuditLogEntry> ExecuteSuspensionAsync(

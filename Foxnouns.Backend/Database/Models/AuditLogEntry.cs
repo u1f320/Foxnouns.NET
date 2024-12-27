@@ -41,4 +41,5 @@ public enum AuditLogEntryType
     WarnUser,
     WarnUserAndClearProfile,
     SuspendUser,
+    QuerySensitiveUserData,
 }

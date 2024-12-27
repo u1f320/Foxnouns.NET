@@ -18,6 +18,7 @@ using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NodaTime;
 
 namespace Foxnouns.Backend.Dto;
 
@@ -94,3 +95,18 @@ public enum FieldsToClear
     Flags,
     CustomPreferences,
 }
+
+public record QueryUsersRequest(string Query, bool Fuzzy);
+
+public record QueryUserResponse(
+    UserResponse User,
+    bool MemberListHidden,
+    Instant LastActive,
+    Instant LastSidReroll,
+    bool Suspended,
+    bool Deleted,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        IEnumerable<AuthMethodResponse>? AuthMethods
+);
+
+public record QuerySensitiveUserDataRequest(string Reason);
