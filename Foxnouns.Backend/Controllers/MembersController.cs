@@ -65,7 +65,7 @@ public class MembersController(
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
-    public const int MaxMemberCount = 500;
+    public const int MaxMemberCount = 1000;
 
     [HttpPost("/api/v2/users/@me/members")]
     [ProducesResponseType<MemberResponse>(StatusCodes.Status200OK)]
