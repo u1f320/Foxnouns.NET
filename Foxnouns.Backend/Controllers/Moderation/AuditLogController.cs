@@ -43,7 +43,9 @@ public class AuditLogController(DatabaseContext db, ModerationRendererService mo
             _ => limit,
         };
 
-        IQueryable<AuditLogEntry> query = db.AuditLog.OrderByDescending(e => e.Id);
+        IQueryable<AuditLogEntry> query = db
+            .AuditLog.Include(e => e.Report)
+            .OrderByDescending(e => e.Id);
 
         if (before != null)
             query = query.Where(e => e.Id < before.Value);

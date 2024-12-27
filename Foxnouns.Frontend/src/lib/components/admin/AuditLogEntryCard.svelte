@@ -39,12 +39,31 @@
 
 		<small class="text-secondary">{date}</small>
 	</h6>
+
+	{#if entry.type === "IGNORE_REPORT"}
+		{#if entry.report}
+			<details>
+				<summary>Report</summary>
+				<ul>
+					<li><strong>From:</strong> {entry.report.reporter_id}</li>
+					<li><strong>Target:</strong> {entry.report.target_user_id}</li>
+					<li><strong>Reason:</strong> {entry.report.reason}</li>
+					{#if entry.report.context}
+						<li><strong>Context:</strong> {entry.report.context}</li>
+					{/if}
+				</ul>
+			</details>
+		{:else}
+			<p><em>(the ignored report has been deleted)</em></p>
+		{/if}
+	{/if}
+
 	{#if reason}
 		<details>
 			<summary>Reason</summary>
 			{@html reason}
 		</details>
 	{:else}
-		<em>(no reason given)</em>
+		<p><em>(no reason given)</em></p>
 	{/if}
 </div>

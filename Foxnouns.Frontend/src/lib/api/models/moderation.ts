@@ -45,7 +45,7 @@ export type AuditLogEntry = {
 	moderator: AuditLogEntity;
 	target_user?: AuditLogEntity;
 	target_member?: AuditLogEntity;
-	report_id?: string;
+	report?: PartialReport;
 	type: AuditLogEntryType;
 	reason: string | null;
 	cleared_fields?: string[];
@@ -59,3 +59,13 @@ export enum AuditLogEntryType {
 	WarnUserAndClearProfile = "WARN_USER_AND_CLEAR_PROFILE",
 	SuspendUser = "SUSPEND_USER",
 }
+
+export type PartialReport = {
+	id: string;
+	reporter_id: string;
+	target_user_id: string;
+	target_member_id?: string;
+	reason: ReportReason;
+	context: string | null;
+	target_type: "USER" | "MEMBER";
+};

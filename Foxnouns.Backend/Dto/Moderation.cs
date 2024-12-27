@@ -41,10 +41,21 @@ public record AuditLogResponse(
         AuditLogEntity? TargetUser,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         AuditLogEntity? TargetMember,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] Snowflake? ReportId,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] PartialReport? Report,
     AuditLogEntryType Type,
     string? Reason,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string[]? ClearedFields
+);
+
+public record PartialReport(
+    Snowflake Id,
+    Snowflake ReporterId,
+    Snowflake TargetUserId,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        Snowflake? TargetMemberId,
+    ReportReason Reason,
+    string? Context,
+    ReportTargetType TargetType
 );
 
 public record NotificationResponse(

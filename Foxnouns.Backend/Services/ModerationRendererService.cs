@@ -46,12 +46,26 @@ public class ModerationRendererService(
 
     public AuditLogResponse RenderAuditLogEntry(AuditLogEntry entry)
     {
+        PartialReport? report = null;
+        if (entry.Report != null)
+        {
+            report = new PartialReport(
+                entry.Report.Id,
+                entry.Report.ReporterId,
+                entry.Report.TargetUserId,
+                entry.Report.TargetMemberId,
+                entry.Report.Reason,
+                entry.Report.Context,
+                entry.Report.TargetType
+            );
+        }
+
         return new AuditLogResponse(
             Id: entry.Id,
             Moderator: ToEntity(entry.ModeratorId, entry.ModeratorUsername)!,
             TargetUser: ToEntity(entry.TargetUserId, entry.TargetUsername),
             TargetMember: ToEntity(entry.TargetMemberId, entry.TargetMemberName),
-            ReportId: entry.ReportId,
+            Report: report,
             Type: entry.Type,
             Reason: entry.Reason,
             ClearedFields: entry.ClearedFields
