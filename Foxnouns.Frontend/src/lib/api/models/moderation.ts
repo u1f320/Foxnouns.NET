@@ -1,5 +1,5 @@
 import type { Member } from "./member";
-import type { PartialMember, PartialUser, User } from "./user";
+import type { AuthMethod, PartialMember, PartialUser, User } from "./user";
 
 export type CreateReportRequest = {
 	reason: ReportReason;
@@ -69,4 +69,14 @@ export type PartialReport = {
 	reason: ReportReason;
 	context: string | null;
 	target_type: "USER" | "MEMBER";
+};
+
+export type QueriedUser = {
+	user: User;
+	member_list_hidden: boolean;
+	last_active: string;
+	last_sid_reroll: string;
+	suspended: boolean;
+	deleted: boolean;
+	auth_methods?: AuthMethod[];
 };

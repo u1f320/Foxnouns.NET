@@ -41,6 +41,13 @@
 				>
 					Audit log
 				</a>
+				<a
+					href="/admin/lookup"
+					class="list-group-item list-group-item-action"
+					class:active={isActive("/admin/lookup", true)}
+				>
+					Lookup
+				</a>
 			</div>
 		</div>
 		<div class="col-md-9">
