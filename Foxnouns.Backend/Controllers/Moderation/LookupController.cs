@@ -64,6 +64,7 @@ public class LookupController(
                 LastSidReroll: user.LastSidReroll,
                 Suspended: user is { Deleted: true, DeletedBy: not null },
                 Deleted: user.Deleted,
+                ShowSensitiveData: showSensitiveData,
                 AuthMethods: showSensitiveData
                     ? authMethods.Select(UserRendererService.RenderAuthMethod)
                     : null
@@ -78,6 +79,11 @@ public class LookupController(
     )
     {
         User user = await db.ResolveUserAsync(id);
+
+        // Don't let mods accidentally spam the audit log
+        bool alreadyAuthorized = await moderationService.ShowSensitiveDataAsync(CurrentUser!, user);
+        if (alreadyAuthorized)
+            return NoContent();
 
         AuditLogEntry entry = await moderationService.QuerySensitiveDataAsync(
             CurrentUser!,

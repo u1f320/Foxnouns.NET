@@ -105,6 +105,7 @@ public record QueryUserResponse(
     Instant LastSidReroll,
     bool Suspended,
     bool Deleted,
+    bool ShowSensitiveData,
     [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         IEnumerable<AuthMethodResponse>? AuthMethods
 );
