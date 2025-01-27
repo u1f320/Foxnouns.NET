@@ -220,7 +220,36 @@ public class ReportsController(
         return Ok(reports.Select(moderationRenderer.RenderReport));
     }
 
+    [HttpGet("reports/{id}")]
+    [Authorize("user.moderation")]
+    [Limit(RequireModerator = true)]
+    public async Task<IActionResult> GetReportAsync(Snowflake id, CancellationToken ct = default)
+    {
+        Report? report = await db
+            .Reports.Include(r => r.Reporter)
+            .Include(r => r.TargetUser)
+            .Include(r => r.TargetMember)
+            .FirstOrDefaultAsync(r => r.Id == id, ct);
+        if (report == null)
+            throw new ApiError.NotFound("No report with that ID found.");
+
+        return Ok(
+            new ReportDetailResponse(
+                Report: moderationRenderer.RenderReport(report),
+                User: await userRenderer.RenderUserAsync(
+                    report.TargetUser,
+                    renderMembers: false,
+                    ct: ct
+                ),
+                Member: report.TargetMember != null
+                    ? memberRenderer.RenderMember(report.TargetMember)
+                    : null
+            )
+        );
+    }
+
     [HttpPost("reports/{id}/ignore")]
+    [Authorize("user.moderation")]
     [Limit(RequireModerator = true)]
     public async Task<IActionResult> IgnoreReportAsync(
         Snowflake id,

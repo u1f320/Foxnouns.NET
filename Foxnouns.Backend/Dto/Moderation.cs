@@ -35,6 +35,12 @@ public record ReportResponse(
     JObject? Snapshot
 );
 
+public record ReportDetailResponse(
+    ReportResponse Report,
+    UserResponse User,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] MemberResponse? Member
+);
+
 public record AuditLogResponse(
     Snowflake Id,
     AuditLogEntity Moderator,
