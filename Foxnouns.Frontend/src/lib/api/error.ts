@@ -14,6 +14,7 @@ export default class ApiError {
 
 	toObject(): RawApiError {
 		return {
+			error_id: this.raw?.error_id,
 			status: this.raw?.status || 500,
 			code: this.code,
 			message: this.raw?.message || "Internal server error",
@@ -23,6 +24,7 @@ export default class ApiError {
 }
 
 export type RawApiError = {
+	error_id?: string;
 	status: number;
 	message: string;
 	code: ErrorCode;

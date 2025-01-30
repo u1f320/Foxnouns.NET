@@ -18,6 +18,14 @@
 	</svelte:element>
 {/if}
 <p>{errorDescription($t, error.code)}</p>
+{#if error.error_id}
+	<p>
+		{$t("error.error-id")}
+		<code>
+			{error.error_id}
+		</code>
+	</p>
+{/if}
 {#if error.errors}
 	<details>
 		<summary>{$t("error.extra-info-header")}</summary>

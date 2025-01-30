@@ -9,7 +9,8 @@ declare global {
 			message: string;
 			status: number;
 			code: ErrorCode;
-			id: string;
+			errors?: Array<{ key: string; errors: ValidationError[] }>;
+			error_id?: string;
 		}
 		// interface Error {}
 		// interface Locals {}
