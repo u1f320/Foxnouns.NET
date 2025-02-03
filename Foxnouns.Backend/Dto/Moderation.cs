@@ -16,6 +16,7 @@
 // ReSharper disable NotAccessedPositionalProperty.Global
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
+using Foxnouns.Backend.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NodaTime;
@@ -80,15 +81,17 @@ public record CreateReportRequest(ReportReason Reason, string? Context = null);
 
 public record IgnoreReportRequest(string? Reason = null);
 
-public record WarnUserRequest(
-    string Reason,
-    FieldsToClear[]? ClearFields = null,
-    Snowflake? MemberId = null,
-    Snowflake? ReportId = null
-);
+public class WarnUserRequest
+{
+    public required string Reason { get; init; }
+    public FieldsToClear[]? ClearFields { get; init; }
+    public Snowflake? MemberId { get; init; }
+    public Snowflake? ReportId { get; init; }
+}
 
 public record SuspendUserRequest(string Reason, bool ClearProfile, Snowflake? ReportId = null);
 
+[JsonConverter(typeof(ScreamingSnakeCaseEnumConverter))]
 public enum FieldsToClear
 {
     DisplayName,

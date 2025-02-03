@@ -154,6 +154,12 @@ public class ModerationService(
         target.DeletedAt = clock.GetCurrentInstant();
         target.DeletedBy = moderator.Id;
 
+        if (report != null)
+        {
+            report.Status = ReportStatus.Closed;
+            db.Update(report);
+        }
+
         if (!clearProfile)
         {
             db.Update(target);
@@ -332,6 +338,12 @@ public class ModerationService(
             }
 
             db.Update(targetUser);
+        }
+
+        if (report != null)
+        {
+            report.Status = ReportStatus.Closed;
+            db.Update(report);
         }
 
         await db.SaveChangesAsync();

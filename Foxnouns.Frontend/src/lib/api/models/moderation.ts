@@ -71,6 +71,12 @@ export type PartialReport = {
 	target_type: "USER" | "MEMBER";
 };
 
+export type ReportDetails = {
+	report: Report;
+	user: User;
+	member?: Member;
+};
+
 export type QueriedUser = {
 	user: User;
 	member_list_hidden: boolean;
@@ -80,3 +86,28 @@ export type QueriedUser = {
 	deleted: boolean;
 	auth_methods?: AuthMethod[];
 };
+
+export type WarnUserRequest = {
+	reason: string;
+	clear_fields?: ClearableField[];
+	member_id?: string;
+	report_id?: string;
+};
+
+export type SuspendUserRequest = {
+	reason: string;
+	clear_profile: boolean;
+	report_id?: string;
+};
+
+export enum ClearableField {
+	DisplayName = "DISPLAY_NAME",
+	Avatar = "AVATAR",
+	Bio = "BIO",
+	Links = "LINKS",
+	Names = "NAMES",
+	Pronouns = "PRONOUNS",
+	Fields = "FIELDS",
+	Flags = "FLAGS",
+	CustomPreferences = "CUSTOM_PREFERENCES",
+}

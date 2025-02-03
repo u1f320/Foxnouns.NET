@@ -113,24 +113,30 @@ public readonly struct Snowflake(ulong value) : IEquatable<Snowflake>
         ) => writer.WriteStringValue(value.Value.ToString());
     }
 
-    private class JsonConverter : JsonConverter<Snowflake>
+    private class JsonConverter : JsonConverter<Snowflake?>
     {
         public override void WriteJson(
             JsonWriter writer,
-            Snowflake value,
+            Snowflake? value,
             JsonSerializer serializer
         )
         {
-            writer.WriteValue(value.Value.ToString());
+            if (value != null)
+                writer.WriteValue(value.Value.ToString());
+            else
+                writer.WriteNull();
         }
 
-        public override Snowflake ReadJson(
+        public override Snowflake? ReadJson(
             JsonReader reader,
             Type objectType,
-            Snowflake existingValue,
+            Snowflake? existingValue,
             bool hasExistingValue,
             JsonSerializer serializer
-        ) => ulong.Parse((string)reader.Value!);
+        ) =>
+            reader.TokenType is not (JsonToken.None or JsonToken.Null)
+                ? ulong.Parse((string)reader.Value!)
+                : null;
     }
 
     private class TypeConverter : System.ComponentModel.TypeConverter

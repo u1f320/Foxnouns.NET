@@ -1,10 +1,14 @@
+<script module lang="ts">
+	export type FormError = { error: RawApiError | null; ok: boolean } | null;
+</script>
+
 <script lang="ts">
 	import { Icon } from "@sveltestrap/sveltestrap";
 	import { t } from "$lib/i18n";
 	import type { RawApiError } from "$api/error";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
 
-	type Props = { form: { error: RawApiError | null; ok: boolean } | null; successMessage?: string };
+	type Props = { form: FormError | null; successMessage?: string };
 	let { form, successMessage }: Props = $props();
 </script>
 

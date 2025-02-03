@@ -81,6 +81,7 @@ export async function apiRequest<TResponse, TRequest = unknown>(
 
 	if (resp.status < 200 || resp.status > 299) {
 		const err = await resp.json();
+		log.error("Received error for request to %s %s:", method, path, err);
 		if ("code" in err) throw new ApiError(err);
 		else throw new ApiError();
 	}

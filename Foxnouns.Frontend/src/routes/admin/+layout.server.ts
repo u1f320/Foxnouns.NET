@@ -18,7 +18,7 @@ export const load = async ({ parent, fetch, cookies }) => {
 
 	const reports = await apiRequest<Report[]>("GET", "/moderation/reports", { fetch, cookies });
 	const staleReportCount = reports.filter(
-		(r) => idTimestamp(r.id).diffNow(["days"]).days >= 7,
+		(r) => idTimestamp(r.id).diffNow(["days"]).days <= -7,
 	).length;
 
 	return {
