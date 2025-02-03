@@ -7,7 +7,12 @@ export const load = async ({ params, fetch, cookies }) => {
 		fetch,
 		cookies,
 	});
-	return { report: resp.report, user: resp.user, member: resp.member };
+	return {
+		report: resp.report,
+		user: resp.user,
+		member: resp.member,
+		auditLogEntry: resp.audit_log_entry,
+	};
 };
 
 export const actions = createModactions();

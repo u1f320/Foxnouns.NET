@@ -75,6 +75,7 @@ export type ReportDetails = {
 	report: Report;
 	user: User;
 	member?: Member;
+	audit_log_entry?: AuditLogEntry;
 };
 
 export type QueriedUser = {

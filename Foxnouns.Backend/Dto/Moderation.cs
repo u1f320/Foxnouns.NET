@@ -39,7 +39,9 @@ public record ReportResponse(
 public record ReportDetailResponse(
     ReportResponse Report,
     UserResponse User,
-    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] MemberResponse? Member
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] MemberResponse? Member,
+    [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        AuditLogResponse? AuditLogEntry
 );
 
 public record AuditLogResponse(

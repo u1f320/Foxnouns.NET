@@ -229,6 +229,7 @@ public class ReportsController(
             .Reports.Include(r => r.Reporter)
             .Include(r => r.TargetUser)
             .Include(r => r.TargetMember)
+            .Include(r => r.AuditLogEntry)
             .FirstOrDefaultAsync(r => r.Id == id, ct);
         if (report == null)
             throw new ApiError.NotFound("No report with that ID found.");
@@ -243,6 +244,9 @@ public class ReportsController(
                 ),
                 Member: report.TargetMember != null
                     ? memberRenderer.RenderMember(report.TargetMember)
+                    : null,
+                AuditLogEntry: report.AuditLogEntry != null
+                    ? moderationRenderer.RenderAuditLogEntry(report.AuditLogEntry)
                     : null
             )
         );
