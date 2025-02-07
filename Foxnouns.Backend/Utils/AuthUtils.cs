@@ -135,7 +135,7 @@ public static class AuthUtils
         Convert.ToBase64String(RandomNumberGenerator.GetBytes(bytes)).Trim('=');
 
     public static string RandomToken(int bytes = 48) =>
-        RandomUrlUnsafeToken()
+        RandomUrlUnsafeToken(bytes)
             // Make the token URL-safe
             .Replace('+', '-')
             .Replace('/', '_');

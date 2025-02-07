@@ -122,6 +122,7 @@ public static class WebApplicationExtensions
                     .AddScoped<FediverseAuthService>()
                     .AddScoped<ObjectStorageService>()
                     .AddTransient<DataCleanupService>()
+                    .AddTransient<ValidationService>()
                     // Background services
                     .AddHostedService<PeriodicTasksService>()
                     // Transient jobs

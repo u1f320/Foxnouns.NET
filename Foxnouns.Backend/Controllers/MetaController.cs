@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Foxnouns.Backend.Controllers;
 
 [Route("/api/v2/meta")]
-public partial class MetaController : ApiControllerBase
+public partial class MetaController(Config config) : ApiControllerBase
 {
     private const string Repository = "https://codeberg.org/pronounscc/pronouns.cc";
 
@@ -40,8 +40,8 @@ public partial class MetaController : ApiControllerBase
                     (int)FoxnounsMetrics.UsersActiveDayCount.Value
                 ),
                 new LimitsResponse(
-                    MembersController.MaxMemberCount,
-                    ValidationUtils.MaxBioLength,
+                    config.Limits.MaxMemberCount,
+                    config.Limits.MaxBioLength,
                     ValidationUtils.MaxCustomPreferences,
                     AuthUtils.MaxAuthMethodsPerType,
                     FlagsController.MaxFlagCount

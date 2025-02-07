@@ -29,7 +29,8 @@ public class AuthService(
     ILogger logger,
     DatabaseContext db,
     ISnowflakeGenerator snowflakeGenerator,
-    UserRendererService userRenderer
+    UserRendererService userRenderer,
+    ValidationService validationService
 )
 {
     private readonly ILogger _logger = logger.ForContext<AuthService>();
@@ -49,7 +50,7 @@ public class AuthService(
         // Validate username and whether it's not taken
         ValidationUtils.Validate(
             [
-                ("username", ValidationUtils.ValidateUsername(username)),
+                ("username", validationService.ValidateUsername(username)),
                 ("password", ValidationUtils.ValidatePassword(password)),
             ]
         );
@@ -97,7 +98,7 @@ public class AuthService(
         AssertValidAuthType(authType, instance);
 
         // Validate username and whether it's not taken
-        ValidationUtils.Validate([("username", ValidationUtils.ValidateUsername(username))]);
+        ValidationUtils.Validate([("username", validationService.ValidateUsername(username))]);
         if (await db.Users.AnyAsync(u => u.Username == username, ct))
             throw new ApiError.BadRequest("Username is already taken", "username", username);
 

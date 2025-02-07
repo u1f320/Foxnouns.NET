@@ -35,7 +35,8 @@ public class UsersController(
     UserRendererService userRenderer,
     ISnowflakeGenerator snowflakeGenerator,
     IQueue queue,
-    IClock clock
+    IClock clock,
+    ValidationService validationService
 ) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<UsersController>();
@@ -65,25 +66,25 @@ public class UsersController(
 
         if (req.Username != null && req.Username != user.Username)
         {
-            errors.Add(("username", ValidationUtils.ValidateUsername(req.Username)));
+            errors.Add(("username", validationService.ValidateUsername(req.Username)));
             user.Username = req.Username;
         }
 
         if (req.HasProperty(nameof(req.DisplayName)))
         {
-            errors.Add(("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)));
+            errors.Add(("display_name", validationService.ValidateDisplayName(req.DisplayName)));
             user.DisplayName = req.DisplayName;
         }
 
         if (req.HasProperty(nameof(req.Bio)))
         {
-            errors.Add(("bio", ValidationUtils.ValidateBio(req.Bio)));
+            errors.Add(("bio", validationService.ValidateBio(req.Bio)));
             user.Bio = req.Bio;
         }
 
         if (req.HasProperty(nameof(req.Links)))
         {
-            errors.AddRange(ValidationUtils.ValidateLinks(req.Links));
+            errors.AddRange(validationService.ValidateLinks(req.Links));
             user.Links = req.Links ?? [];
         }
 
@@ -123,7 +124,7 @@ public class UsersController(
         }
 
         if (req.HasProperty(nameof(req.Avatar)))
-            errors.Add(("avatar", ValidationUtils.ValidateAvatar(req.Avatar)));
+            errors.Add(("avatar", validationService.ValidateAvatar(req.Avatar)));
 
         if (req.HasProperty(nameof(req.MemberTitle)))
         {
@@ -133,7 +134,9 @@ public class UsersController(
             }
             else
             {
-                errors.Add(("member_title", ValidationUtils.ValidateDisplayName(req.MemberTitle)));
+                errors.Add(
+                    ("member_title", validationService.ValidateDisplayName(req.MemberTitle))
+                );
                 user.MemberTitle = req.MemberTitle;
             }
         }

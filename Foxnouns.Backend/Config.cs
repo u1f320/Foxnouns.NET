@@ -31,6 +31,7 @@ public class Config
     public LoggingConfig Logging { get; init; } = new();
     public DatabaseConfig Database { get; init; } = new();
     public StorageConfig Storage { get; init; } = new();
+    public LimitsConfig Limits { get; init; } = new();
     public EmailAuthConfig EmailAuth { get; init; } = new();
     public DiscordAuthConfig DiscordAuth { get; init; } = new();
     public GoogleAuthConfig GoogleAuth { get; init; } = new();
@@ -92,5 +93,18 @@ public class Config
 
         public string? ClientId { get; init; }
         public string? ClientSecret { get; init; }
+    }
+
+    public class LimitsConfig
+    {
+        public int MaxMemberCount { get; init; } = 1000;
+
+        public int MaxUsernameLength { get; init; } = 40;
+        public int MaxMemberNameLength { get; init; } = 100;
+        public int MaxDisplayNameLength { get; init; } = 100;
+        public int MaxLinks { get; init; } = 25;
+        public int MaxLinkLength { get; init; } = 256;
+        public int MaxBioLength { get; init; } = 1024;
+        public int MaxAvatarLength { get; init; } = 1_500_000;
     }
 }

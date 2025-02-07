@@ -38,7 +38,9 @@ public class MembersController(
     ISnowflakeGenerator snowflakeGenerator,
     ObjectStorageService objectStorageService,
     IQueue queue,
-    IClock clock
+    IClock clock,
+    ValidationService validationService,
+    Config config
 ) : ApiControllerBase
 {
     private readonly ILogger _logger = logger.ForContext<MembersController>();
@@ -65,8 +67,6 @@ public class MembersController(
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
     }
 
-    public const int MaxMemberCount = 1000;
-
     [HttpPost("/api/v2/users/@me/members")]
     [ProducesResponseType<MemberResponse>(StatusCodes.Status200OK)]
     [Authorize("member.create")]
@@ -77,10 +77,10 @@ public class MembersController(
     {
         ValidationUtils.Validate(
             [
-                ("name", ValidationUtils.ValidateMemberName(req.Name)),
-                ("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)),
-                ("bio", ValidationUtils.ValidateBio(req.Bio)),
-                ("avatar", ValidationUtils.ValidateAvatar(req.Avatar)),
+                ("name", validationService.ValidateMemberName(req.Name)),
+                ("display_name", validationService.ValidateDisplayName(req.DisplayName)),
+                ("bio", validationService.ValidateBio(req.Bio)),
+                ("avatar", validationService.ValidateAvatar(req.Avatar)),
                 .. ValidationUtils.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
                 .. ValidationUtils.ValidateFieldEntries(
                     req.Names?.ToArray(),
@@ -91,12 +91,12 @@ public class MembersController(
                     req.Pronouns?.ToArray(),
                     CurrentUser!.CustomPreferences
                 ),
-                .. ValidationUtils.ValidateLinks(req.Links),
+                .. validationService.ValidateLinks(req.Links),
             ]
         );
 
         int memberCount = await db.Members.CountAsync(m => m.UserId == CurrentUser.Id, ct);
-        if (memberCount >= MaxMemberCount)
+        if (memberCount >= config.Limits.MaxMemberCount)
             throw new ApiError.BadRequest("Maximum number of members reached");
 
         var member = new Member
@@ -163,25 +163,25 @@ public class MembersController(
         // These should only take effect when a member's name is changed, not on other changes.
         if (req.Name != null && req.Name != member.Name)
         {
-            errors.Add(("name", ValidationUtils.ValidateMemberName(req.Name)));
+            errors.Add(("name", validationService.ValidateMemberName(req.Name)));
             member.Name = req.Name;
         }
 
         if (req.HasProperty(nameof(req.DisplayName)))
         {
-            errors.Add(("display_name", ValidationUtils.ValidateDisplayName(req.DisplayName)));
+            errors.Add(("display_name", validationService.ValidateDisplayName(req.DisplayName)));
             member.DisplayName = req.DisplayName;
         }
 
         if (req.HasProperty(nameof(req.Bio)))
         {
-            errors.Add(("bio", ValidationUtils.ValidateBio(req.Bio)));
+            errors.Add(("bio", validationService.ValidateBio(req.Bio)));
             member.Bio = req.Bio;
         }
 
         if (req.HasProperty(nameof(req.Links)))
         {
-            errors.AddRange(ValidationUtils.ValidateLinks(req.Links));
+            errors.AddRange(validationService.ValidateLinks(req.Links));
             member.Links = req.Links ?? [];
         }
 
@@ -228,7 +228,7 @@ public class MembersController(
         }
 
         if (req.HasProperty(nameof(req.Avatar)))
-            errors.Add(("avatar", ValidationUtils.ValidateAvatar(req.Avatar)));
+            errors.Add(("avatar", validationService.ValidateAvatar(req.Avatar)));
 
         ValidationUtils.Validate(errors);
         // This is fired off regardless of whether the transaction is committed
