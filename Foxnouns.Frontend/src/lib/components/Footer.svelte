@@ -23,8 +23,8 @@
 		</div>
 		<div class="align-end">
 			<ul class="list-unstyled">
-				<li>{meta.users.total} <strong>users</strong></li>
-				<li>{meta.members} <strong>members</strong></li>
+				<li>{meta.users.total.toLocaleString()} <strong>users</strong></li>
+				<li>{meta.members.toLocaleString()} <strong>members</strong></li>
 			</ul>
 		</div>
 	</div>
