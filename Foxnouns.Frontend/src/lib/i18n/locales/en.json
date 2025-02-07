@@ -46,7 +46,7 @@
 		"remote-fediverse-account-label": "Your Fediverse account",
 		"register-username-label": "Username",
 		"register-button": "Register account",
-		"register-with-mastodon": "Register with a Fediverse account",
+		"register-with-fediverse": "Register with a Fediverse account",
 		"log-in-with-fediverse-error-blurb": "Is your instance returning an error?",
 		"log-in-with-fediverse-force-refresh-button": "Force a refresh on our end",
 		"register-with-discord": "Register with a Discord account",

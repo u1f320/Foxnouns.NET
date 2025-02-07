@@ -1,12 +1,11 @@
 <script lang="ts">
 	import Error from "$components/Error.svelte";
 	import NewAuthMethod from "$components/settings/NewAuthMethod.svelte";
-	import OauthRegistrationForm from "$components/settings/OauthRegistrationForm.svelte";
 	import { t } from "$lib/i18n";
-	import type { ActionData, PageData } from "./$types";
+	import type { PageData } from "./$types";
 
-	type Props = { data: PageData; form: ActionData };
-	let { data, form }: Props = $props();
+	type Props = { data: PageData };
+	let { data }: Props = $props();
 </script>
 
 <svelte:head>
@@ -17,15 +16,7 @@
 	{#if data.error}
 		<h1>{$t("auth.register-with-discord")}</h1>
 		<Error error={data.error} />
-	{:else if data.isLinkRequest}
-		<NewAuthMethod method={data.newAuthMethod!} user={data.meUser!} />
 	{:else}
-		<OauthRegistrationForm
-			title={$t("auth.register-with-discord")}
-			remoteLabel={$t("auth.remote-discord-account-label")}
-			remoteUser={data.remoteUser!}
-			ticket={data.ticket!}
-			error={form?.error}
-		/>
+		<NewAuthMethod method={data.newAuthMethod!} user={data.meUser!} />
 	{/if}
 </div>

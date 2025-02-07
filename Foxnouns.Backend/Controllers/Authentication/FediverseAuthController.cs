@@ -94,8 +94,7 @@ public class FediverseAuthController(
     public async Task<IActionResult> RegisterAsync([FromBody] OauthRegisterRequest req)
     {
         FediverseTicketData? ticketData = await keyCacheService.GetKeyAsync<FediverseTicketData>(
-            $"fediverse:{req.Ticket}",
-            true
+            $"fediverse:{req.Ticket}"
         );
         if (ticketData == null)
             throw new ApiError.BadRequest("Invalid ticket", "ticket", req.Ticket);

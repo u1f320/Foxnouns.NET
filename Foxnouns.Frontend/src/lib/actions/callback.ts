@@ -4,10 +4,12 @@ import type { AddAccountResponse, CallbackResponse } from "$api/models";
 import { setToken } from "$lib";
 import log from "$lib/log";
 import { isRedirect, redirect, type ServerLoadEvent } from "@sveltejs/kit";
+import type { TicketData } from "../../routes/auth/callback/register/[ticket]/+page.server";
 
 export default function createCallbackLoader(
 	callbackType: string,
 	bodyFn?: (event: ServerLoadEvent) => Promise<unknown>,
+	returnData?: boolean,
 ) {
 	return async (event: ServerLoadEvent) => {
 		const { parent, fetch, cookies } = event;
@@ -53,12 +55,23 @@ export default function createCallbackLoader(
 				redirect(303, `/@${resp.user!.username}`);
 			}
 
-			return {
-				hasAccount: false,
-				isLinkRequest: false,
-				ticket: resp.ticket!,
-				remoteUser: resp.remote_username!,
-			};
+			if (returnData)
+				return {
+					ticket: resp.ticket!,
+					remoteUser: resp.remote_username!,
+				};
+
+			const ticket = btoa(
+				JSON.stringify({
+					type: callbackType,
+					ticket: resp.ticket!,
+					remoteUsername: resp.remote_username!,
+				} satisfies TicketData),
+			)
+				.replaceAll("+", "-")
+				.replaceAll("/", "_");
+
+			redirect(303, "/auth/callback/register/" + ticket);
 		} catch (e) {
 			if (isRedirect(e)) throw e;
 			if (e instanceof ApiError) return { isLinkRequest: false, error: e.obj };
