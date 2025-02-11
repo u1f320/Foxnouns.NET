@@ -1,11 +1,12 @@
 import { apiRequest, fastRequest } from "$api";
 import ApiError, { ErrorCode, type RawApiError } from "$api/error.js";
 import type { AuthUrls } from "$api/models/auth";
+import { alertKey } from "$lib";
 import log from "$lib/log";
 
-export const load = async ({ fetch }) => {
+export const load = async ({ fetch, url }) => {
 	const urls = await apiRequest<AuthUrls>("POST", "/auth/urls", { fetch, isInternal: true });
-	return { urls };
+	return { urls, alertKey: alertKey(url) };
 };
 
 export const actions = {

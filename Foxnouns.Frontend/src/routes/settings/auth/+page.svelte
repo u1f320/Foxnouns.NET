@@ -1,6 +1,7 @@
 <script lang="ts">
 	import AuthMethodList from "$components/settings/AuthMethodList.svelte";
 	import EmailSettings from "$components/settings/EmailSettings.svelte";
+	import UrlAlert from "$components/URLAlert.svelte";
 	import type { ActionData, PageData } from "./$types";
 
 	type Props = { data: PageData; form: ActionData };
@@ -13,6 +14,8 @@
 	let tumblrAccounts = $derived(data.user.auth_methods.filter((m) => m.type === "TUMBLR"));
 	let fediAccounts = $derived(data.user.auth_methods.filter((m) => m.type === "FEDIVERSE"));
 </script>
+
+<UrlAlert {data} />
 
 {#if data.urls.email_enabled}
 	<EmailSettings user={data.user} {canRemove} {max} {form} />

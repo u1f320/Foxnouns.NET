@@ -77,7 +77,16 @@
 		"log-in-sign-up-link": "Sign up with email",
 		"forgot-password-title": "Forgot password",
 		"reset-password-title": "Reset password",
-		"password-changed-hint": "Your password has been changed!"
+		"password-changed-hint": "Your password has been changed!",
+		"link-email-header": "Link a new email address",
+		"unlink-email-header": "Unlink email address",
+		"unlink-fediverse-header": "Unlink fediverse account",
+		"unlink-tumblr-header": "Unlink Tumblr account",
+		"unlink-google-header": "Unlink Google account",
+		"unlink-discord-header": "Unlink Discord account",
+		"unlink-confirmation-1": "Are you sure you want to unlink {{username}} from your account?",
+		"unlink-confirmation-2": "You will no longer be able to use this account to log in. Please make sure at least one of your other linked accounts is accessible before continuing.",
+		"unlink-button": "Unlink account"
 	},
 	"error": {
 		"bad-request-header": "Something was wrong with your input",
@@ -310,5 +319,8 @@
 	"form": {
 		"optional": "(optional)",
 		"required": "Required"
+	},
+	"alert": {
+		"auth-method-remove-success": "Successfully unlinked account!"
 	}
 }

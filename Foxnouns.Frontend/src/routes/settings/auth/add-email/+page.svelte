@@ -8,7 +8,7 @@
 </script>
 
 <div class="mx-auto w-lg-75">
-	<h3>Link a new email address</h3>
+	<h3>{$t("auth.link-email-header")}</h3>
 
 	<FormStatusMarker {form} successMessage={$t("auth.check-inbox-for-link-hint")} />
 
