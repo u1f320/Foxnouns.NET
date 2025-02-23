@@ -120,7 +120,8 @@
 		"400-description": "Something went wrong with your request. This error should never land you on this page, so it's probably a bug.",
 		"500-description": "Something went wrong on the server. Please try again later.",
 		"unknown-status-description": "Something went wrong, but we're not sure what. Please try again.",
-		"error-id": "If you report this error to the developers, please give them this ID:"
+		"error-id": "If you report this error to the developers, please give them this ID:",
+		"page-not-found": "No page exists at this URL."
 	},
 	"settings": {
 		"general-information-tab": "General information",

@@ -58,8 +58,15 @@ public partial class MetaController(Config config) : ApiControllerBase
         }
 
         string path = Path.Join(Directory.GetCurrentDirectory(), "static-pages", $"{page}.md");
-        string text = await System.IO.File.ReadAllTextAsync(path, ct);
-        return Ok(text);
+        try
+        {
+            string text = await System.IO.File.ReadAllTextAsync(path, ct);
+            return Ok(text);
+        }
+        catch (FileNotFoundException)
+        {
+            throw new ApiError.NotFound("Page not found", code: ErrorCode.PageNotFound);
+        }
     }
 
     [HttpGet("/api/v2/coffee")]

@@ -29,6 +29,8 @@ export default function errorDescription(t: TranslateFn, code: ErrorCode): strin
 			return t("error.account-already-linked");
 		case ErrorCode.LastAuthMethod:
 			return t("error.last-auth-method");
+		case ErrorCode.PageNotFound:
+			return t("error.page-not-found");
 		case ErrorCode.Non204Response:
 			return t("error.generic-error");
 	}

@@ -164,6 +164,7 @@ public enum ErrorCode
     GenericApiError,
     UserNotFound,
     MemberNotFound,
+    PageNotFound,
     AccountAlreadyLinked,
     LastAuthMethod,
     InvalidReportTarget,

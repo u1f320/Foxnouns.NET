@@ -21,12 +21,8 @@ Sentry.init({
 });
 
 export const handleError: HandleServerError = async ({ error, status, message }) => {
-	// as far as i know, sentry IDs are just UUIDs with the dashes removed. use those here as well
-	let id = crypto.randomUUID().replaceAll("-", "");
-
 	if (error instanceof ApiError) {
 		return {
-			error_id: id,
 			status: error.raw?.status || status,
 			message: error.raw?.message || "Unknown error",
 			code: error.code,
@@ -34,11 +30,11 @@ export const handleError: HandleServerError = async ({ error, status, message })
 	}
 
 	if (status >= 400 && status <= 499) {
-		return { error_id: id, status, message, code: ErrorCode.GenericApiError };
+		return { status, message, code: ErrorCode.GenericApiError };
 	}
 
 	// client errors and backend API errors just clog up sentry, so we don't send those.
-	id = Sentry.captureException(error, {
+	const id = Sentry.captureException(error, {
 		mechanism: {
 			type: "sveltekit",
 			handled: false,

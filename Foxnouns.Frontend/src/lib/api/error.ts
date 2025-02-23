@@ -43,6 +43,7 @@ export enum ErrorCode {
 	MemberNotFound = "MEMBER_NOT_FOUND",
 	AccountAlreadyLinked = "ACCOUNT_ALREADY_LINKED",
 	LastAuthMethod = "LAST_AUTH_METHOD",
+	PageNotFound = "PAGE_NOT_FOUND",
 	// This code isn't actually returned by the API
 	Non204Response = "(non 204 response)",
 }
