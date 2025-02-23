@@ -321,6 +321,7 @@
 		"required": "Required"
 	},
 	"alert": {
-		"auth-method-remove-success": "Successfully unlinked account!"
+		"auth-method-remove-success": "Successfully unlinked account!",
+		"auth-required": "You must log in to access this page."
 	}
 }

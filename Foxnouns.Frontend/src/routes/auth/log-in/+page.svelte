@@ -3,6 +3,7 @@
 	import { t } from "$lib/i18n";
 	import { enhance } from "$app/forms";
 	import ErrorAlert from "$components/ErrorAlert.svelte";
+	import UrlAlert from "$components/URLAlert.svelte";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -13,6 +14,7 @@
 </svelte:head>
 
 <div class="container">
+	<UrlAlert {data} />
 	<div class="row">
 		{#if form?.error}
 			<ErrorAlert error={form.error} />

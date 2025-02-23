@@ -18,6 +18,14 @@
 		return url.toString();
 	};
 
+	const addClosed = () => {
+		const url = new URL(data.url);
+		if (!data.includeClosed) url.searchParams.set("include-closed", "true");
+		else url.searchParams.delete("include-closed");
+
+		return url.toString();
+	};
+
 	const addTarget = (id: string | null) => {
 		const url = new URL(data.url);
 		if (id) url.searchParams.set("by-target", id);
@@ -55,6 +63,11 @@
 	{/if}
 	{#if data.byReporter}
 		<li>Filtering by reporter (<a href={addReporter(null)}>clear</a>)</li>
+	{/if}
+	{#if data.includeClosed}
+		<li>Showing all reports (<a href={addClosed()}>only show open reports</a>)</li>
+	{:else}
+		<li>Showing open reports (<a href={addClosed()}>show all reports</a>)</li>
 	{/if}
 </ul>
 

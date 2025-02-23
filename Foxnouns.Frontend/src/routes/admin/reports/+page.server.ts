@@ -19,5 +19,5 @@ export const load = async ({ url, fetch, cookies }) => {
 		fetch,
 		cookies,
 	});
-	return { reports, url: url.toString(), byReporter, byTarget, before, after };
+	return { reports, url: url.toString(), includeClosed, byReporter, byTarget, before, after };
 };

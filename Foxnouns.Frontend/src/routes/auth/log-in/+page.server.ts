@@ -2,15 +2,15 @@ import { isRedirect, redirect } from "@sveltejs/kit";
 
 import { apiRequest } from "$api";
 import type { AuthResponse, AuthUrls } from "$api/models/auth";
-import { setToken } from "$lib";
+import { alertKey, setToken } from "$lib";
 import ApiError, { ErrorCode } from "$api/error";
 
-export const load = async ({ fetch, parent }) => {
+export const load = async ({ fetch, parent, url }) => {
 	const parentData = await parent();
 	if (parentData.meUser) redirect(303, `/@${parentData.meUser.username}`);
 
 	const urls = await apiRequest<AuthUrls>("POST", "/auth/urls", { fetch, isInternal: true });
-	return { urls };
+	return { urls, alertKey: alertKey(url) };
 };
 
 export const actions = {
