@@ -121,7 +121,8 @@
 		"500-description": "Something went wrong on the server. Please try again later.",
 		"unknown-status-description": "Something went wrong, but we're not sure what. Please try again.",
 		"error-id": "If you report this error to the developers, please give them this ID:",
-		"page-not-found": "No page exists at this URL."
+		"page-not-found": "No page exists at this URL.",
+		"not-found-header": "That page could not be found"
 	},
 	"settings": {
 		"general-information-tab": "General information",
@@ -288,7 +289,9 @@
 		"custom-preference-size-small": "Small",
 		"custom-preference-size": "Text size",
 		"custom-preference-muted": "Show as muted text",
-		"custom-preference-favourite": "Treat like favourite"
+		"custom-preference-favourite": "Treat like favourite",
+		"custom-preference-notice": "Want to edit your custom preferences?",
+		"custom-preference-notice-link": "Go to settings"
 	},
 	"cancel": "Cancel",
 	"report": {

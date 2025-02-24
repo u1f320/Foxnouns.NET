@@ -3,6 +3,7 @@
 	import ApiError, { type RawApiError } from "$api/error";
 	import type { Member } from "$api/models";
 	import { mergePreferences } from "$api/models/user";
+	import CustomPreferencesNotice from "$components/editor/CustomPreferencesNotice.svelte";
 	import FieldEditor from "$components/editor/FieldEditor.svelte";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
 	import NoscriptWarning from "$components/editor/NoscriptWarning.svelte";
@@ -40,6 +41,7 @@
 
 <NoscriptWarning />
 <FormStatusMarker form={ok} />
+<CustomPreferencesNotice />
 
 <div>
 	<FieldEditor name={$t("profile.names-header")} bind:entries={names} {allPreferences} />

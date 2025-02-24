@@ -12,6 +12,8 @@
 	<svelte:element this={headerElem ?? "h4"}>
 		{#if error.code === ErrorCode.BadRequest}
 			{$t("error.bad-request-header")}
+		{:else if error.status === 404}
+			{$t("error.not-found-header")}
 		{:else}
 			{$t("error.generic-header")}
 		{/if}

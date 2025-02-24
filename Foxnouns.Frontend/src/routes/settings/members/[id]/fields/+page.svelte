@@ -2,7 +2,9 @@
 	import { apiRequest } from "$api";
 	import ApiError, { type RawApiError } from "$api/error";
 	import { mergePreferences, type User } from "$api/models/user";
+	import CustomPreferencesNotice from "$components/editor/CustomPreferencesNotice.svelte";
 	import FieldsEditor from "$components/editor/FieldsEditor.svelte";
+	import NoscriptWarning from "$components/editor/NoscriptWarning.svelte";
 	import log from "$lib/log";
 	import type { PageData } from "./$types";
 
@@ -28,5 +30,8 @@
 		}
 	};
 </script>
+
+<NoscriptWarning />
+<CustomPreferencesNotice />
 
 <FieldsEditor bind:fields {ok} {allPreferences} {update} />
