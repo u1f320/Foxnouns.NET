@@ -55,8 +55,8 @@ importers:
         specifier: ^5.0.2
         version: 5.0.2(svelte@5.14.3)(vite@6.0.3(@types/node@22.12.0)(sass@1.83.0))
       '@sveltestrap/sveltestrap':
-        specifier: ^6.2.7
-        version: 6.2.7(svelte@5.14.3)
+        specifier: ^7.1.0
+        version: 7.1.0(svelte@5.14.3)
       '@types/eslint':
         specifier: ^9.6.1
         version: 9.6.1
@@ -102,6 +102,9 @@ importers:
       svelte-check:
         specifier: ^4.1.1
         version: 4.1.1(picomatch@4.0.2)(svelte@5.14.3)(typescript@5.7.2)
+      svelte-easy-crop:
+        specifier: ^4.0.0
+        version: 4.0.0(svelte@5.14.3)
       sveltekit-i18n:
         specifier: ^2.4.2
         version: 2.4.2(svelte@5.14.3)
@@ -1002,8 +1005,8 @@ packages:
   '@sveltekit-i18n/parser-default@1.1.1':
     resolution: {integrity: sha512-/gtzLlqm/sox7EoPKD56BxGZktK/syGc79EbJAPWY5KVitQD9SM0TP8yJCqDxTVPk7Lk0WJhrBGUE2Nn0f5M1w==}
 
-  '@sveltestrap/sveltestrap@6.2.7':
-    resolution: {integrity: sha512-WwLLfAFUb42BGuRrf3Vbct30bQMzlEMMipN/MfxhjuLTmLQeW9muVJfPyvjtWS+mY+RjkSCoHvAp/ZobP1NLlQ==}
+  '@sveltestrap/sveltestrap@7.1.0':
+    resolution: {integrity: sha512-TpIx25kqLV+z+VD3yfqYayOI1IaCeWFbT0uqM6NfA4vQgDs9PjFwmjkU4YEAlV/ngs9e7xPmaRWE7lkrg4Miow==}
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0 || ^5.0.0-next.0
 
@@ -1966,6 +1969,11 @@ packages:
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
+
+  svelte-easy-crop@4.0.0:
+    resolution: {integrity: sha512-/asrrCYypXwCsPqJ07m7s7QArJwrdfEt7D1UN9hC4WF3GgEtuqmGuVi5DGeJVtBpKu5388gYFtCgQz9lA+/Rtg==}
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0
 
   svelte-eslint-parser@0.43.0:
     resolution: {integrity: sha512-GpU52uPKKcVnh8tKN5P4UZpJ/fUDndmq7wfsvoVXsyP+aY0anol7Yqo01fyrlaWGMFfm4av5DyrjlaXdLRJvGA==}
@@ -3079,7 +3087,7 @@ snapshots:
 
   '@sveltekit-i18n/parser-default@1.1.1': {}
 
-  '@sveltestrap/sveltestrap@6.2.7(svelte@5.14.3)':
+  '@sveltestrap/sveltestrap@7.1.0(svelte@5.14.3)':
     dependencies:
       '@popperjs/core': 2.11.8
       svelte: 5.14.3
@@ -4050,6 +4058,10 @@ snapshots:
       typescript: 5.7.2
     transitivePeerDependencies:
       - picomatch
+
+  svelte-easy-crop@4.0.0(svelte@5.14.3):
+    dependencies:
+      svelte: 5.14.3
 
   svelte-eslint-parser@0.43.0(svelte@5.14.3):
     dependencies:

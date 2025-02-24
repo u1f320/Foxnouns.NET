@@ -291,7 +291,9 @@
 		"custom-preference-muted": "Show as muted text",
 		"custom-preference-favourite": "Treat like favourite",
 		"custom-preference-notice": "Want to edit your custom preferences?",
-		"custom-preference-notice-link": "Go to settings"
+		"custom-preference-notice-link": "Go to settings",
+		"crop-avatar-header": "Crop avatar",
+		"crop-avatar-button": "Crop"
 	},
 	"cancel": "Cancel",
 	"report": {
