@@ -8,6 +8,7 @@
 	import Envelope from "svelte-bootstrap-icons/lib/Envelope.svelte";
 	import CashCoin from "svelte-bootstrap-icons/lib/CashCoin.svelte";
 	import Logo from "./Logo.svelte";
+	import { t } from "$lib/i18n";
 
 	type Props = { meta: Meta };
 	let { meta }: Props = $props();
@@ -18,13 +19,13 @@
 		<div class="align-start flex-grow-1">
 			<Logo />
 			<ul class="mt-2 list-unstyled">
-				<li><strong>Version</strong> {meta.version}</li>
+				<li><strong>{$t("footer.version")}</strong> {meta.version}</li>
 			</ul>
 		</div>
 		<div class="align-end">
 			<ul class="list-unstyled">
-				<li>{meta.users.total.toLocaleString()} <strong>users</strong></li>
-				<li>{meta.members.toLocaleString()} <strong>members</strong></li>
+				<li>{meta.users.total.toLocaleString()} <strong>{$t("footer.users")}</strong></li>
+				<li>{meta.members.toLocaleString()} <strong>{$t("footer.members")}</strong></li>
 			</ul>
 		</div>
 	</div>
@@ -36,7 +37,7 @@
 		>
 			<li class="list-inline-item">
 				<Git />
-				Source code
+				{$t("footer.source")}
 			</li>
 		</a>
 		<a
@@ -46,37 +47,37 @@
 		>
 			<li class="list-inline-item">
 				<Reception4 />
-				Status
+				{$t("footer.status")}
 			</li>
 		</a>
 		<a class="list-inline-item link-underline link-underline-opacity-0" href="/page/about">
 			<li class="list-inline-item">
 				<Envelope />
-				About and contact
+				{$t("footer.about-contact")}
 			</li>
 		</a>
 		<a class="list-inline-item link-underline link-underline-opacity-0" href="/page/tos">
 			<li class="list-inline-item">
 				<CardText />
-				Terms of service
+				{$t("footer.terms")}
 			</li>
 		</a>
 		<a class="list-inline-item link-underline link-underline-opacity-0" href="/page/privacy">
 			<li class="list-inline-item">
 				<Shield />
-				Privacy policy
+				{$t("footer.privacy")}
 			</li>
 		</a>
 		<a class="list-inline-item link-underline link-underline-opacity-0" href="/page/changelog">
 			<li class="list-inline-item">
 				<Newspaper />
-				Changelog
+				{$t("footer.changelog")}
 			</li>
 		</a>
 		<a class="list-inline-item link-underline link-underline-opacity-0" href="/page/donate">
 			<li class="list-inline-item">
 				<CashCoin />
-				Donate
+				{$t("footer.donate")}
 			</li>
 		</a>
 	</ul>

@@ -327,5 +327,17 @@
 	"alert": {
 		"auth-method-remove-success": "Successfully unlinked account!",
 		"auth-required": "You must log in to access this page."
+	},
+	"footer": {
+		"version": "Version",
+		"users": "users",
+		"members": "members",
+		"source": "Source code",
+		"status": "Status",
+		"terms": "Terms of service",
+		"privacy": "Privacy policy",
+		"changelog": "Changelog",
+		"donate": "Donate",
+		"about-contact": "About and contact"
 	}
 }
