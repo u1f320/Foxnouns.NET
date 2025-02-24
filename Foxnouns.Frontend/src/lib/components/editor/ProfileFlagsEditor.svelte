@@ -4,16 +4,18 @@
 	import FlagSearch from "$components/editor/FlagSearch.svelte";
 	import IconButton from "$components/IconButton.svelte";
 	import { t } from "$lib/i18n";
+	import ephemeralState from "$lib/state.svelte";
 	import FlagButton from "./FlagButton.svelte";
 	import FormStatusMarker from "./FormStatusMarker.svelte";
 
 	type Props = {
+		stateKey: string;
 		profileFlags: PrideFlag[];
 		allFlags: PrideFlag[];
 		save(flags: string[]): Promise<void>;
 		form: { ok: boolean; error: RawApiError | null } | null;
 	};
-	let { profileFlags, allFlags, save, form }: Props = $props();
+	let { stateKey, profileFlags, allFlags, save, form }: Props = $props();
 
 	let flags = $state(profileFlags);
 
@@ -40,6 +42,12 @@
 	};
 
 	const saveChanges = () => save(flags.map((f) => f.id));
+
+	ephemeralState(
+		stateKey,
+		() => flags,
+		(data) => (flags = data),
+	);
 </script>
 
 <div class="row">

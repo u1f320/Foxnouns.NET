@@ -15,6 +15,7 @@
 	import BioEditor from "$components/editor/BioEditor.svelte";
 	import { PUBLIC_BASE_URL } from "$env/static/public";
 	import { enhance } from "$app/forms";
+	import ephemeralState from "$lib/state.svelte";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -61,6 +62,12 @@
 
 	// Bio is stored in a $state() so we have a markdown preview
 	let bio = $state(data.member.bio || "");
+
+	ephemeralState(
+		"member-" + data.member.id + "-bio",
+		() => bio,
+		(data) => (bio = data),
+	);
 </script>
 
 {#if error}

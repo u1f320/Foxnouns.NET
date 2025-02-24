@@ -41,10 +41,16 @@
 </script>
 
 <ProfileFlagsEditor
+	stateKey="member-{data.member.id}-flags"
 	profileFlags={data.member.flags}
 	allFlags={data.flags}
 	save={flagSave}
 	form={flagForm}
 />
 
-<LinksEditor currentLinks={data.member.links} save={linksSave} form={linksForm} />
+<LinksEditor
+	stateKey="member-{data.member.id}-links"
+	currentLinks={data.member.links}
+	save={linksSave}
+	form={linksForm}
+/>

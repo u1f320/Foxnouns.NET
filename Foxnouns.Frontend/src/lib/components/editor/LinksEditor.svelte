@@ -2,14 +2,16 @@
 	import type { RawApiError } from "$api/error";
 	import IconButton from "$components/IconButton.svelte";
 	import { t } from "$lib/i18n";
+	import ephemeralState from "$lib/state.svelte";
 	import FormStatusMarker from "./FormStatusMarker.svelte";
 
 	type Props = {
+		stateKey: string;
 		currentLinks: string[];
 		save(links: string[]): Promise<void>;
 		form: { ok: boolean; error: RawApiError | null } | null;
 	};
-	let { currentLinks, save, form }: Props = $props();
+	let { stateKey, currentLinks, save, form }: Props = $props();
 
 	let links = $state(currentLinks);
 	let newEntry = $state("");
@@ -37,6 +39,12 @@
 		links = [...links, newEntry];
 		newEntry = "";
 	};
+
+	ephemeralState(
+		stateKey,
+		() => links,
+		(data) => (links = data),
+	);
 </script>
 
 <h4>

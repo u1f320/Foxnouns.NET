@@ -6,6 +6,7 @@
 	import FieldsEditor from "$components/editor/FieldsEditor.svelte";
 	import NoscriptWarning from "$components/editor/NoscriptWarning.svelte";
 	import log from "$lib/log";
+	import ephemeralState from "$lib/state.svelte";
 	import type { PageData } from "./$types";
 
 	type Props = { data: PageData };
@@ -29,6 +30,12 @@
 			if (e instanceof ApiError) ok.error = e.obj;
 		}
 	};
+
+	ephemeralState(
+		"member-" + data.member.id + "-fields",
+		() => fields,
+		(data) => (fields = data),
+	);
 </script>
 
 <NoscriptWarning />

@@ -9,6 +9,7 @@
 	import PronounsEditor from "$components/editor/PronounsEditor.svelte";
 	import { t } from "$lib/i18n";
 	import log from "$lib/log";
+	import ephemeralState from "$lib/state.svelte";
 	import type { PageData } from "./$types";
 
 	type Props = { data: PageData };
@@ -18,6 +19,15 @@
 	let pronouns = $state(data.user.pronouns);
 	let ok: { ok: boolean; error: RawApiError | null } | null = $state(null);
 	let allPreferences = $derived(mergePreferences(data.user.custom_preferences));
+
+	ephemeralState(
+		"user-names-pronouns",
+		() => ({ names, pronouns }),
+		(data) => {
+			names = data.names;
+			pronouns = data.pronouns;
+		},
+	);
 
 	const update = async () => {
 		try {
