@@ -23,8 +23,11 @@ public class EmailRateLimiter
 {
     private readonly ConcurrentDictionary<string, RateLimiter> _limiters = new();
 
-    private readonly FixedWindowRateLimiterOptions _limiterOptions =
-        new() { Window = TimeSpan.FromHours(2), PermitLimit = 3 };
+    private readonly FixedWindowRateLimiterOptions _limiterOptions = new()
+    {
+        Window = TimeSpan.FromHours(2),
+        PermitLimit = 3,
+    };
 
     private RateLimiter GetLimiter(string bucket) =>
         _limiters.GetOrAdd(bucket, _ => new FixedWindowRateLimiter(_limiterOptions));
