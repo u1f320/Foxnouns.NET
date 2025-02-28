@@ -86,7 +86,8 @@
 		"unlink-discord-header": "Unlink Discord account",
 		"unlink-confirmation-1": "Are you sure you want to unlink {{username}} from your account?",
 		"unlink-confirmation-2": "You will no longer be able to use this account to log in. Please make sure at least one of your other linked accounts is accessible before continuing.",
-		"unlink-button": "Unlink account"
+		"unlink-button": "Unlink account",
+		"log-in-3rd-party-desc-no-email": "You can use any of the following services to log in. You can add or remove others at any time."
 	},
 	"error": {
 		"bad-request-header": "Something was wrong with your input",

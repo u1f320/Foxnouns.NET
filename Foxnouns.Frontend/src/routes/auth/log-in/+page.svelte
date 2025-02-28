@@ -50,8 +50,13 @@
 			<div class="col-lg-3"></div>
 		{/if}
 		<div class="col-md">
-			<h3>{$t("auth.log-in-3rd-party-header")}</h3>
-			<p>{$t("auth.log-in-3rd-party-desc")}</p>
+			{#if data.urls.email_enabled}
+				<h3>{$t("auth.log-in-3rd-party-header")}</h3>
+				<p>{$t("auth.log-in-3rd-party-desc")}</p>
+			{:else}
+				<h3>{$t("title.log-in")}</h3>
+				<p>{$t("auth.log-in-3rd-party-desc-no-email")}</p>
+			{/if}
 			<form method="POST" action="?/fediToggle" use:enhance>
 				<div class="list-group">
 					{#if data.urls.discord}
