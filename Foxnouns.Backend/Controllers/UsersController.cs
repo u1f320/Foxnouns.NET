@@ -91,7 +91,7 @@ public class UsersController(
         if (req.Names != null)
         {
             errors.AddRange(
-                ValidationUtils.ValidateFieldEntries(
+                validationService.ValidateFieldEntries(
                     req.Names,
                     CurrentUser!.CustomPreferences,
                     "names"
@@ -103,7 +103,7 @@ public class UsersController(
         if (req.Pronouns != null)
         {
             errors.AddRange(
-                ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences)
+                validationService.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences)
             );
             user.Pronouns = req.Pronouns.ToList();
         }
@@ -111,7 +111,10 @@ public class UsersController(
         if (req.Fields != null)
         {
             errors.AddRange(
-                ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences)
+                validationService.ValidateFields(
+                    req.Fields.ToList(),
+                    CurrentUser!.CustomPreferences
+                )
             );
             user.Fields = req.Fields.ToList();
         }

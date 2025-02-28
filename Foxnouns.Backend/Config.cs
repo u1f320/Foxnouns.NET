@@ -99,6 +99,11 @@ public class Config
     {
         public int MaxMemberCount { get; init; } = 1000;
 
+        public int MaxFields { get; init; } = 25;
+        public int MaxFieldNameLength { get; init; } = 100;
+        public int MaxFieldEntryTextLength { get; init; } = 100;
+        public int MaxFieldEntries { get; init; } = 100;
+
         public int MaxUsernameLength { get; init; } = 40;
         public int MaxMemberNameLength { get; init; } = 100;
         public int MaxDisplayNameLength { get; init; } = 100;

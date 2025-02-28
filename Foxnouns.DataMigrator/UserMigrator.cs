@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Dapper;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
-using Foxnouns.Backend.Utils;
+using Foxnouns.Backend.Services;
 using Foxnouns.DataMigrator.Models;
 using NodaTime.Extensions;
 using Npgsql;
@@ -260,6 +260,6 @@ public class UserMigrator(
     {
         if (_preferenceIds.TryGetValue(id, out Snowflake preferenceId))
             return preferenceId.ToString();
-        return ValidationUtils.DefaultStatusOptions.Contains(id) ? id : "okay";
+        return ValidationService.DefaultStatusOptions.Contains(id) ? id : "okay";
     }
 }

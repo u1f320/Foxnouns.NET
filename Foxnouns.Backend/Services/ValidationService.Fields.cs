@@ -15,9 +15,9 @@
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 
-namespace Foxnouns.Backend.Utils;
+namespace Foxnouns.Backend.Services;
 
-public static partial class ValidationUtils
+public partial class ValidationService
 {
     public static readonly string[] DefaultStatusOptions =
     [
@@ -28,7 +28,7 @@ public static partial class ValidationUtils
         "avoid",
     ];
 
-    public static IEnumerable<(string, ValidationError?)> ValidateFields(
+    public IEnumerable<(string, ValidationError?)> ValidateFields(
         List<Field>? fields,
         IReadOnlyDictionary<Snowflake, User.CustomPreference> customPreferences
     )
@@ -37,7 +37,7 @@ public static partial class ValidationUtils
             return [];
 
         var errors = new List<(string, ValidationError?)>();
-        if (fields.Count > 25)
+        if (fields.Count > _limits.MaxFields)
         {
             errors.Add(
                 (
@@ -45,7 +45,7 @@ public static partial class ValidationUtils
                     ValidationError.LengthError(
                         "Too many fields",
                         0,
-                        Limits.FieldLimit,
+                        _limits.MaxFields,
                         fields.Count
                     )
                 )
@@ -53,39 +53,38 @@ public static partial class ValidationUtils
         }
 
         // No overwhelming this function, thank you
-        if (fields.Count > 100)
+        if (fields.Count > _limits.MaxFields + 50)
             return errors;
 
         foreach ((Field? field, int index) in fields.Select((field, index) => (field, index)))
         {
-            switch (field.Name.Length)
+            if (field.Name.Length > _limits.MaxFieldNameLength)
             {
-                case > Limits.FieldNameLimit:
-                    errors.Add(
-                        (
-                            $"fields.{index}.name",
-                            ValidationError.LengthError(
-                                "Field name is too long",
-                                1,
-                                Limits.FieldNameLimit,
-                                field.Name.Length
-                            )
+                errors.Add(
+                    (
+                        $"fields.{index}.name",
+                        ValidationError.LengthError(
+                            "Field name is too long",
+                            1,
+                            _limits.MaxFieldNameLength,
+                            field.Name.Length
                         )
-                    );
-                    break;
-                case < 1:
-                    errors.Add(
-                        (
-                            $"fields.{index}.name",
-                            ValidationError.LengthError(
-                                "Field name is too short",
-                                1,
-                                Limits.FieldNameLimit,
-                                field.Name.Length
-                            )
+                    )
+                );
+            }
+            else if (field.Name.Length < 1)
+            {
+                errors.Add(
+                    (
+                        $"fields.{index}.name",
+                        ValidationError.LengthError(
+                            "Field name is too short",
+                            1,
+                            _limits.MaxFieldNameLength,
+                            field.Name.Length
                         )
-                    );
-                    break;
+                    )
+                );
             }
 
             errors = errors
@@ -102,7 +101,7 @@ public static partial class ValidationUtils
         return errors;
     }
 
-    public static IEnumerable<(string, ValidationError?)> ValidateFieldEntries(
+    public IEnumerable<(string, ValidationError?)> ValidateFieldEntries(
         FieldEntry[]? entries,
         IReadOnlyDictionary<Snowflake, User.CustomPreference> customPreferences,
         string errorPrefix = "fields"
@@ -112,7 +111,7 @@ public static partial class ValidationUtils
             return [];
         var errors = new List<(string, ValidationError?)>();
 
-        if (entries.Length > Limits.FieldEntriesLimit)
+        if (entries.Length > _limits.MaxFieldEntries)
         {
             errors.Add(
                 (
@@ -120,7 +119,7 @@ public static partial class ValidationUtils
                     ValidationError.LengthError(
                         "Field has too many entries",
                         0,
-                        Limits.FieldEntriesLimit,
+                        _limits.MaxFieldEntries,
                         entries.Length
                     )
                 )
@@ -128,7 +127,7 @@ public static partial class ValidationUtils
         }
 
         // Same as above, no overwhelming this function with a ridiculous amount of entries
-        if (entries.Length > Limits.FieldEntriesLimit + 50)
+        if (entries.Length > _limits.MaxFieldEntries + 50)
             return errors;
 
         string[] customPreferenceIds = customPreferences.Keys.Select(id => id.ToString()).ToArray();
@@ -139,34 +138,33 @@ public static partial class ValidationUtils
             )
         )
         {
-            switch (entry.Value.Length)
+            if (entry.Value.Length > _limits.MaxFieldEntryTextLength)
             {
-                case > Limits.FieldEntryTextLimit:
-                    errors.Add(
-                        (
-                            $"{errorPrefix}.{entryIdx}.value",
-                            ValidationError.LengthError(
-                                "Field value is too long",
-                                1,
-                                Limits.FieldEntryTextLimit,
-                                entry.Value.Length
-                            )
+                errors.Add(
+                    (
+                        $"{errorPrefix}.{entryIdx}.value",
+                        ValidationError.LengthError(
+                            "Field value is too long",
+                            1,
+                            _limits.MaxFieldEntryTextLength,
+                            entry.Value.Length
                         )
-                    );
-                    break;
-                case < 1:
-                    errors.Add(
-                        (
-                            $"{errorPrefix}.{entryIdx}.value",
-                            ValidationError.LengthError(
-                                "Field value is too short",
-                                1,
-                                Limits.FieldEntryTextLimit,
-                                entry.Value.Length
-                            )
+                    )
+                );
+            }
+            else if (entry.Value.Length < 1)
+            {
+                errors.Add(
+                    (
+                        $"{errorPrefix}.{entryIdx}.value",
+                        ValidationError.LengthError(
+                            "Field value is too short",
+                            1,
+                            _limits.MaxFieldEntryTextLength,
+                            entry.Value.Length
                         )
-                    );
-                    break;
+                    )
+                );
             }
 
             if (
@@ -186,7 +184,7 @@ public static partial class ValidationUtils
         return errors;
     }
 
-    public static IEnumerable<(string, ValidationError?)> ValidatePronouns(
+    public IEnumerable<(string, ValidationError?)> ValidatePronouns(
         Pronoun[]? entries,
         IReadOnlyDictionary<Snowflake, User.CustomPreference> customPreferences,
         string errorPrefix = "pronouns"
@@ -196,7 +194,7 @@ public static partial class ValidationUtils
             return [];
         var errors = new List<(string, ValidationError?)>();
 
-        if (entries.Length > Limits.FieldEntriesLimit)
+        if (entries.Length > _limits.MaxFieldEntries)
         {
             errors.Add(
                 (
@@ -204,7 +202,7 @@ public static partial class ValidationUtils
                     ValidationError.LengthError(
                         "Too many pronouns",
                         0,
-                        Limits.FieldEntriesLimit,
+                        _limits.MaxFieldEntries,
                         entries.Length
                     )
                 )
@@ -212,7 +210,7 @@ public static partial class ValidationUtils
         }
 
         // Same as above, no overwhelming this function with a ridiculous amount of entries
-        if (entries.Length > Limits.FieldEntriesLimit + 50)
+        if (entries.Length > _limits.MaxFieldEntries + 50)
             return errors;
 
         string[] customPreferenceIds = customPreferences.Keys.Select(id => id.ToString()).ToArray();
@@ -221,66 +219,64 @@ public static partial class ValidationUtils
             (Pronoun? entry, int entryIdx) in entries.Select((entry, entryIdx) => (entry, entryIdx))
         )
         {
-            switch (entry.Value.Length)
+            if (entry.Value.Length > _limits.MaxFieldEntryTextLength)
             {
-                case > Limits.FieldEntryTextLimit:
-                    errors.Add(
-                        (
-                            $"{errorPrefix}.{entryIdx}.value",
-                            ValidationError.LengthError(
-                                "Pronoun value is too long",
-                                1,
-                                Limits.FieldEntryTextLimit,
-                                entry.Value.Length
-                            )
+                errors.Add(
+                    (
+                        $"{errorPrefix}.{entryIdx}.value",
+                        ValidationError.LengthError(
+                            "Pronoun value is too long",
+                            1,
+                            _limits.MaxFieldEntryTextLength,
+                            entry.Value.Length
                         )
-                    );
-                    break;
-                case < 1:
-                    errors.Add(
-                        (
-                            $"{errorPrefix}.{entryIdx}.value",
-                            ValidationError.LengthError(
-                                "Pronoun value is too short",
-                                1,
-                                Limits.FieldEntryTextLimit,
-                                entry.Value.Length
-                            )
+                    )
+                );
+            }
+            else if (entry.Value.Length < 1)
+            {
+                errors.Add(
+                    (
+                        $"{errorPrefix}.{entryIdx}.value",
+                        ValidationError.LengthError(
+                            "Pronoun value is too short",
+                            1,
+                            _limits.MaxFieldEntryTextLength,
+                            entry.Value.Length
                         )
-                    );
-                    break;
+                    )
+                );
             }
 
             if (entry.DisplayText != null)
             {
-                switch (entry.DisplayText.Length)
+                if (entry.DisplayText.Length > _limits.MaxFieldEntryTextLength)
                 {
-                    case > Limits.FieldEntryTextLimit:
-                        errors.Add(
-                            (
-                                $"{errorPrefix}.{entryIdx}.display_text",
-                                ValidationError.LengthError(
-                                    "Pronoun display text is too long",
-                                    1,
-                                    Limits.FieldEntryTextLimit,
-                                    entry.Value.Length
-                                )
+                    errors.Add(
+                        (
+                            $"{errorPrefix}.{entryIdx}.display_text",
+                            ValidationError.LengthError(
+                                "Pronoun display text is too long",
+                                1,
+                                _limits.MaxFieldEntryTextLength,
+                                entry.Value.Length
                             )
-                        );
-                        break;
-                    case < 1:
-                        errors.Add(
-                            (
-                                $"{errorPrefix}.{entryIdx}.display_text",
-                                ValidationError.LengthError(
-                                    "Pronoun display text is too short",
-                                    1,
-                                    Limits.FieldEntryTextLimit,
-                                    entry.Value.Length
-                                )
+                        )
+                    );
+                }
+                else if (entry.DisplayText.Length < 1)
+                {
+                    errors.Add(
+                        (
+                            $"{errorPrefix}.{entryIdx}.display_text",
+                            ValidationError.LengthError(
+                                "Pronoun display text is too short",
+                                1,
+                                _limits.MaxFieldEntryTextLength,
+                                entry.Value.Length
                             )
-                        );
-                        break;
+                        )
+                    );
                 }
             }
 

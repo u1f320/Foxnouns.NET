@@ -81,13 +81,13 @@ public class MembersController(
                 ("display_name", validationService.ValidateDisplayName(req.DisplayName)),
                 ("bio", validationService.ValidateBio(req.Bio)),
                 ("avatar", validationService.ValidateAvatar(req.Avatar)),
-                .. ValidationUtils.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
-                .. ValidationUtils.ValidateFieldEntries(
+                .. validationService.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
+                .. validationService.ValidateFieldEntries(
                     req.Names?.ToArray(),
                     CurrentUser!.CustomPreferences,
                     "names"
                 ),
-                .. ValidationUtils.ValidatePronouns(
+                .. validationService.ValidatePronouns(
                     req.Pronouns?.ToArray(),
                     CurrentUser!.CustomPreferences
                 ),
@@ -191,7 +191,7 @@ public class MembersController(
         if (req.Names != null)
         {
             errors.AddRange(
-                ValidationUtils.ValidateFieldEntries(
+                validationService.ValidateFieldEntries(
                     req.Names,
                     CurrentUser!.CustomPreferences,
                     "names"
@@ -203,7 +203,7 @@ public class MembersController(
         if (req.Pronouns != null)
         {
             errors.AddRange(
-                ValidationUtils.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences)
+                validationService.ValidatePronouns(req.Pronouns, CurrentUser!.CustomPreferences)
             );
             member.Pronouns = req.Pronouns.ToList();
         }
@@ -211,7 +211,10 @@ public class MembersController(
         if (req.Fields != null)
         {
             errors.AddRange(
-                ValidationUtils.ValidateFields(req.Fields.ToList(), CurrentUser!.CustomPreferences)
+                validationService.ValidateFields(
+                    req.Fields.ToList(),
+                    CurrentUser!.CustomPreferences
+                )
             );
             member.Fields = req.Fields.ToList();
         }
