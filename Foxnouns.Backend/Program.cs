@@ -23,7 +23,6 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Prometheus;
-using Scalar.AspNetCore;
 using Sentry.Extensibility;
 using Serilog;
 
@@ -46,7 +45,8 @@ builder
         // No valid request body will ever come close to this limit,
         // but the limit is slightly higher to prevent valid requests from being rejected.
         opts.Limits.MaxRequestBodySize = 2 * 1024 * 1024;
-    });
+    })
+    .UseUrls(config.Address);
 
 builder
     .Services.AddControllers()
@@ -109,16 +109,18 @@ if (config.Logging.SentryTracing)
 app.UseCors();
 app.UseCustomMiddleware();
 app.MapControllers();
-app.MapOpenApi("/api-docs/openapi/{documentName}.json");
-app.MapScalarApiReference(options =>
-{
-    options.Title = "pronouns.cc API";
-    options.OpenApiRoutePattern = "/api-docs/openapi/{documentName}.json";
-    options.EndpointPathPrefix = "/api-docs/{documentName}";
-});
 
-app.Urls.Clear();
-app.Urls.Add(config.Address);
+// TODO: I can't figure out why this doesn't work yet
+// TODO: Manually write API docs in the meantime
+// app.MapOpenApi("/api-docs/openapi/{documentName}.json");
+// app.MapScalarApiReference(
+//     "/api-docs/",
+//     options =>
+//     {
+//         options.Title = "pronouns.cc API";
+//         options.OpenApiRoutePattern = "/api-docs/openapi/{documentName}.json";
+//     }
+// );
 
 // Make sure metrics are updated whenever Prometheus scrapes them
 Metrics.DefaultRegistry.AddBeforeCollectCallback(async ct =>

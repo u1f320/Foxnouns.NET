@@ -22,8 +22,10 @@ namespace Foxnouns.Backend.Utils.OpenApi;
 
 public class PropertyKeySchemaTransformer : IOpenApiSchemaTransformer
 {
-    private static readonly DefaultContractResolver SnakeCaseConverter =
-        new() { NamingStrategy = new SnakeCaseNamingStrategy() };
+    private static readonly DefaultContractResolver SnakeCaseConverter = new()
+    {
+        NamingStrategy = new SnakeCaseNamingStrategy(),
+    };
 
     public Task TransformAsync(
         OpenApiSchema schema,
