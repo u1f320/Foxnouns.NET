@@ -7,6 +7,7 @@ services:
     environment:
       - "Database:Url=Host=postgres;Database=postgres;Username=postgres;Password=postgres"
       - "Database:EnablePooling=true"
+      - "Database:Redis=redis:6379"
       - "Host=0.0.0.0"
       - "Port=5000"
       - "Logging:MetricsPort=5001"
@@ -31,7 +32,7 @@ services:
 
   rate:
     image: rate
-    build: ./rate
+    build: ./Foxnouns.RateLimiter
     environment:
       - "PORT=5003"
     restart: unless-stopped
@@ -52,6 +53,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: registry.redict.io/redict:7
+    restart: unless-stopped
+    volumes:
+      - redict_data:/data
+
   caddy:
     image: docker.io/caddy:2
     restart: unless-stopped
@@ -67,3 +74,4 @@ volumes:
   caddy_data:
   caddy_config:
   postgres_data:
+  redict_data:

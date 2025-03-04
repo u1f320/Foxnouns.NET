@@ -24,8 +24,7 @@ namespace Foxnouns.Backend.Services;
 public class KeyCacheService(Config config)
 {
     public ConnectionMultiplexer Multiplexer { get; } =
-        // ConnectionMultiplexer.Connect(config.Database.Redis);
-        ConnectionMultiplexer.Connect("127.0.0.1:6379");
+        ConnectionMultiplexer.Connect(config.Database.Redis);
 
     public async Task SetKeyAsync(string key, string value, Duration expireAfter) =>
         await Multiplexer
