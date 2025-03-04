@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto;
@@ -28,13 +27,8 @@ namespace Foxnouns.Backend.Controllers;
 [Authorize("identify")]
 [Limit(UsableByDeletedUsers = true)]
 [ApiExplorerSettings(IgnoreApi = true)]
-public class ExportsController(
-    ILogger logger,
-    Config config,
-    IClock clock,
-    DatabaseContext db,
-    IQueue queue
-) : ApiControllerBase
+public class ExportsController(ILogger logger, Config config, IClock clock, DatabaseContext db)
+    : ApiControllerBase
 {
     private static readonly Duration MinimumTimeBetween = Duration.FromDays(1);
     private readonly ILogger _logger = logger.ForContext<ExportsController>();
@@ -80,10 +74,7 @@ public class ExportsController(
             throw new ApiError.BadRequest("You can't request a new data export so soon.");
         }
 
-        queue.QueueInvocableWithPayload<CreateDataExportInvocable, CreateDataExportPayload>(
-            new CreateDataExportPayload(CurrentUser.Id)
-        );
-
+        CreateDataExportJob.Enqueue(CurrentUser.Id);
         return NoContent();
     }
 }

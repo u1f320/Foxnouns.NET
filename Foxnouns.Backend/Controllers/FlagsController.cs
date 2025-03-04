@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto;
@@ -30,8 +29,7 @@ namespace Foxnouns.Backend.Controllers;
 public class FlagsController(
     DatabaseContext db,
     UserRendererService userRenderer,
-    ISnowflakeGenerator snowflakeGenerator,
-    IQueue queue
+    ISnowflakeGenerator snowflakeGenerator
 ) : ApiControllerBase
 {
     [HttpGet]
@@ -74,10 +72,7 @@ public class FlagsController(
         db.Add(flag);
         await db.SaveChangesAsync();
 
-        queue.QueueInvocableWithPayload<CreateFlagInvocable, CreateFlagPayload>(
-            new CreateFlagPayload(flag.Id, CurrentUser!.Id, req.Image)
-        );
-
+        CreateFlagJob.Enqueue(new CreateFlagPayload(flag.Id, CurrentUser!.Id, req.Image));
         return Accepted(userRenderer.RenderPrideFlag(flag));
     }
 

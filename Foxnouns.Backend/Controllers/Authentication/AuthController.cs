@@ -46,7 +46,7 @@ public class AuthController(
             config.GoogleAuth.Enabled,
             config.TumblrAuth.Enabled
         );
-        string state = HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync(ct));
+        string state = HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync());
         string? discord = null;
         string? google = null;
         string? tumblr = null;

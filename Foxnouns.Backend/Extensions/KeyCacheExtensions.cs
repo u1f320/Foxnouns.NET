@@ -23,23 +23,19 @@ namespace Foxnouns.Backend.Extensions;
 
 public static class KeyCacheExtensions
 {
-    public static async Task<string> GenerateAuthStateAsync(
-        this KeyCacheService keyCacheService,
-        CancellationToken ct = default
-    )
+    public static async Task<string> GenerateAuthStateAsync(this KeyCacheService keyCacheService)
     {
         string state = AuthUtils.RandomToken();
-        await keyCacheService.SetKeyAsync($"oauth_state:{state}", "", Duration.FromMinutes(10), ct);
+        await keyCacheService.SetKeyAsync($"oauth_state:{state}", "", Duration.FromMinutes(10));
         return state;
     }
 
     public static async Task ValidateAuthStateAsync(
         this KeyCacheService keyCacheService,
-        string state,
-        CancellationToken ct = default
+        string state
     )
     {
-        string? val = await keyCacheService.GetKeyAsync($"oauth_state:{state}", ct: ct);
+        string? val = await keyCacheService.GetKeyAsync($"oauth_state:{state}");
         if (val == null)
             throw new ApiError.BadRequest("Invalid OAuth state");
     }
@@ -47,63 +43,55 @@ public static class KeyCacheExtensions
     public static async Task<string> GenerateRegisterEmailStateAsync(
         this KeyCacheService keyCacheService,
         string email,
-        Snowflake? userId = null,
-        CancellationToken ct = default
+        Snowflake? userId = null
     )
     {
         string state = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"email_state:{state}",
             new RegisterEmailState(email, userId),
-            Duration.FromDays(1),
-            ct
+            Duration.FromDays(1)
         );
         return state;
     }
 
     public static async Task<RegisterEmailState?> GetRegisterEmailStateAsync(
         this KeyCacheService keyCacheService,
-        string state,
-        CancellationToken ct = default
-    ) => await keyCacheService.GetKeyAsync<RegisterEmailState>($"email_state:{state}", ct: ct);
+        string state
+    ) => await keyCacheService.GetKeyAsync<RegisterEmailState>($"email_state:{state}");
 
     public static async Task<string> GenerateAddExtraAccountStateAsync(
         this KeyCacheService keyCacheService,
         AuthType authType,
         Snowflake userId,
-        string? instance = null,
-        CancellationToken ct = default
+        string? instance = null
     )
     {
         string state = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"add_account:{state}",
             new AddExtraAccountState(authType, userId, instance),
-            Duration.FromDays(1),
-            ct
+            Duration.FromDays(1)
         );
         return state;
     }
 
     public static async Task<AddExtraAccountState?> GetAddExtraAccountStateAsync(
         this KeyCacheService keyCacheService,
-        string state,
-        CancellationToken ct = default
-    ) => await keyCacheService.GetKeyAsync<AddExtraAccountState>($"add_account:{state}", true, ct);
+        string state
+    ) => await keyCacheService.GetKeyAsync<AddExtraAccountState>($"add_account:{state}", true);
 
     public static async Task<string> GenerateForgotPasswordStateAsync(
         this KeyCacheService keyCacheService,
         string email,
-        Snowflake userId,
-        CancellationToken ct = default
+        Snowflake userId
     )
     {
         string state = AuthUtils.RandomToken();
         await keyCacheService.SetKeyAsync(
             $"forgot_password:{state}",
             new ForgotPasswordState(email, userId),
-            Duration.FromHours(1),
-            ct
+            Duration.FromHours(1)
         );
         return state;
     }
@@ -111,14 +99,8 @@ public static class KeyCacheExtensions
     public static async Task<ForgotPasswordState?> GetForgotPasswordStateAsync(
         this KeyCacheService keyCacheService,
         string state,
-        bool delete = true,
-        CancellationToken ct = default
-    ) =>
-        await keyCacheService.GetKeyAsync<ForgotPasswordState>(
-            $"forgot_password:{state}",
-            delete,
-            ct
-        );
+        bool delete = true
+    ) => await keyCacheService.GetKeyAsync<ForgotPasswordState>($"forgot_password:{state}", delete);
 }
 
 public record RegisterEmailState(

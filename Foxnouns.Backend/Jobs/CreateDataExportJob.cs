@@ -14,11 +14,11 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System.IO.Compression;
 using System.Net;
-using Coravel.Invocable;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
@@ -26,7 +26,7 @@ using NodaTime.Text;
 
 namespace Foxnouns.Backend.Jobs;
 
-public class CreateDataExportInvocable(
+public class CreateDataExportJob(
     DatabaseContext db,
     IClock clock,
     UserRendererService userRenderer,
@@ -34,37 +34,41 @@ public class CreateDataExportInvocable(
     ObjectStorageService objectStorageService,
     ISnowflakeGenerator snowflakeGenerator,
     ILogger logger
-) : IInvocable, IInvocableWithPayload<CreateDataExportPayload>
+)
 {
     private static readonly HttpClient Client = new();
-    private readonly ILogger _logger = logger.ForContext<CreateDataExportInvocable>();
-    public required CreateDataExportPayload Payload { get; set; }
+    private readonly ILogger _logger = logger.ForContext<CreateDataExportJob>();
 
-    public async Task Invoke()
+    public static void Enqueue(Snowflake userId)
+    {
+        BackgroundJob.Enqueue<CreateDataExportJob>(j => j.InvokeAsync(userId));
+    }
+
+    public async Task InvokeAsync(Snowflake userId)
     {
         try
         {
-            await InvokeAsync();
+            await InvokeAsyncInner(userId);
         }
         catch (Exception e)
         {
-            _logger.Error(e, "Error generating data export for user {UserId}", Payload.UserId);
+            _logger.Error(e, "Error generating data export for user {UserId}", userId);
         }
     }
 
-    private async Task InvokeAsync()
+    private async Task InvokeAsyncInner(Snowflake userId)
     {
         User? user = await db
             .Users.Include(u => u.AuthMethods)
             .Include(u => u.Flags)
             .Include(u => u.ProfileFlags)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(u => u.Id == Payload.UserId);
+            .FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null)
         {
             _logger.Warning(
                 "Received create data export request for user {UserId} but no such user exists, deleted or otherwise. Ignoring request",
-                Payload.UserId
+                userId
             );
             return;
         }

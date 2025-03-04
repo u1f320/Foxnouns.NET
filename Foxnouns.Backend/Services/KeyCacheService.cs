@@ -17,94 +17,42 @@ using Foxnouns.Backend.Database.Models;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using NodaTime;
+using StackExchange.Redis;
 
 namespace Foxnouns.Backend.Services;
 
-public class KeyCacheService(DatabaseContext db, IClock clock, ILogger logger)
+public class KeyCacheService(Config config)
 {
-    private readonly ILogger _logger = logger.ForContext<KeyCacheService>();
+    public ConnectionMultiplexer Multiplexer { get; } =
+        // ConnectionMultiplexer.Connect(config.Database.Redis);
+        ConnectionMultiplexer.Connect("127.0.0.1:6379");
 
-    public Task SetKeyAsync(
-        string key,
-        string value,
-        Duration expireAfter,
-        CancellationToken ct = default
-    ) => SetKeyAsync(key, value, clock.GetCurrentInstant() + expireAfter, ct);
+    public async Task SetKeyAsync(string key, string value, Duration expireAfter) =>
+        await Multiplexer
+            .GetDatabase()
+            .StringSetAsync(key, value, expiry: expireAfter.ToTimeSpan());
 
-    public async Task SetKeyAsync(
-        string key,
-        string value,
-        Instant expires,
-        CancellationToken ct = default
-    )
-    {
-        db.TemporaryKeys.Add(
-            new TemporaryKey
-            {
-                Expires = expires,
-                Key = key,
-                Value = value,
-            }
-        );
-        await db.SaveChangesAsync(ct);
-    }
+    public async Task<string?> GetKeyAsync(string key, bool delete = false) =>
+        delete
+            ? await Multiplexer.GetDatabase().StringGetDeleteAsync(key)
+            : await Multiplexer.GetDatabase().StringGetAsync(key);
 
-    public async Task<string?> GetKeyAsync(
-        string key,
-        bool delete = false,
-        CancellationToken ct = default
-    )
-    {
-        TemporaryKey? value = await db.TemporaryKeys.FirstOrDefaultAsync(k => k.Key == key, ct);
-        if (value == null)
-            return null;
+    public async Task DeleteKeyAsync(string key) =>
+        await Multiplexer.GetDatabase().KeyDeleteAsync(key);
 
-        if (delete)
-            await db.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync(ct);
+    public Task DeleteExpiredKeysAsync(CancellationToken ct) => Task.CompletedTask;
 
-        return value.Value;
-    }
-
-    public async Task DeleteKeyAsync(string key, CancellationToken ct = default) =>
-        await db.TemporaryKeys.Where(k => k.Key == key).ExecuteDeleteAsync(ct);
-
-    public async Task DeleteExpiredKeysAsync(CancellationToken ct)
-    {
-        int count = await db
-            .TemporaryKeys.Where(k => k.Expires < clock.GetCurrentInstant())
-            .ExecuteDeleteAsync(ct);
-        if (count != 0)
-            _logger.Information("Removed {Count} expired keys from the database", count);
-    }
-
-    public Task SetKeyAsync<T>(
-        string key,
-        T obj,
-        Duration expiresAt,
-        CancellationToken ct = default
-    )
-        where T : class => SetKeyAsync(key, obj, clock.GetCurrentInstant() + expiresAt, ct);
-
-    public async Task SetKeyAsync<T>(
-        string key,
-        T obj,
-        Instant expires,
-        CancellationToken ct = default
-    )
+    public async Task SetKeyAsync<T>(string key, T obj, Duration expiresAt)
         where T : class
     {
         string value = JsonConvert.SerializeObject(obj);
-        await SetKeyAsync(key, value, expires, ct);
+        await SetKeyAsync(key, value, expiresAt);
     }
 
-    public async Task<T?> GetKeyAsync<T>(
-        string key,
-        bool delete = false,
-        CancellationToken ct = default
-    )
+    public async Task<T?> GetKeyAsync<T>(string key, bool delete = false)
         where T : class
     {
-        string? value = await GetKeyAsync(key, delete, ct);
+        string? value = await GetKeyAsync(key, delete);
         return value == null ? default : JsonConvert.DeserializeObject<T>(value);
     }
 }

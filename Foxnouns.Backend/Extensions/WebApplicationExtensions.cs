@@ -51,9 +51,12 @@ public static class WebApplicationExtensions
                 "Microsoft.EntityFrameworkCore.Database.Command",
                 config.Logging.LogQueries ? LogEventLevel.Information : LogEventLevel.Fatal
             )
+            // These spam the output even on INF level
             .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
             .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+            // Hangfire's debug-level logs are extremely spammy for no reason
+            .MinimumLevel.Override("Hangfire", LogEventLevel.Information)
             .WriteTo.Console(theme: AnsiConsoleTheme.Sixteen);
 
         if (config.Logging.SeqLogUrl != null)
@@ -112,12 +115,12 @@ public static class WebApplicationExtensions
                     .AddSnowflakeGenerator()
                     .AddSingleton<MailService>()
                     .AddSingleton<EmailRateLimiter>()
+                    .AddSingleton<KeyCacheService>()
                     .AddScoped<UserRendererService>()
                     .AddScoped<MemberRendererService>()
                     .AddScoped<ModerationRendererService>()
                     .AddScoped<ModerationService>()
                     .AddScoped<AuthService>()
-                    .AddScoped<KeyCacheService>()
                     .AddScoped<RemoteAuthService>()
                     .AddScoped<FediverseAuthService>()
                     .AddScoped<ObjectStorageService>()
@@ -126,10 +129,10 @@ public static class WebApplicationExtensions
                     // Background services
                     .AddHostedService<PeriodicTasksService>()
                     // Transient jobs
-                    .AddTransient<MemberAvatarUpdateInvocable>()
-                    .AddTransient<UserAvatarUpdateInvocable>()
-                    .AddTransient<CreateFlagInvocable>()
-                    .AddTransient<CreateDataExportInvocable>()
+                    .AddTransient<UserAvatarUpdateJob>()
+                    .AddTransient<MemberAvatarUpdateJob>()
+                    .AddTransient<CreateDataExportJob>()
+                    .AddTransient<CreateFlagJob>()
                     // Legacy services
                     .AddScoped<UsersV1Service>()
                     .AddScoped<MembersV1Service>();

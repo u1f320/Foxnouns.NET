@@ -56,7 +56,7 @@ public class EmailAuthController(
         if (!req.Email.Contains('@'))
             throw new ApiError.BadRequest("Email is invalid", "email", req.Email);
 
-        string state = await keyCacheService.GenerateRegisterEmailStateAsync(req.Email, null, ct);
+        string state = await keyCacheService.GenerateRegisterEmailStateAsync(req.Email, null);
 
         // If there's already a user with that email address, pretend we sent an email but actually ignore it
         if (

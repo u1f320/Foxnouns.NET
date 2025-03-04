@@ -55,6 +55,7 @@ public class Config
         public bool? EnablePooling { get; init; }
         public int? Timeout { get; init; }
         public int? MaxPoolSize { get; init; }
+        public string Redis { get; init; } = string.Empty;
     }
 
     public class StorageConfig

@@ -12,40 +12,44 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using Coravel.Invocable;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
+using Hangfire;
 
 namespace Foxnouns.Backend.Jobs;
 
-public class MemberAvatarUpdateInvocable(
+public class UserAvatarUpdateJob(
     DatabaseContext db,
     ObjectStorageService objectStorageService,
     ILogger logger
-) : IInvocable, IInvocableWithPayload<AvatarUpdatePayload>
+)
 {
-    private readonly ILogger _logger = logger.ForContext<UserAvatarUpdateInvocable>();
-    public required AvatarUpdatePayload Payload { get; set; }
+    private readonly ILogger _logger = logger.ForContext<UserAvatarUpdateJob>();
 
-    public async Task Invoke()
+    public static void Enqueue(AvatarUpdatePayload payload)
     {
-        if (Payload.NewAvatar != null)
-            await UpdateMemberAvatarAsync(Payload.Id, Payload.NewAvatar);
-        else
-            await ClearMemberAvatarAsync(Payload.Id);
+        BackgroundJob.Enqueue<UserAvatarUpdateJob>(j => j.InvokeAsync(payload));
     }
 
-    private async Task UpdateMemberAvatarAsync(Snowflake id, string newAvatar)
+    public async Task InvokeAsync(AvatarUpdatePayload payload)
     {
-        _logger.Debug("Updating avatar for member {MemberId}", id);
+        if (payload.NewAvatar != null)
+            await UpdateUserAvatarAsync(payload.Id, payload.NewAvatar);
+        else
+            await ClearUserAvatarAsync(payload.Id);
+    }
 
-        Member? member = await db.Members.FindAsync(id);
-        if (member == null)
+    private async Task UpdateUserAvatarAsync(Snowflake id, string newAvatar)
+    {
+        _logger.Debug("Updating avatar for user {MemberId}", id);
+
+        User? user = await db.Users.FindAsync(id);
+        if (user == null)
         {
             _logger.Warning(
-                "Update avatar job queued for {MemberId} but no member with that ID exists",
+                "Update avatar job queued for {UserId} but no user with that ID exists",
                 id
             );
             return;
@@ -58,53 +62,54 @@ public class MemberAvatarUpdateInvocable(
                 512,
                 true
             );
-            string? prevHash = member.Avatar;
+            image.Seek(0, SeekOrigin.Begin);
+            string? prevHash = user.Avatar;
 
             await objectStorageService.PutObjectAsync(Path(id, hash), image, "image/webp");
 
-            member.Avatar = hash;
+            user.Avatar = hash;
             await db.SaveChangesAsync();
 
             if (prevHash != null && prevHash != hash)
                 await objectStorageService.RemoveObjectAsync(Path(id, prevHash));
 
-            _logger.Information("Updated avatar for member {MemberId}", id);
+            _logger.Information("Updated avatar for user {UserId}", id);
         }
         catch (ArgumentException ae)
         {
             _logger.Warning(
-                "Invalid data URI for new avatar for member {MemberId}: {Reason}",
+                "Invalid data URI for new avatar for user {UserId}: {Reason}",
                 id,
                 ae.Message
             );
         }
     }
 
-    private async Task ClearMemberAvatarAsync(Snowflake id)
+    private async Task ClearUserAvatarAsync(Snowflake id)
     {
-        _logger.Debug("Clearing avatar for member {MemberId}", id);
+        _logger.Debug("Clearing avatar for user {MemberId}", id);
 
-        Member? member = await db.Members.FindAsync(id);
-        if (member == null)
+        User? user = await db.Users.FindAsync(id);
+        if (user == null)
         {
             _logger.Warning(
-                "Clear avatar job queued for {MemberId} but no member with that ID exists",
+                "Clear avatar job queued for {UserId} but no user with that ID exists",
                 id
             );
             return;
         }
 
-        if (member.Avatar == null)
+        if (user.Avatar == null)
         {
-            _logger.Warning("Clear avatar job queued for {MemberId} with null avatar", id);
+            _logger.Warning("Clear avatar job queued for {UserId} with null avatar", id);
             return;
         }
 
-        await objectStorageService.RemoveObjectAsync(Path(member.Id, member.Avatar));
+        await objectStorageService.RemoveObjectAsync(Path(user.Id, user.Avatar));
 
-        member.Avatar = null;
+        user.Avatar = null;
         await db.SaveChangesAsync();
     }
 
-    public static string Path(Snowflake id, string hash) => $"members/{id}/avatars/{hash}.webp";
+    public static string Path(Snowflake id, string hash) => $"users/{id}/avatars/{hash}.webp";
 }

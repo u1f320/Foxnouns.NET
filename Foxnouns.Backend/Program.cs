@@ -19,6 +19,8 @@ using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
 using Foxnouns.Backend.Utils.OpenApi;
+using Hangfire;
+using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -73,6 +75,18 @@ builder
             );
     });
 
+builder
+    .Services.AddHangfire(
+        (services, c) =>
+        {
+            c.UseRedisStorage(
+                services.GetRequiredService<KeyCacheService>().Multiplexer,
+                new RedisStorageOptions { Prefix = "foxnouns_net:" }
+            );
+        }
+    )
+    .AddHangfireServer();
+
 builder.Services.AddOpenApi(
     "v2",
     options =>
@@ -109,6 +123,7 @@ if (config.Logging.SentryTracing)
 app.UseCors();
 app.UseCustomMiddleware();
 app.MapControllers();
+app.UseHangfireDashboard();
 
 // TODO: I can't figure out why this doesn't work yet
 // TODO: Manually write API docs in the meantime

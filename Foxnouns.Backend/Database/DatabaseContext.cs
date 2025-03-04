@@ -64,7 +64,6 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
     public DbSet<FediverseApplication> FediverseApplications { get; init; } = null!;
     public DbSet<Token> Tokens { get; init; } = null!;
     public DbSet<Application> Applications { get; init; } = null!;
-    public DbSet<TemporaryKey> TemporaryKeys { get; init; } = null!;
     public DbSet<DataExport> DataExports { get; init; } = null!;
 
     public DbSet<PrideFlag> PrideFlags { get; init; } = null!;
@@ -87,7 +86,6 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
         modelBuilder.Entity<User>().HasIndex(u => u.Sid).IsUnique();
         modelBuilder.Entity<Member>().HasIndex(m => new { m.UserId, m.Name }).IsUnique();
         modelBuilder.Entity<Member>().HasIndex(m => m.Sid).IsUnique();
-        modelBuilder.Entity<TemporaryKey>().HasIndex(k => k.Key).IsUnique();
         modelBuilder.Entity<DataExport>().HasIndex(d => d.Filename).IsUnique();
 
         // Two indexes on auth_methods, one for fediverse auth and one for all other types.

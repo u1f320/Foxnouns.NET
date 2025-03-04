@@ -12,49 +12,53 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using Coravel.Invocable;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
 namespace Foxnouns.Backend.Jobs;
 
-public class CreateFlagInvocable(
+public class CreateFlagJob(
     DatabaseContext db,
     ObjectStorageService objectStorageService,
     ILogger logger
-) : IInvocable, IInvocableWithPayload<CreateFlagPayload>
+)
 {
-    private readonly ILogger _logger = logger.ForContext<CreateFlagInvocable>();
-    public required CreateFlagPayload Payload { get; set; }
+    private readonly ILogger _logger = logger.ForContext<CreateFlagJob>();
 
-    public async Task Invoke()
+    public static void Enqueue(CreateFlagPayload payload)
+    {
+        BackgroundJob.Enqueue<CreateFlagJob>(j => j.InvokeAsync(payload));
+    }
+
+    public async Task InvokeAsync(CreateFlagPayload payload)
     {
         _logger.Information(
             "Creating flag {FlagId} for user {UserId} with image data length {DataLength}",
-            Payload.Id,
-            Payload.UserId,
-            Payload.ImageData.Length
+            payload.Id,
+            payload.UserId,
+            payload.ImageData.Length
         );
 
         try
         {
             PrideFlag? flag = await db.PrideFlags.FirstOrDefaultAsync(f =>
-                f.Id == Payload.Id && f.UserId == Payload.UserId
+                f.Id == payload.Id && f.UserId == payload.UserId
             );
             if (flag == null)
             {
                 _logger.Warning(
                     "Got a flag create job for {FlagId} but it doesn't exist, aborting",
-                    Payload.Id
+                    payload.Id
                 );
                 return;
             }
 
             (string? hash, Stream? image) = await ImageObjectExtensions.ConvertBase64UriToImage(
-                Payload.ImageData,
+                payload.ImageData,
                 256,
                 false
             );
@@ -68,7 +72,7 @@ public class CreateFlagInvocable(
         }
         catch (ArgumentException ae)
         {
-            _logger.Warning("Invalid data URI for flag {FlagId}: {Reason}", Payload.Id, ae.Message);
+            _logger.Warning("Invalid data URI for flag {FlagId}: {Reason}", payload.Id, ae.Message);
         }
 
         throw new NotImplementedException();

@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using Coravel.Queuing.Interfaces;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
@@ -34,7 +33,6 @@ public class UsersController(
     ILogger logger,
     UserRendererService userRenderer,
     ISnowflakeGenerator snowflakeGenerator,
-    IQueue queue,
     IClock clock,
     ValidationService validationService
 ) : ApiControllerBase
@@ -177,9 +175,7 @@ public class UsersController(
         // so it's in a separate block to the validation above.
         if (req.HasProperty(nameof(req.Avatar)))
         {
-            queue.QueueInvocableWithPayload<UserAvatarUpdateInvocable, AvatarUpdatePayload>(
-                new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar)
-            );
+            UserAvatarUpdateJob.Enqueue(new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar));
         }
 
         try

@@ -27,7 +27,6 @@ public class ModerationService(
     ILogger logger,
     DatabaseContext db,
     ISnowflakeGenerator snowflakeGenerator,
-    IQueue queue,
     IClock clock
 )
 {
@@ -181,9 +180,7 @@ public class ModerationService(
         target.CustomPreferences = [];
         target.ProfileFlags = [];
 
-        queue.QueueInvocableWithPayload<UserAvatarUpdateInvocable, AvatarUpdatePayload>(
-            new AvatarUpdatePayload(target.Id, null)
-        );
+        UserAvatarUpdateJob.Enqueue(new AvatarUpdatePayload(target.Id, null));
 
         // TODO: also clear member profiles?
 
@@ -264,10 +261,9 @@ public class ModerationService(
                         targetMember.DisplayName = null;
                         break;
                     case FieldsToClear.Avatar:
-                        queue.QueueInvocableWithPayload<
-                            MemberAvatarUpdateInvocable,
-                            AvatarUpdatePayload
-                        >(new AvatarUpdatePayload(targetMember.Id, null));
+                        MemberAvatarUpdateJob.Enqueue(
+                            new AvatarUpdatePayload(targetMember.Id, null)
+                        );
                         break;
                     case FieldsToClear.Bio:
                         targetMember.Bio = null;
@@ -306,10 +302,7 @@ public class ModerationService(
                         targetUser.DisplayName = null;
                         break;
                     case FieldsToClear.Avatar:
-                        queue.QueueInvocableWithPayload<
-                            UserAvatarUpdateInvocable,
-                            AvatarUpdatePayload
-                        >(new AvatarUpdatePayload(targetUser.Id, null));
+                        UserAvatarUpdateJob.Enqueue(new AvatarUpdatePayload(targetUser.Id, null));
                         break;
                     case FieldsToClear.Bio:
                         targetUser.Bio = null;

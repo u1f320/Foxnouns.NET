@@ -12,7 +12,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-using Coravel.Queuing.Interfaces;
 using EntityFramework.Exceptions.Common;
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
@@ -37,7 +36,6 @@ public class MembersController(
     MemberRendererService memberRenderer,
     ISnowflakeGenerator snowflakeGenerator,
     ObjectStorageService objectStorageService,
-    IQueue queue,
     IClock clock,
     ValidationService validationService,
     Config config
@@ -139,9 +137,7 @@ public class MembersController(
 
         if (req.Avatar != null)
         {
-            queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
-                new AvatarUpdatePayload(member.Id, req.Avatar)
-            );
+            MemberAvatarUpdateJob.Enqueue(new AvatarUpdatePayload(member.Id, req.Avatar));
         }
 
         return Ok(memberRenderer.RenderMember(member, CurrentToken));
@@ -239,9 +235,7 @@ public class MembersController(
         // so it's in a separate block to the validation above.
         if (req.HasProperty(nameof(req.Avatar)))
         {
-            queue.QueueInvocableWithPayload<MemberAvatarUpdateInvocable, AvatarUpdatePayload>(
-                new AvatarUpdatePayload(member.Id, req.Avatar)
-            );
+            MemberAvatarUpdateJob.Enqueue(new AvatarUpdatePayload(member.Id, req.Avatar));
         }
 
         try

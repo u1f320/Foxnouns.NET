@@ -46,6 +46,37 @@
           "Npgsql": "8.0.3"
         }
       },
+      "Hangfire": {
+        "type": "Direct",
+        "requested": "[1.8.18, )",
+        "resolved": "1.8.18",
+        "contentHash": "EY+UqMHTOQAtdjeJf3jlnj8MpENyDPTpA6OHMncucVlkaongZjrx+gCN4bgma7vD3BNHqfQ7irYrfE5p1DOBEQ==",
+        "dependencies": {
+          "Hangfire.AspNetCore": "[1.8.18]",
+          "Hangfire.Core": "[1.8.18]",
+          "Hangfire.SqlServer": "[1.8.18]"
+        }
+      },
+      "Hangfire.Core": {
+        "type": "Direct",
+        "requested": "[1.8.18, )",
+        "resolved": "1.8.18",
+        "contentHash": "oNAkV8QQoYg5+vM2M024NBk49EhTO2BmKDLuQaKNew23RpH9OUGtKDl1KldBdDJrD8TMFzjhWCArol3igd2i2w==",
+        "dependencies": {
+          "Newtonsoft.Json": "11.0.1"
+        }
+      },
+      "Hangfire.Redis.StackExchange": {
+        "type": "Direct",
+        "requested": "[1.9.4, )",
+        "resolved": "1.9.4",
+        "contentHash": "rB4eGf4+hFhdnrN3//2O39JGuy1ThIKL3oTdVI2F3HqmSaSD9Cixl2xmMAqGJMld39Ke7eoP9sxbxnpVnYW66g==",
+        "dependencies": {
+          "Hangfire.Core": "1.8.7",
+          "Newtonsoft.Json": "13.0.3",
+          "StackExchange.Redis": "2.7.10"
+        }
+      },
       "Humanizer.Core": {
         "type": "Direct",
         "requested": "[2.14.1, )",
@@ -278,6 +309,16 @@
         "resolved": "3.1.6",
         "contentHash": "dHQ5jugF9v+5/LCVHCWVzaaIL6WOehqJy6eju/0VFYFPEj2WtqkGPoEV9EVQP83dHsdoqYaTuWpZdwAd37UwfA=="
       },
+      "StackExchange.Redis": {
+        "type": "Direct",
+        "requested": "[2.8.24, )",
+        "resolved": "2.8.24",
+        "contentHash": "GWllmsFAtLyhm4C47cOCipGxyEi1NQWTFUHXnJ8hiHOsK/bH3T5eLkWPVW+LRL6jDiB3g3izW3YEHgLuPoJSyA==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
+          "Pipelines.Sockets.Unofficial": "2.2.8"
+        }
+      },
       "System.Text.Json": {
         "type": "Direct",
         "requested": "[9.0.2, )",
@@ -315,6 +356,33 @@
         "contentHash": "nweeiVHx4HbDi6+TqendOe0QmN0a9v0AB5FaL83eToqFFztwGIhOqLfveKqJDYSCU51CJShW8kbU1onZLdZZSg==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Relational": "8.0.0"
+        }
+      },
+      "Hangfire.AspNetCore": {
+        "type": "Transitive",
+        "resolved": "1.8.18",
+        "contentHash": "5D6Do0qgoAnakvh4KnKwhIoUzFU84Z0sCYMB+Sit+ygkpL1P6JGYDcd/9vDBcfr5K3JqBxD4Zh2IK2LOXuuiaw==",
+        "dependencies": {
+          "Hangfire.NetCore": "[1.8.18]"
+        }
+      },
+      "Hangfire.NetCore": {
+        "type": "Transitive",
+        "resolved": "1.8.18",
+        "contentHash": "3KAV9AZ1nqQHC54qR4buNEEKRmQJfq+lODtZxUk5cdi68lV8+9K2f4H1/mIfDlPpgjPFjEfCobNoi2+TIpKySw==",
+        "dependencies": {
+          "Hangfire.Core": "[1.8.18]",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.0.0",
+          "Microsoft.Extensions.Hosting.Abstractions": "3.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "3.0.0"
+        }
+      },
+      "Hangfire.SqlServer": {
+        "type": "Transitive",
+        "resolved": "1.8.18",
+        "contentHash": "yBfI2ygYfN/31rOrahfOFHee1mwTrG0ppsmK9awCS0mAr2GEaB9eyYqg/lURgZy8AA8UVJVs5nLHa2hc1pDAVQ==",
+        "dependencies": {
+          "Hangfire.Core": "[1.8.18]"
         }
       },
       "MailKit": {
@@ -682,6 +750,14 @@
         "dependencies": {
           "NodaTime": "3.2.0",
           "Npgsql": "9.0.2"
+        }
+      },
+      "Pipelines.Sockets.Unofficial": {
+        "type": "Transitive",
+        "resolved": "2.2.8",
+        "contentHash": "zG2FApP5zxSx6OcdJQLbZDk2AVlN2BNQD6MorwIfV6gVj0RRxWPEp2LXAxqDGZqeNV1Zp0BNPcNaey/GXmTdvQ==",
+        "dependencies": {
+          "System.IO.Pipelines": "5.0.1"
         }
       },
       "Sentry": {

@@ -33,24 +33,20 @@ public static class ImageObjectExtensions
         Snowflake id,
         string hash,
         CancellationToken ct = default
-    ) =>
-        await objectStorageService.RemoveObjectAsync(
-            MemberAvatarUpdateInvocable.Path(id, hash),
-            ct
-        );
+    ) => await objectStorageService.RemoveObjectAsync(MemberAvatarUpdateJob.Path(id, hash), ct);
 
     public static async Task DeleteUserAvatarAsync(
         this ObjectStorageService objectStorageService,
         Snowflake id,
         string hash,
         CancellationToken ct = default
-    ) => await objectStorageService.RemoveObjectAsync(UserAvatarUpdateInvocable.Path(id, hash), ct);
+    ) => await objectStorageService.RemoveObjectAsync(UserAvatarUpdateJob.Path(id, hash), ct);
 
     public static async Task DeleteFlagAsync(
         this ObjectStorageService objectStorageService,
         string hash,
         CancellationToken ct = default
-    ) => await objectStorageService.RemoveObjectAsync(CreateFlagInvocable.Path(hash), ct);
+    ) => await objectStorageService.RemoveObjectAsync(CreateFlagJob.Path(hash), ct);
 
     public static async Task<(string Hash, Stream Image)> ConvertBase64UriToImage(
         string uri,
