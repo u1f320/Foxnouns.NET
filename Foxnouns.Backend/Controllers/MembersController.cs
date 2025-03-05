@@ -121,6 +121,9 @@ public class MembersController(
             CurrentUser!.Id
         );
 
+        CurrentUser.LastActive = clock.GetCurrentInstant();
+        db.Update(CurrentUser);
+
         try
         {
             await db.SaveChangesAsync(ct);
@@ -237,6 +240,9 @@ public class MembersController(
         {
             MemberAvatarUpdateJob.Enqueue(new AvatarUpdatePayload(member.Id, req.Avatar));
         }
+
+        CurrentUser.LastActive = clock.GetCurrentInstant();
+        db.Update(CurrentUser);
 
         try
         {

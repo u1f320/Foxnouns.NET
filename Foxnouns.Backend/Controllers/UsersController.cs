@@ -178,6 +178,8 @@ public class UsersController(
             UserAvatarUpdateJob.Enqueue(new AvatarUpdatePayload(CurrentUser!.Id, req.Avatar));
         }
 
+        user.LastActive = clock.GetCurrentInstant();
+
         try
         {
             await db.SaveChangesAsync(ct);
@@ -253,6 +255,7 @@ public class UsersController(
         }
 
         user.CustomPreferences = preferences;
+        user.LastActive = clock.GetCurrentInstant();
         await db.SaveChangesAsync(ct);
 
         return Ok(user.CustomPreferences);
@@ -280,6 +283,7 @@ public class UsersController(
         if (req.HasProperty(nameof(req.DarkMode)))
             user.Settings.DarkMode = req.DarkMode;
 
+        user.LastActive = clock.GetCurrentInstant();
         db.Update(user);
         await db.SaveChangesAsync(ct);
 
