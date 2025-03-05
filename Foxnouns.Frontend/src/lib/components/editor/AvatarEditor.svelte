@@ -130,7 +130,7 @@
 		accept="image/png, image/jpeg, image/gif, image/webp"
 	/>
 	<button
-		class="btn btn-secondary"
+		class="btn btn-primary"
 		disabled={!avatarExists || avatarTooLarge}
 		onclick={() => onclick(avatar)}
 	>

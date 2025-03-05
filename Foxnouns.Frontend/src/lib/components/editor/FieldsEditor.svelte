@@ -6,6 +6,7 @@
 	import FieldEditor from "./FieldEditor.svelte";
 	import FormStatusMarker from "./FormStatusMarker.svelte";
 	import NoscriptWarning from "./NoscriptWarning.svelte";
+	import CustomPreferencesNotice from "$components/editor/CustomPreferencesNotice.svelte";
 
 	type Props = {
 		fields: Field[];
@@ -45,6 +46,7 @@
 
 <NoscriptWarning />
 <FormStatusMarker form={ok} />
+<CustomPreferencesNotice />
 
 <h4>{$t("edit-profile.editing-fields-header")}</h4>
 
