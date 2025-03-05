@@ -48,7 +48,7 @@
 			icon="chevron-down"
 			color="secondary"
 			tooltip={$t("editor.move-entry-down")}
-			onclick={() => moveValue(index, true)}
+			onclick={() => moveValue(index, false)}
 		/>
 		<input type="text" class="form-control" bind:value={value.value} autocomplete="off" />
 		<ButtonDropdown>
