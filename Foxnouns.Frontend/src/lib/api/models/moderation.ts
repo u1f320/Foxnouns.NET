@@ -112,3 +112,12 @@ export enum ClearableField {
 	Flags = "FLAGS",
 	CustomPreferences = "CUSTOM_PREFERENCES",
 }
+
+export type Notification = {
+	id: string;
+	type: "NOTICE" | "WARNING" | "SUSPENSION";
+	message?: string;
+	localization_key?: string;
+	localization_params: Record<string, string>;
+	acknowledged: boolean;
+};

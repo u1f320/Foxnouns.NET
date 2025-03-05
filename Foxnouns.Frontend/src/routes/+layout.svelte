@@ -11,7 +11,7 @@
 
 <div class="d-flex flex-column min-vh-100">
 	<div class="flex-grow-1">
-		<Navbar user={data.meUser} meta={data.meta} />
+		<Navbar user={data.meUser} meta={data.meta} unreadNotifications={data.unreadNotifications} />
 		{@render children?.()}
 	</div>
 	<Footer meta={data.meta} />

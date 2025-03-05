@@ -9,7 +9,9 @@
 		"reactivate-account-link": "Reactivate account",
 		"delete-permanently-link": "I want my account deleted permanently",
 		"reactivate-or-delete-link": "I want to reactivate my account or delete all my data",
-		"export-link": "I want to export a copy of my data"
+		"export-link": "I want to export a copy of my data",
+		"unread-notification-text": "You have an unread notification.",
+		"unread-notification-link": "Go to your notifications"
 	},
 	"avatar-tooltip": "Avatar for {{name}}",
 	"profile": {
@@ -329,7 +331,9 @@
 	},
 	"alert": {
 		"auth-method-remove-success": "Successfully unlinked account!",
-		"auth-required": "You must log in to access this page."
+		"auth-required": "You must log in to access this page.",
+		"notif-ack-successful": "Successfully marked notification as read!",
+		"notif-ack-fail": "Could not mark notification as read."
 	},
 	"footer": {
 		"version": "Version",
@@ -342,5 +346,10 @@
 		"changelog": "Changelog",
 		"donate": "Donate",
 		"about-contact": "About and contact"
+	},
+	"notification": {
+		"suspension": "Your account has been suspended for the following reason: {{reason}}",
+		"warning": "You have been warned for the following reason: {{reason}}",
+		"warning-cleared-fields": "You have been warned for the following reason: {{reason}}\n\nAdditionally, the following fields have been cleared from your profile:\n{{clearedFields}}"
 	}
 }

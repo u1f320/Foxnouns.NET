@@ -13,12 +13,20 @@
 	import Logo from "$components/Logo.svelte";
 	import { t } from "$lib/i18n";
 
-	type Props = { user: MeUser | null; meta: Meta };
-	let { user, meta }: Props = $props();
+	type Props = { user: MeUser | null; meta: Meta; unreadNotifications?: boolean };
+	let { user, meta, unreadNotifications }: Props = $props();
 
 	let isOpen = $state(true);
 	const toggleMenu = () => (isOpen = !isOpen);
 </script>
+
+{#if user && unreadNotifications}
+	<div class="notification-alert text-center py-3 mb-2 px-2">
+		<strong>{$t("nav.unread-notification-text")}</strong>
+		<br />
+		<a href="/settings/notifications">{$t("nav.unread-notification-link")}</a>
+	</div>
+{/if}
 
 {#if user && user.deleted}
 	<div class="deleted-alert text-center py-3 mb-2 px-2">
@@ -85,6 +93,11 @@
 	.deleted-alert {
 		color: var(--bs-danger-text-emphasis);
 		background-color: var(--bs-danger-bg-subtle);
+	}
+
+	.notification-alert {
+		color: var(--bs-warning-text-emphasis);
+		background-color: var(--bs-warning-bg-subtle);
 	}
 
 	/* These exact values make it look almost identical to the SVG version, which is what we want */
