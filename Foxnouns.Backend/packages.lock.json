@@ -193,23 +193,23 @@
       },
       "Npgsql.EntityFrameworkCore.PostgreSQL": {
         "type": "Direct",
-        "requested": "[9.0.3, )",
-        "resolved": "9.0.3",
-        "contentHash": "1A6HpMPbzK+quxdtug1aDHI4BSRTgpi7OaDt8WQh7SFJd2sSQ0nNTZ7sYrwyxVf4AdKdN7XJL9tpiiJjRUaa4g==",
+        "requested": "[9.0.4, )",
+        "resolved": "9.0.4",
+        "contentHash": "mw5vcY2IEc7L+IeGrxpp/J5OSnCcjkjAgJYCm/eD52wpZze8zsSifdqV7zXslSMmfJG2iIUGZyo3KuDtEFKwMQ==",
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "[9.0.1, 10.0.0)",
           "Microsoft.EntityFrameworkCore.Relational": "[9.0.1, 10.0.0)",
-          "Npgsql": "9.0.2"
+          "Npgsql": "9.0.3"
         }
       },
       "Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime": {
         "type": "Direct",
-        "requested": "[9.0.3, )",
-        "resolved": "9.0.3",
-        "contentHash": "Eks1o3NfIbS3EHhrXC0QABrQab7CJ64C2+kF0YJWLwlH/tu3ExrgrSLpLI6INdeMYcLr2PXu71LjJsrQNVciYg==",
+        "requested": "[9.0.4, )",
+        "resolved": "9.0.4",
+        "contentHash": "QZ80CL3c9xzC83eVMWYWa1RcFZA6HJtpMAKFURlmz+1p0OyysSe8R6f/4sI9vk/nwqF6Fkw3lDgku/xH6HcJYg==",
         "dependencies": {
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.3",
-          "Npgsql.NodaTime": "9.0.2"
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
+          "Npgsql.NodaTime": "9.0.3"
         }
       },
       "Npgsql.Json.NET": {
@@ -249,18 +249,18 @@
       },
       "Scalar.AspNetCore": {
         "type": "Direct",
-        "requested": "[2.0.18, )",
-        "resolved": "2.0.18",
-        "contentHash": "nS8Sw6wRO1A/dARn3q9R6znIBfddJcmAczI5uMROBGWkO2KG/ad/Ld+UeUePTxGr1+6humJSOxI7An+q4q3oGA=="
+        "requested": "[2.0.26, )",
+        "resolved": "2.0.26",
+        "contentHash": "0tKBFM7quBq0ifgRWo7eTTVpiTbnwpf/6ygtb/aYVuo0D2gMsYknAJRqEhH8HFBqzntNiYpzHbQSf2b+VAA8sA=="
       },
       "Sentry.AspNetCore": {
         "type": "Direct",
-        "requested": "[5.2.0, )",
-        "resolved": "5.2.0",
-        "contentHash": "vEKanBDOxCnEQrcMq3j47z8HOblRfiyJotdm9Fyc24cmLrLsTYZnWWprCYstt++M9bGSXYf4jrM2aaWxgJ8aww==",
+        "requested": "[5.3.0, )",
+        "resolved": "5.3.0",
+        "contentHash": "zC2yhwQB0laYWGXLYDCsiKSIqleaEK3fUH9Z5t8Bgvfs2nGX0mHmh9oPqNAAbkVGvni56mhgHHCBxN/kpfkawA==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Binder": "9.0.0",
-          "Sentry.Extensions.Logging": "5.2.0"
+          "Sentry.Extensions.Logging": "5.3.0"
         }
       },
       "Serilog": {
@@ -305,15 +305,15 @@
       },
       "SixLabors.ImageSharp": {
         "type": "Direct",
-        "requested": "[3.1.6, )",
-        "resolved": "3.1.6",
-        "contentHash": "dHQ5jugF9v+5/LCVHCWVzaaIL6WOehqJy6eju/0VFYFPEj2WtqkGPoEV9EVQP83dHsdoqYaTuWpZdwAd37UwfA=="
+        "requested": "[3.1.7, )",
+        "resolved": "3.1.7",
+        "contentHash": "9fIOOAsyLFid6qKypM2Iy0Z3Q9yoanV8VoYAHtI2sYGMNKzhvRTjgFDHonIiVe+ANtxIxM6SuqUzj0r91nItpA=="
       },
       "StackExchange.Redis": {
         "type": "Direct",
-        "requested": "[2.8.24, )",
-        "resolved": "2.8.24",
-        "contentHash": "GWllmsFAtLyhm4C47cOCipGxyEi1NQWTFUHXnJ8hiHOsK/bH3T5eLkWPVW+LRL6jDiB3g3izW3YEHgLuPoJSyA==",
+        "requested": "[2.8.31, )",
+        "resolved": "2.8.31",
+        "contentHash": "RCHVQa9Zke8k0oBgJn1Yl6BuYy8i6kv+sdMObiH60nOwD6QvWAjxdDwOm+LO78E8WsGiPqgOuItkz98fPS6haQ==",
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
           "Pipelines.Sockets.Unofficial": "2.2.8"
@@ -745,11 +745,11 @@
       },
       "Npgsql.NodaTime": {
         "type": "Transitive",
-        "resolved": "9.0.2",
-        "contentHash": "jURb6VGmmR3pPae2N3HrUixSZ/U5ovqZgg/qo3m5Rq/q0m2fpxbZcsHZo21s5MLa/AfJAx4hcFMY98D4RtLdcg==",
+        "resolved": "9.0.3",
+        "contentHash": "PMWXCft/iw+5A7eCeMcy6YZXBst6oeisbCkv2JMQVG4SAFa5vQaf6K2voXzUJCqzwOFcCWs+oT42w2uMDFpchw==",
         "dependencies": {
           "NodaTime": "3.2.0",
-          "Npgsql": "9.0.2"
+          "Npgsql": "9.0.3"
         }
       },
       "Pipelines.Sockets.Unofficial": {
@@ -762,18 +762,18 @@
       },
       "Sentry": {
         "type": "Transitive",
-        "resolved": "5.2.0",
-        "contentHash": "b3aZSOU2CjlIIFRtPRbXParKQ+9PF+JOqkSD7Gxq6PiR07t1rnK+crPtdrWMXfW6PVo/s67trCJ+fuLsgTeADw=="
+        "resolved": "5.3.0",
+        "contentHash": "zlBIP7YmYxySwcgapLMj1gdxPEz9rwdrOa4Yjub/TzcAaMQXusRH9hY4CE6pu0EIibZ7C7Hhjhr6xOTlyK8gFQ=="
       },
       "Sentry.Extensions.Logging": {
         "type": "Transitive",
-        "resolved": "5.2.0",
-        "contentHash": "546bHsERKY7/pG5T4mVIp6WbHnQPMst6VDuxSaeU5DhQHLfh7KhgMmkdZ4Xvdlr95fvWk5/bX2xbipy6qoh/1A==",
+        "resolved": "5.3.0",
+        "contentHash": "DPN6NXvO4LTH21UM2gUFJwSwVa/fuT3B/UZmQyfSfecqViXrZO7WFuKz/h592YUoGNCumyt8x045bxbz6j9btg==",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Binder": "9.0.0",
           "Microsoft.Extensions.Http": "9.0.0",
           "Microsoft.Extensions.Logging.Configuration": "9.0.0",
-          "Sentry": "5.2.0"
+          "Sentry": "5.3.0"
         }
       },
       "Serilog.Extensions.Hosting": {
