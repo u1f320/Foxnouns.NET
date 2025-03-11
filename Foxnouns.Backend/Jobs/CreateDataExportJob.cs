@@ -27,6 +27,7 @@ using NodaTime.Text;
 namespace Foxnouns.Backend.Jobs;
 
 public class CreateDataExportJob(
+    HttpClient client,
     DatabaseContext db,
     IClock clock,
     UserRendererService userRenderer,
@@ -36,7 +37,6 @@ public class CreateDataExportJob(
     ILogger logger
 )
 {
-    private static readonly HttpClient Client = new();
     private readonly ILogger _logger = logger.ForContext<CreateDataExportJob>();
 
     public static void Enqueue(Snowflake userId)
@@ -201,7 +201,7 @@ public class CreateDataExportJob(
         if (s3Path == null)
             return;
 
-        HttpResponseMessage resp = await Client.GetAsync(s3Path);
+        HttpResponseMessage resp = await client.GetAsync(s3Path);
         if (resp.StatusCode != HttpStatusCode.OK)
         {
             _logger.Warning("S3 path {S3Path} returned a non-200 status, not saving file", s3Path);

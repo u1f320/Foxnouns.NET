@@ -29,7 +29,7 @@ public partial class RemoteAuthService
     )
     {
         var redirectUri = $"{config.BaseUrl}/auth/callback/tumblr";
-        HttpResponseMessage resp = await _httpClient.PostAsync(
+        HttpResponseMessage resp = await client.PostAsync(
             _tumblrTokenUri,
             new FormUrlEncodedContent(
                 new Dictionary<string, string>
@@ -62,7 +62,7 @@ public partial class RemoteAuthService
         var req = new HttpRequestMessage(HttpMethod.Get, _tumblrUserUri);
         req.Headers.Add("Authorization", $"Bearer {token.AccessToken}");
 
-        HttpResponseMessage resp2 = await _httpClient.SendAsync(req, ct);
+        HttpResponseMessage resp2 = await client.SendAsync(req, ct);
         if (!resp2.IsSuccessStatusCode)
         {
             string respBody = await resp2.Content.ReadAsStringAsync(ct);

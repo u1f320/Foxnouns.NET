@@ -27,7 +27,7 @@ public partial class RemoteAuthService
     )
     {
         var redirectUri = $"{config.BaseUrl}/auth/callback/discord";
-        HttpResponseMessage resp = await _httpClient.PostAsync(
+        HttpResponseMessage resp = await client.PostAsync(
             _discordTokenUri,
             new FormUrlEncodedContent(
                 new Dictionary<string, string>
@@ -59,7 +59,7 @@ public partial class RemoteAuthService
         var req = new HttpRequestMessage(HttpMethod.Get, _discordUserUri);
         req.Headers.Add("Authorization", $"{token.TokenType} {token.AccessToken}");
 
-        HttpResponseMessage resp2 = await _httpClient.SendAsync(req, ct);
+        HttpResponseMessage resp2 = await client.SendAsync(req, ct);
         resp2.EnsureSuccessStatusCode();
         DiscordUserResponse? user = await resp2.Content.ReadFromJsonAsync<DiscordUserResponse>(ct);
         if (user == null)

@@ -34,6 +34,7 @@ public partial class FediverseAuthService
         ILogger logger,
         Config config,
         DatabaseContext db,
+        HttpClient client,
         KeyCacheService keyCacheService,
         ISnowflakeGenerator snowflakeGenerator
     )
@@ -43,12 +44,7 @@ public partial class FediverseAuthService
         _db = db;
         _keyCacheService = keyCacheService;
         _snowflakeGenerator = snowflakeGenerator;
-
-        _client = new HttpClient();
-        _client.DefaultRequestHeaders.Remove("User-Agent");
-        _client.DefaultRequestHeaders.Remove("Accept");
-        _client.DefaultRequestHeaders.Add("User-Agent", $"pronouns.cc/{BuildInfo.Version}");
-        _client.DefaultRequestHeaders.Add("Accept", "application/json");
+        _client = client;
     }
 
     public async Task<string> GenerateAuthUrlAsync(

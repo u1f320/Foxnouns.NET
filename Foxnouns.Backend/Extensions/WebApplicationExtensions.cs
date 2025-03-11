@@ -21,8 +21,10 @@ using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Services.Auth;
 using Foxnouns.Backend.Services.V1;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
 using Minio;
 using NodaTime;
+using Polly;
 using Prometheus;
 using Serilog;
 using Serilog.Events;
@@ -100,6 +102,40 @@ public static class WebApplicationExtensions
         builder.Host.ConfigureServices(
             (ctx, services) =>
             {
+                // create a single HTTP client for all requests.
+                // it's also configured with a retry mechanism, so that requests aren't immediately lost to the void if they fail
+                services.AddSingleton<HttpClient>(_ =>
+                {
+                    // ReSharper disable once SuggestVarOrType_Elsewhere
+                    var retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+                        .AddRetry(
+                            new HttpRetryStrategyOptions
+                            {
+                                BackoffType = DelayBackoffType.Linear,
+                                MaxRetryAttempts = 3,
+                            }
+                        )
+                        .Build();
+
+                    var resilienceHandler = new ResilienceHandler(retryPipeline)
+                    {
+                        InnerHandler = new SocketsHttpHandler
+                        {
+                            PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+                        },
+                    };
+
+                    var client = new HttpClient(resilienceHandler);
+                    client.DefaultRequestHeaders.Remove("User-Agent");
+                    client.DefaultRequestHeaders.Remove("Accept");
+                    client.DefaultRequestHeaders.Add(
+                        "User-Agent",
+                        $"pronouns.cc/{BuildInfo.Version}"
+                    );
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
+                    return client;
+                });
+
                 services
                     .AddQueue()
                     .AddSmtpMailer(ctx.Configuration)

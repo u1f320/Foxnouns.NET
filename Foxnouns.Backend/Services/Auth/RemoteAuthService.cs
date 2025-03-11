@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Foxnouns.Backend.Services.Auth;
 
 public partial class RemoteAuthService(
+    HttpClient client,
     Config config,
     ILogger logger,
     DatabaseContext db,
@@ -32,7 +33,6 @@ public partial class RemoteAuthService(
 )
 {
     private readonly ILogger _logger = logger.ForContext<RemoteAuthService>();
-    private readonly HttpClient _httpClient = new();
 
     public record RemoteUser(string Id, string Username);
 

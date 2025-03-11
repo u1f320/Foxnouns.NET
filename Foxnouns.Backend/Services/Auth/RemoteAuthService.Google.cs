@@ -28,7 +28,7 @@ public partial class RemoteAuthService
     )
     {
         var redirectUri = $"{config.BaseUrl}/auth/callback/google";
-        HttpResponseMessage resp = await _httpClient.PostAsync(
+        HttpResponseMessage resp = await client.PostAsync(
             _googleTokenUri,
             new FormUrlEncodedContent(
                 new Dictionary<string, string>
