@@ -31,6 +31,7 @@ public partial class ValidationService
         "settings",
         "pronouns.cc",
         "pronounscc",
+        "null",
     ];
 
     private static readonly string[] InvalidMemberNames =
@@ -38,8 +39,10 @@ public partial class ValidationService
         // these break routing outright
         ".",
         "..",
-        // the user edit page lives at `/@{username}/edit`, so a member named "edit" would be inaccessible
+        // TODO: remove this? i'm not sure if /@[username]/edit will redirect to settings
         "edit",
+        // this breaks the frontend, somehow
+        "null",
     ];
 
     public ValidationError? ValidateUsername(string username)

@@ -25,20 +25,20 @@ namespace Foxnouns.Backend.Services.Auth;
 public partial class FediverseAuthService
 {
     private string MastodonRedirectUri(string instance) =>
-        $"{_config.BaseUrl}/auth/callback/mastodon/{instance}";
+        $"{config.BaseUrl}/auth/callback/mastodon/{instance}";
 
     private async Task<FediverseApplication> CreateMastodonApplicationAsync(
         string instance,
         Snowflake? existingAppId = null
     )
     {
-        HttpResponseMessage resp = await _client.PostAsJsonAsync(
+        HttpResponseMessage resp = await client.PostAsJsonAsync(
             $"https://{instance}/api/v1/apps",
             new CreateMastodonApplicationRequest(
-                $"pronouns.cc (+{_config.BaseUrl})",
+                $"pronouns.cc (+{config.BaseUrl})",
                 MastodonRedirectUri(instance),
                 "read read:accounts",
-                _config.BaseUrl
+                config.BaseUrl
             )
         );
         resp.EnsureSuccessStatusCode();
@@ -58,19 +58,19 @@ public partial class FediverseAuthService
         {
             app = new FediverseApplication
             {
-                Id = existingAppId ?? _snowflakeGenerator.GenerateSnowflake(),
+                Id = existingAppId ?? snowflakeGenerator.GenerateSnowflake(),
                 ClientId = mastodonApp.ClientId,
                 ClientSecret = mastodonApp.ClientSecret,
                 Domain = instance,
                 InstanceType = FediverseInstanceType.MastodonApi,
             };
 
-            _db.Add(app);
+            db.Add(app);
         }
         else
         {
             app =
-                await _db.FediverseApplications.FindAsync(existingAppId)
+                await db.FediverseApplications.FindAsync(existingAppId)
                 ?? throw new FoxnounsError($"Existing app with ID {existingAppId} was null");
 
             app.ClientId = mastodonApp.ClientId;
@@ -78,7 +78,7 @@ public partial class FediverseAuthService
             app.InstanceType = FediverseInstanceType.MastodonApi;
         }
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
         return app;
     }
@@ -90,9 +90,9 @@ public partial class FediverseAuthService
     )
     {
         if (state != null)
-            await _keyCacheService.ValidateAuthStateAsync(state);
+            await keyCacheService.ValidateAuthStateAsync(state);
 
-        HttpResponseMessage tokenResp = await _client.PostAsync(
+        HttpResponseMessage tokenResp = await client.PostAsync(
             MastodonTokenUri(app.Domain),
             new FormUrlEncodedContent(
                 new Dictionary<string, string>
@@ -123,7 +123,7 @@ public partial class FediverseAuthService
         var req = new HttpRequestMessage(HttpMethod.Get, MastodonCurrentUserUri(app.Domain));
         req.Headers.Add("Authorization", $"Bearer {token}");
 
-        HttpResponseMessage currentUserResp = await _client.SendAsync(req);
+        HttpResponseMessage currentUserResp = await client.SendAsync(req);
         currentUserResp.EnsureSuccessStatusCode();
         FediverseUser? user = await currentUserResp.Content.ReadFromJsonAsync<FediverseUser>();
         if (user == null)
@@ -151,7 +151,7 @@ public partial class FediverseAuthService
             app = await CreateMastodonApplicationAsync(app.Domain, app.Id);
         }
 
-        state ??= HttpUtility.UrlEncode(await _keyCacheService.GenerateAuthStateAsync());
+        state ??= HttpUtility.UrlEncode(await keyCacheService.GenerateAuthStateAsync());
 
         return $"https://{app.Domain}/oauth/authorize?response_type=code"
             + $"&client_id={app.ClientId}"

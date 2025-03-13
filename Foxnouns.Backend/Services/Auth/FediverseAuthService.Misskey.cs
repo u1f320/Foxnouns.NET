@@ -34,11 +34,11 @@ public partial class FediverseAuthService
         Snowflake? existingAppId = null
     )
     {
-        HttpResponseMessage resp = await _client.PostAsJsonAsync(
+        HttpResponseMessage resp = await client.PostAsJsonAsync(
             MisskeyAppUri(instance),
             new CreateMisskeyApplicationRequest(
-                $"pronouns.cc (+{_config.BaseUrl})",
-                $"pronouns.cc on {_config.BaseUrl}",
+                $"pronouns.cc (+{config.BaseUrl})",
+                $"pronouns.cc on {config.BaseUrl}",
                 ["read:account"],
                 MastodonRedirectUri(instance)
             )
@@ -60,19 +60,19 @@ public partial class FediverseAuthService
         {
             app = new FediverseApplication
             {
-                Id = existingAppId ?? _snowflakeGenerator.GenerateSnowflake(),
+                Id = existingAppId ?? snowflakeGenerator.GenerateSnowflake(),
                 ClientId = misskeyApp.Id,
                 ClientSecret = misskeyApp.Secret,
                 Domain = instance,
                 InstanceType = FediverseInstanceType.MisskeyApi,
             };
 
-            _db.Add(app);
+            db.Add(app);
         }
         else
         {
             app =
-                await _db.FediverseApplications.FindAsync(existingAppId)
+                await db.FediverseApplications.FindAsync(existingAppId)
                 ?? throw new FoxnounsError($"Existing app with ID {existingAppId} was null");
 
             app.ClientId = misskeyApp.Id;
@@ -80,7 +80,7 @@ public partial class FediverseAuthService
             app.InstanceType = FediverseInstanceType.MisskeyApi;
         }
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
         return app;
     }
@@ -96,7 +96,7 @@ public partial class FediverseAuthService
 
     private async Task<FediverseUser> GetMisskeyUserAsync(FediverseApplication app, string code)
     {
-        HttpResponseMessage resp = await _client.PostAsJsonAsync(
+        HttpResponseMessage resp = await client.PostAsJsonAsync(
             MisskeyTokenUri(app.Domain),
             new GetMisskeySessionUserKeyRequest(app.ClientSecret, code)
         );
@@ -130,7 +130,7 @@ public partial class FediverseAuthService
             app = await CreateMisskeyApplicationAsync(app.Domain, app.Id);
         }
 
-        HttpResponseMessage resp = await _client.PostAsJsonAsync(
+        HttpResponseMessage resp = await client.PostAsJsonAsync(
             MisskeyGenerateSessionUri(app.Domain),
             new CreateMisskeySessionUriRequest(app.ClientSecret)
         );

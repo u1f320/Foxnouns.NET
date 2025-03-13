@@ -34,6 +34,9 @@ Config config = builder.AddConfiguration();
 
 builder.AddSerilog();
 
+// Read version information from .version in the repository root
+await BuildInfo.ReadBuildInfo();
+
 builder
     .WebHost.UseSentry(opts =>
     {
@@ -68,11 +71,9 @@ builder
     })
     .ConfigureApiBehaviorOptions(options =>
     {
-        // the type isn't needed but without it, rider keeps complaining for no reason (it compiles just fine)
-        options.InvalidModelStateResponseFactory = (ActionContext actionContext) =>
-            new BadRequestObjectResult(
-                new ApiError.AspBadRequest("Bad request", actionContext.ModelState).ToJson()
-            );
+        options.InvalidModelStateResponseFactory = actionContext => new BadRequestObjectResult(
+            new ApiError.AspBadRequest("Bad request", actionContext.ModelState).ToJson()
+        );
     });
 
 builder

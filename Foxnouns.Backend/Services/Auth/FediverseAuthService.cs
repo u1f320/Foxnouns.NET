@@ -19,33 +19,17 @@ using J = System.Text.Json.Serialization.JsonPropertyNameAttribute;
 
 namespace Foxnouns.Backend.Services.Auth;
 
-public partial class FediverseAuthService
+public partial class FediverseAuthService(
+    ILogger logger,
+    Config config,
+    DatabaseContext db,
+    HttpClient client,
+    KeyCacheService keyCacheService,
+    ISnowflakeGenerator snowflakeGenerator
+)
 {
     private const string NodeInfoRel = "http://nodeinfo.diaspora.software/ns/schema/2.0";
-
-    private readonly HttpClient _client;
-    private readonly ILogger _logger;
-    private readonly Config _config;
-    private readonly DatabaseContext _db;
-    private readonly KeyCacheService _keyCacheService;
-    private readonly ISnowflakeGenerator _snowflakeGenerator;
-
-    public FediverseAuthService(
-        ILogger logger,
-        Config config,
-        DatabaseContext db,
-        HttpClient client,
-        KeyCacheService keyCacheService,
-        ISnowflakeGenerator snowflakeGenerator
-    )
-    {
-        _logger = logger.ForContext<FediverseAuthService>();
-        _config = config;
-        _db = db;
-        _keyCacheService = keyCacheService;
-        _snowflakeGenerator = snowflakeGenerator;
-        _client = client;
-    }
+    private readonly ILogger _logger = logger.ForContext<FediverseAuthService>();
 
     public async Task<string> GenerateAuthUrlAsync(
         string instance,
@@ -66,7 +50,7 @@ public partial class FediverseAuthService
 
     public async Task<FediverseApplication> GetApplicationAsync(string instance)
     {
-        FediverseApplication? app = await _db.FediverseApplications.FirstOrDefaultAsync(a =>
+        FediverseApplication? app = await db.FediverseApplications.FirstOrDefaultAsync(a =>
             a.Domain == instance
         );
         if (app != null)
@@ -88,7 +72,7 @@ public partial class FediverseAuthService
     {
         _logger.Debug("Requesting software name for fediverse instance {Instance}", instance);
 
-        HttpResponseMessage wellKnownResp = await _client.GetAsync(
+        HttpResponseMessage wellKnownResp = await client.GetAsync(
             new Uri($"https://{instance}/.well-known/nodeinfo")
         );
         wellKnownResp.EnsureSuccessStatusCode();
@@ -103,7 +87,7 @@ public partial class FediverseAuthService
             );
         }
 
-        HttpResponseMessage nodeInfoResp = await _client.GetAsync(nodeInfoUrl);
+        HttpResponseMessage nodeInfoResp = await client.GetAsync(nodeInfoUrl);
         nodeInfoResp.EnsureSuccessStatusCode();
 
         PartialNodeInfo? nodeInfo = await nodeInfoResp.Content.ReadFromJsonAsync<PartialNodeInfo>();

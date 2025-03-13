@@ -39,8 +39,6 @@ public class KeyCacheService(Config config)
     public async Task DeleteKeyAsync(string key) =>
         await Multiplexer.GetDatabase().KeyDeleteAsync(key);
 
-    public Task DeleteExpiredKeysAsync(CancellationToken ct) => Task.CompletedTask;
-
     public async Task SetKeyAsync<T>(string key, T obj, Duration expiresAt)
         where T : class
     {

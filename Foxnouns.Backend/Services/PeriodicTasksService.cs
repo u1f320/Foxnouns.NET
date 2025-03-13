@@ -33,11 +33,9 @@ public class PeriodicTasksService(ILogger logger, IServiceProvider services) : B
 
         // The type is literally written on the same line, we can just use `var`
         // ReSharper disable SuggestVarOrType_SimpleTypes
-        var keyCacheService = scope.ServiceProvider.GetRequiredService<KeyCacheService>();
         var dataCleanupService = scope.ServiceProvider.GetRequiredService<DataCleanupService>();
         // ReSharper restore SuggestVarOrType_SimpleTypes
 
-        await keyCacheService.DeleteExpiredKeysAsync(ct);
         await dataCleanupService.InvokeAsync(ct);
     }
 }
