@@ -1,5 +1,14 @@
 import adapter from "@sveltejs/adapter-node";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
+import * as path from "node:path";
+
+import { config as dotenv } from "dotenv";
+dotenv({
+	path: [path.resolve(process.cwd(), ".env"), path.resolve(process.cwd(), ".env.local")],
+});
+
+console.log(process.env.NODE_ENV);
+const isProd = process.env.NODE_ENV === "production";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -20,6 +29,9 @@ const config = {
 			// using Caddy as a reverse proxy + CSRF protection breaks forms *in development*, not in production
 			// we only disable it during development, during building NODE_ENV == production
 			checkOrigin: process.env.NODE_ENV !== "development",
+		},
+		paths: {
+			assets: isProd ? process.env.PRIVATE_ASSETS_PREFIX || "" : "",
 		},
 	},
 };
