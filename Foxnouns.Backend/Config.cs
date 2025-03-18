@@ -26,7 +26,6 @@ public class Config
     public string MediaBaseUrl { get; init; } = null!;
 
     public string Address => $"http://{Host}:{Port}";
-    public string MetricsAddress => $"http://{Host}:{Logging.MetricsPort}";
 
     public LoggingConfig Logging { get; init; } = new();
     public DatabaseConfig Database { get; init; } = new();
