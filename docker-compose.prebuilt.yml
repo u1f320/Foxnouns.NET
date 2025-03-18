@@ -1,0 +1,53 @@
+services:
+  backend:
+    image: code.vulpine.solutions/sam/foxnouns-be:latest
+    environment:
+      - "Database:Url=Host=postgres;Database=postgres;Username=postgres;Password=postgres"
+      - "Database:EnablePooling=true"
+      - "Database:Redis=redis:6379"
+      - "Host=0.0.0.0"
+      - "Port=5000"
+      - "Logging:MetricsPort=5001"
+    restart: unless-stopped
+    ports:
+      - "5001:5000"
+      - "5002:5001"
+    volumes:
+      - ./docker/config.ini:/app/config.ini
+      - ./docker/static-pages:/app/static-pages
+
+  rate:
+    image: code.vulpine.solutions/sam/foxnouns-rate:latest
+    environment:
+      - "PORT=5003"
+    ports:
+      - "5003:5003"
+    restart: unless-stopped
+    volumes:
+      - ./docker/proxy-config.json:/app/proxy-config.json
+
+  postgres:
+    image: docker.io/postgres:16
+    command: [ "postgres",
+               "-c", "max-connections=1000",
+               "-c", "timezone=Etc/UTC",
+               "-c", "max_wal_size=1GB",
+               "-c", "min_wal_size=80MB",
+               "-c", "shared_buffers=128MB" ]
+    environment:
+      - "POSTGRES_PASSWORD=postgres"
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: registry.redict.io/redict:7
+    restart: unless-stopped
+    volumes:
+      - redict_data:/data
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  redict_data:
