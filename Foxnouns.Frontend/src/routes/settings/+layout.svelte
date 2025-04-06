@@ -3,14 +3,27 @@
 	import { t } from "$lib/i18n";
 	import { Nav, NavLink } from "@sveltestrap/sveltestrap";
 	import { isActive } from "$lib/pageUtils.svelte";
+	import type { LayoutData } from "./$types";
+	import GlobalNotice from "$components/GlobalNotice.svelte";
 
-	type Props = { children: Snippet };
-	let { children }: Props = $props();
+	type Props = { data: LayoutData; children: Snippet };
+	let { data, children }: Props = $props();
 </script>
 
 <svelte:head>
 	<title>{$t("title.settings")} • pronouns.cc</title>
 </svelte:head>
+
+{#if data.meta.notice}
+	<div class="container">
+		<GlobalNotice
+			id={data.meta.notice.id}
+			message={data.meta.notice.message}
+			settings={data.meUser?.settings}
+			token={data.token}
+		/>
+	</div>
+{/if}
 
 <div class="container">
 	<Nav pills justified fill class="flex-column flex-md-row mb-2">

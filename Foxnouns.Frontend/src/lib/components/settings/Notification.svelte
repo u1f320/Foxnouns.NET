@@ -38,6 +38,6 @@
 	</div>
 	<div class="card-footer text-body-secondary">
 		{idTimestamp(notification.id).toLocaleString(DateTime.DATETIME_MED)}
-		• <a href="/settings/notifications/ack/{notification.id}">Mark as read</a>
+		• <a href="/settings/notifications/ack/{notification.id}">{$t("notification.mark-as-read")}</a>
 	</div>
 </div>

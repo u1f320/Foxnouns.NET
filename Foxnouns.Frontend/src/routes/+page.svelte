@@ -1,4 +1,5 @@
 <script lang="ts">
+	import GlobalNotice from "$components/GlobalNotice.svelte";
 	import type { PageData } from "./$types";
 
 	type Props = { data: PageData };
@@ -10,6 +11,15 @@
 </svelte:head>
 
 <div class="container">
+	{#if data.meta.notice}
+		<GlobalNotice
+			id={data.meta.notice.id}
+			message={data.meta.notice.message}
+			settings={data.meUser?.settings}
+			token={data.token}
+		/>
+	{/if}
+
 	<h1>pronouns.cc</h1>
 
 	<p>

@@ -350,6 +350,8 @@
 	"notification": {
 		"suspension": "Your account has been suspended for the following reason: {{reason}}",
 		"warning": "You have been warned for the following reason: {{reason}}",
-		"warning-cleared-fields": "You have been warned for the following reason: {{reason}}\n\nAdditionally, the following fields have been cleared from your profile:\n{{clearedFields}}"
+		"warning-cleared-fields": "You have been warned for the following reason: {{reason}}\n\nAdditionally, the following fields have been cleared from your profile:\n{{clearedFields}}",
+		"mark-as-read": "Mark as read",
+		"no-notifications": "You have no notifications."
 	}
 }

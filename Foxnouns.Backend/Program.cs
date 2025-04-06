@@ -68,6 +68,7 @@ builder
         {
             NamingStrategy = new SnakeCaseNamingStrategy(),
         };
+        options.SerializerSettings.DateParseHandling = DateParseHandling.None;
     })
     .ConfigureApiBehaviorOptions(options =>
     {
