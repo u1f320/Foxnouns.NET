@@ -13,20 +13,23 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 using System.Text.RegularExpressions;
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto;
+using Foxnouns.Backend.Services.Caching;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Foxnouns.Backend.Controllers;
 
 [Route("/api/v2/meta")]
-public partial class MetaController(Config config) : ApiControllerBase
+public partial class MetaController(Config config, NoticeCacheService noticeCache)
+    : ApiControllerBase
 {
     private const string Repository = "https://codeberg.org/pronounscc/pronouns.cc";
 
     [HttpGet]
     [ProducesResponseType<MetaResponse>(StatusCodes.Status200OK)]
-    public IActionResult GetMeta() =>
+    public async Task<IActionResult> GetMeta(CancellationToken ct = default) =>
         Ok(
             new MetaResponse(
                 Repository,
@@ -45,9 +48,13 @@ public partial class MetaController(Config config) : ApiControllerBase
                     ValidationUtils.MaxCustomPreferences,
                     AuthUtils.MaxAuthMethodsPerType,
                     FlagsController.MaxFlagCount
-                )
+                ),
+                Notice: NoticeResponse(await noticeCache.GetAsync(ct))
             )
         );
+
+    private static MetaNoticeResponse? NoticeResponse(Notice? notice) =>
+        notice == null ? null : new MetaNoticeResponse(notice.Id, notice.Message);
 
     [HttpGet("page/{page}")]
     public async Task<IActionResult> GetStaticPageAsync(string page, CancellationToken ct = default)
@@ -71,7 +78,7 @@ public partial class MetaController(Config config) : ApiControllerBase
 
     [HttpGet("/api/v2/coffee")]
     public IActionResult BrewCoffee() =>
-        Problem("Sorry, I'm a teapot!", statusCode: StatusCodes.Status418ImATeapot);
+        StatusCode(StatusCodes.Status418ImATeapot, "Sorry, I'm a teapot!");
 
     [GeneratedRegex(@"^[a-z\-_]+$")]
     private static partial Regex PageRegex();

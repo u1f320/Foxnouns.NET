@@ -253,14 +253,14 @@ public class AuthService(
     {
         AssertValidAuthType(authType, app);
 
-        // This is already checked when
+        // This is already checked when generating an add account state, but we check it here too just in case.
         int currentCount = await db
             .AuthMethods.Where(m => m.UserId == userId && m.AuthType == authType)
             .CountAsync(ct);
         if (currentCount >= AuthUtils.MaxAuthMethodsPerType)
         {
             throw new ApiError.BadRequest(
-                "Too many linked accounts of this type, maximum of 3 per account."
+                $"Too many linked accounts of this type, maximum of {AuthUtils.MaxAuthMethodsPerType} per account."
             );
         }
 

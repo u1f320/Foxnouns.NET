@@ -95,4 +95,5 @@ public enum PreferenceSize
 public class UserSettings
 {
     public bool? DarkMode { get; set; }
+    public Snowflake? LastReadNotice { get; set; }
 }

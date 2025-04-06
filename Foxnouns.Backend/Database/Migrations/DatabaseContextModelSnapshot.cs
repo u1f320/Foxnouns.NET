@@ -343,6 +343,38 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.ToTable("member_flags", (string)null);
                 });
 
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Notice", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("author_id");
+
+                    b.Property<Instant>("EndTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("end_time");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<Instant>("StartTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("start_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notices");
+
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("ix_notices_author_id");
+
+                    b.ToTable("notices", (string)null);
+                });
+
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Notification", b =>
                 {
                     b.Property<long>("Id")
@@ -748,6 +780,18 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasConstraintName("fk_member_flags_pride_flags_pride_flag_id");
 
                     b.Navigation("PrideFlag");
+                });
+
+            modelBuilder.Entity("Foxnouns.Backend.Database.Models.Notice", b =>
+                {
+                    b.HasOne("Foxnouns.Backend.Database.Models.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notices_users_author_id");
+
+                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("Foxnouns.Backend.Database.Models.Notification", b =>

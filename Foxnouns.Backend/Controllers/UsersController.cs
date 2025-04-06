@@ -281,6 +281,8 @@ public class UsersController(
 
         if (req.HasProperty(nameof(req.DarkMode)))
             user.Settings.DarkMode = req.DarkMode;
+        if (req.HasProperty(nameof(req.LastReadNotice)))
+            user.Settings.LastReadNotice = req.LastReadNotice;
 
         user.LastActive = clock.GetCurrentInstant();
         db.Update(user);

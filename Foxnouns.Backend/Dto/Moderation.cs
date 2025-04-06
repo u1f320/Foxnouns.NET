@@ -122,3 +122,13 @@ public record QueryUserResponse(
 );
 
 public record QuerySensitiveUserDataRequest(string Reason);
+
+public record NoticeResponse(
+    Snowflake Id,
+    string Message,
+    Instant StartTime,
+    Instant EndTime,
+    PartialUser Author
+);
+
+public record CreateNoticeRequest(string Message, Instant? StartTime, Instant EndTime);

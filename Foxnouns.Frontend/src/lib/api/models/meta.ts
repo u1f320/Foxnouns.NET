@@ -10,6 +10,7 @@ export type Meta = {
 	};
 	members: number;
 	limits: Limits;
+	notice: { id: string; message: string } | null;
 };
 
 export type Limits = {

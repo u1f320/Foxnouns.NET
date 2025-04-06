@@ -80,6 +80,7 @@ public record PartialUser(
 public class UpdateUserSettingsRequest : PatchRequest
 {
     public bool? DarkMode { get; init; }
+    public Snowflake? LastReadNotice { get; init; }
 }
 
 public class CustomPreferenceUpdateRequest

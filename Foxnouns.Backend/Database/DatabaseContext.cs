@@ -73,6 +73,7 @@ public class DatabaseContext(DbContextOptions options) : DbContext(options)
     public DbSet<Report> Reports { get; init; } = null!;
     public DbSet<AuditLogEntry> AuditLog { get; init; } = null!;
     public DbSet<Notification> Notifications { get; init; } = null!;
+    public DbSet<Notice> Notices { get; init; } = null!;
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

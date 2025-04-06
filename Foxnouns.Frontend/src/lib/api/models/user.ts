@@ -41,6 +41,7 @@ export type UserWithHiddenFields = User & {
 
 export type UserSettings = {
 	dark_mode: boolean | null;
+	last_read_notice: string | null;
 };
 
 export type PartialMember = {

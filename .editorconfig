@@ -7,7 +7,7 @@ resharper_not_accessed_positional_property_local_highlighting = none
 
 # Microsoft .NET properties
 csharp_new_line_before_members_in_object_initializers = false
-csharp_preferred_modifier_order = public, internal, protected, private, file, new, required, abstract, virtual, sealed, static, override, extern, unsafe, volatile, async, readonly:suggestion
+csharp_preferred_modifier_order = public, internal, protected, private, file, new, virtual, override, required, abstract, sealed, static, extern, unsafe, volatile, async, readonly:suggestion
 
 # ReSharper properties
 resharper_align_multiline_binary_expressions_chain = false

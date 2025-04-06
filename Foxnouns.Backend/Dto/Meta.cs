@@ -14,6 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // ReSharper disable NotAccessedPositionalProperty.Global
+using Foxnouns.Backend.Database;
+
 namespace Foxnouns.Backend.Dto;
 
 public record MetaResponse(
@@ -22,8 +24,11 @@ public record MetaResponse(
     string Hash,
     int Members,
     UserInfoResponse Users,
-    LimitsResponse Limits
+    LimitsResponse Limits,
+    MetaNoticeResponse? Notice
 );
+
+public record MetaNoticeResponse(Snowflake Id, string Message);
 
 public record UserInfoResponse(int Total, int ActiveMonth, int ActiveWeek, int ActiveDay);
 

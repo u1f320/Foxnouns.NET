@@ -15,10 +15,12 @@
 using Coravel;
 using Coravel.Queuing.Interfaces;
 using Foxnouns.Backend.Database;
+using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Services.Auth;
+using Foxnouns.Backend.Services.Caching;
 using Foxnouns.Backend.Services.V1;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
@@ -162,6 +164,7 @@ public static class WebApplicationExtensions
                     .AddScoped<ObjectStorageService>()
                     .AddTransient<DataCleanupService>()
                     .AddTransient<ValidationService>()
+                    .AddSingleton<NoticeCacheService>()
                     // Background services
                     .AddHostedService<PeriodicTasksService>()
                     // Transient jobs
