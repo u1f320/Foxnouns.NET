@@ -28,6 +28,7 @@ export type MeUser = UserWithMembers & {
 	timezone: string;
 	suspended: boolean;
 	deleted: boolean;
+	settings: UserSettings;
 };
 
 export type UserWithMembers = User & { members: PartialMember[] | null };

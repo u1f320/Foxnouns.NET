@@ -33,6 +33,7 @@ public class UserRendererService(
         bool renderMembers = true,
         bool renderAuthMethods = false,
         string? overrideSid = null,
+        bool renderSettings = false,
         CancellationToken ct = default
     ) =>
         await RenderUserInnerAsync(
@@ -42,6 +43,7 @@ public class UserRendererService(
             renderMembers,
             renderAuthMethods,
             overrideSid,
+            renderSettings,
             ct
         );
 
@@ -52,6 +54,7 @@ public class UserRendererService(
         bool renderMembers = true,
         bool renderAuthMethods = false,
         string? overrideSid = null,
+        bool renderSettings = false,
         CancellationToken ct = default
     )
     {
@@ -62,6 +65,7 @@ public class UserRendererService(
 
         renderMembers = renderMembers && (!user.ListHidden || tokenCanReadHiddenMembers);
         renderAuthMethods = renderAuthMethods && tokenPrivileged;
+        renderSettings = renderSettings && tokenHidden;
 
         IEnumerable<Member> members = renderMembers
             ? await db.Members.Where(m => m.UserId == user.Id).OrderBy(m => m.Name).ToListAsync(ct)
@@ -117,7 +121,8 @@ public class UserRendererService(
             tokenHidden ? user.LastSidReroll : null,
             tokenHidden ? user.Timezone ?? "<none>" : null,
             tokenHidden ? user is { Deleted: true, DeletedBy: not null } : null,
-            tokenHidden ? user.Deleted : null
+            tokenHidden ? user.Deleted : null,
+            renderSettings ? user.Settings : null
         );
     }
 

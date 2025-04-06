@@ -46,7 +46,15 @@ public class UsersController(
     {
         User user = await db.ResolveUserAsync(userRef, CurrentToken, ct);
         return Ok(
-            await userRenderer.RenderUserAsync(user, CurrentUser, CurrentToken, true, true, ct: ct)
+            await userRenderer.RenderUserAsync(
+                user,
+                CurrentUser,
+                CurrentToken,
+                renderMembers: true,
+                renderAuthMethods: true,
+                renderSettings: true,
+                ct: ct
+            )
         );
     }
 
@@ -259,15 +267,6 @@ public class UsersController(
         await db.SaveChangesAsync(ct);
 
         return Ok(user.CustomPreferences);
-    }
-
-    [HttpGet("@me/settings")]
-    [Authorize("user.read_hidden")]
-    [ProducesResponseType<UserSettings>(statusCode: StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUserSettingsAsync(CancellationToken ct = default)
-    {
-        User user = await db.Users.FirstAsync(u => u.Id == CurrentUser!.Id, ct);
-        return Ok(user.Settings);
     }
 
     [HttpPatch("@me/settings")]
