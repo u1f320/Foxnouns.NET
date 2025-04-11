@@ -13,6 +13,7 @@
 	import ApiError from "$api/error";
 	import log from "$lib/log";
 	import FormStatusMarker from "$components/editor/FormStatusMarker.svelte";
+	import Search from "svelte-bootstrap-icons/lib/Search.svelte";
 
 	type Props = { data: PageData; form: ActionData };
 	let { data, form }: Props = $props();
@@ -26,13 +27,17 @@
 	const FLAGS_PER_PAGE = 50;
 
 	$effect(() => {
-		const pages = paginate(flags, currentPage, FLAGS_PER_PAGE);
+		const filteredFlags = search
+			? flags.filter((f) => f.name.toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1)
+			: flags;
+		const pages = paginate(filteredFlags, currentPage, FLAGS_PER_PAGE);
 		arr = pages.data;
 		pageCount = pages.pageCount;
 	});
 
 	let lastEditedFlag: string | null = $state(null);
 	let ok: { ok: boolean; error: RawApiError | null } | null = $state(null);
+	let search: string = $state("");
 
 	const update = async (
 		id: string,
@@ -109,20 +114,44 @@
 	})}
 </h4>
 
+<div class="mb-3">
+	<input
+		class="form-control"
+		type="text"
+		bind:value={search}
+		placeholder={$t("editor.flag-search-placeholder")}
+	/>
+</div>
+
 <ClientPaginator center bind:currentPage {pageCount} />
 
-<Accordion class="mb-3">
-	{#each arr as flag (flag.id)}
-		<AccordionItem>
-			<span slot="header">
-				<EditorFlagImage {flag} />
-				{flag.name}
-			</span>
+{#if arr.length === 0}
+	<div class="text-secondary text-center">
+		<p>
+			<Search class="no-flags-icon" height={64} width={64} aria-hidden />
+		</p>
+		<p>
+			{#if search}
+				{$t("editor.flag-search-no-flags")}
+			{:else}
+				{$t("editor.flag-search-no-account-flags")}
+			{/if}
+		</p>
+	</div>
+{:else}
+	<Accordion class="mb-3">
+		{#each arr as flag (flag.id)}
+			<AccordionItem>
+				<span slot="header">
+					<EditorFlagImage {flag} />
+					{flag.name}
+				</span>
 
-			{#if lastEditedFlag === flag.id}<FormStatusMarker form={ok} />{/if}
-			<FlagEditor {flag} {update} {deleteFlag} />
-		</AccordionItem>
-	{/each}
-</Accordion>
+				{#if lastEditedFlag === flag.id}<FormStatusMarker form={ok} />{/if}
+				<FlagEditor {flag} {update} {deleteFlag} />
+			</AccordionItem>
+		{/each}
+	</Accordion>
+{/if}
 
 <ClientPaginator center bind:currentPage {pageCount} />
