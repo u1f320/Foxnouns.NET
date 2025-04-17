@@ -67,6 +67,7 @@ public class MemberAvatarUpdateJob(
             await objectStorageService.PutObjectAsync(Path(id, hash), image, "image/webp");
 
             member.Avatar = hash;
+            member.AvatarMigrated = true;
             await db.SaveChangesAsync();
 
             if (prevHash != null && prevHash != hash)

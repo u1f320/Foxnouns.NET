@@ -241,6 +241,10 @@ namespace Foxnouns.Backend.Database.Migrations
                         .HasColumnType("text")
                         .HasColumnName("avatar");
 
+                    b.Property<bool>("AvatarMigrated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("avatar_migrated");
+
                     b.Property<string>("Bio")
                         .HasColumnType("text")
                         .HasColumnName("bio");
@@ -564,6 +568,10 @@ namespace Foxnouns.Backend.Database.Migrations
                     b.Property<string>("Avatar")
                         .HasColumnType("text")
                         .HasColumnName("avatar");
+
+                    b.Property<bool>("AvatarMigrated")
+                        .HasColumnType("boolean")
+                        .HasColumnName("avatar_migrated");
 
                     b.Property<string>("Bio")
                         .HasColumnType("text")

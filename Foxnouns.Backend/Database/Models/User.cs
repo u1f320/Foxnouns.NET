@@ -57,6 +57,9 @@ public class User : BaseModel
     public Instant? DeletedAt { get; set; }
     public Snowflake? DeletedBy { get; set; }
 
+    // Only used by avatar-proxy and avatar-migration.
+    public bool AvatarMigrated { get; set; } = true;
+
     [NotMapped]
     public bool? SelfDelete => Deleted ? DeletedBy != null : null;
 

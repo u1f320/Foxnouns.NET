@@ -29,6 +29,9 @@ public class Member : BaseModel
     public List<Pronoun> Pronouns { get; set; } = [];
     public List<Field> Fields { get; set; } = [];
 
+    // Only used by avatar-proxy and avatar-migration.
+    public bool AvatarMigrated { get; set; } = true;
+
     public List<MemberFlag> ProfileFlags { get; set; } = [];
 
     public Snowflake UserId { get; init; }

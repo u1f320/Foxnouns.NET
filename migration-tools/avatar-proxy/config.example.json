@@ -1,0 +1,7 @@
+{
+  "old_avatar_base": "https://pronounscc-legacy.your-s3-host.com/",
+  "new_avatar_base": "http://pronounscc.your-s3-host.com/",
+  "flag_base": "http://pronounscc.your-s3-host.com/",
+  "port": 6100,
+  "database": "postgresql://postgres:password@localhost/postgres"
+}
