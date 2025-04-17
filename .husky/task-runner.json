@@ -3,12 +3,8 @@
   "tasks": [
     {
       "name": "run-prettier",
-      "command": "pnpm",
-      "args": [
-        "prettier",
-        "-w",
-        "${staged}"
-      ],
+      "command": "npx",
+      "args": ["prettier", "-w", "${staged}"],
       "include": [
         "Foxnouns.Frontend/**/*.ts",
         "Foxnouns.Frontend/**/*.json",
@@ -22,13 +18,8 @@
     {
       "name": "run-csharpier",
       "command": "dotnet",
-      "args": [
-        "csharpier",
-        "${staged}"
-      ],
-      "include": [
-        "**/*.cs"
-      ]
+      "args": ["csharpier", "${staged}"],
+      "include": ["**/*.cs"]
     }
   ]
 }

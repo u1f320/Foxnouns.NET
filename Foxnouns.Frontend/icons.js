@@ -1,6 +1,6 @@
 // This script regenerates the list of icons for the frontend (Foxnouns.Frontend/src/lib/icons.ts)
 // and the backend (Foxnouns.Backend/Utils/BootstrapIcons.Icons.cs) from the currently installed version of Bootstrap Icons.
-// Run with `pnpm node icons.js` in the frontend directory.
+// Run with `node icons.js` in the frontend directory.
 
 import { writeFileSync } from "fs";
 import icons from "bootstrap-icons/font/bootstrap-icons.json" with { type: "json" };

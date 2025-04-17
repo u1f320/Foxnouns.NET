@@ -25,12 +25,12 @@ echo "Building Node.js frontend"
 
 cd "$ROOT_DIR/Foxnouns.Frontend"
 [ -d "$ROOT_DIR/Foxnouns.Frontend/build" ] && rm -r "$ROOT_DIR/Foxnouns.Frontend/build"
-pnpm install
-pnpm build
+npm ci
+npm run build
 
 mkdir "$ROOT_DIR/build/fe"
-cp -r build .env* package.json pnpm-lock.yaml "$ROOT_DIR/build/fe"
+cp -r build .env* package.json package-lock.json "$ROOT_DIR/build/fe"
 cd "$ROOT_DIR/build/fe"
-pnpm install -P
+NODE_ENV=production npm ci
 
 echo "Finished building Foxnouns.NET"
