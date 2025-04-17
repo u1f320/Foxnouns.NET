@@ -56,6 +56,7 @@
 		<h3>Context</h3>
 		<p>
 			{#if report.context}
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 				{@html renderMarkdown(report.context)}
 			{:else}
 				<em>(no context given)</em>

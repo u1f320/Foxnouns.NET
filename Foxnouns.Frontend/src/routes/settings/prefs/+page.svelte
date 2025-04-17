@@ -7,6 +7,7 @@
 	import { t } from "$lib/i18n";
 	import log from "$lib/log";
 	import type { PageData } from "./$types";
+	import InfoCircleFill from "svelte-bootstrap-icons/lib/InfoCircleFill.svelte";
 
 	type Props = { data: PageData };
 	let { data }: Props = $props();
@@ -84,8 +85,19 @@
 	{$t("settings.custom-preferences-title")}
 	<div class="btn-group">
 		<button class="btn btn-primary" onclick={() => save()}>{$t("save-changes")}</button>
-		<button class="btn btn-success" onclick={add}>{$t("editor.add-custom-preference")}</button>
+		<button class="btn btn-success" onclick={add} disabled={!canAdd}
+			>{$t("editor.add-custom-preference")}</button
+		>
 	</div>
+	{#if !canAdd}
+		<div>
+			<InfoCircleFill aria-hidden />
+			{$t("editor.max-custom-preferences", {
+				current: customPreferences.length,
+				max: data.meta.limits.custom_preferences,
+			})}
+		</div>
+	{/if}
 </h3>
 
 <FormStatusMarker form={ok} />

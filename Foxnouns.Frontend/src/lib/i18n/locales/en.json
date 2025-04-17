@@ -296,7 +296,8 @@
 		"custom-preference-notice": "Want to edit your custom preferences?",
 		"custom-preference-notice-link": "Go to settings",
 		"crop-avatar-header": "Crop avatar",
-		"crop-avatar-button": "Crop"
+		"crop-avatar-button": "Crop",
+		"max-custom-preferences": "You have reached the maximum amount of custom preferences ({{current}}/{{max}}), and cannot add new ones."
 	},
 	"cancel": "Cancel",
 	"report": {

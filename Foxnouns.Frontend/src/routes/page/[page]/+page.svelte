@@ -18,5 +18,6 @@
 </svelte:head>
 
 <div class="container">
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 	{@html md}
 </div>

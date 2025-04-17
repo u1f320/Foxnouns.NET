@@ -29,6 +29,7 @@
 	<h4>Reason</h4>
 	<p>
 		{#if entry.reason}
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html renderMarkdown(entry.reason)}
 		{:else}
 			<em class="text-secondary">(no reason given)</em>

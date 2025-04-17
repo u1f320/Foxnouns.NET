@@ -34,6 +34,7 @@
 {#if renderNotice}
 	<div class="alert alert-light" role="alert">
 		<div>
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html renderedMessage}
 		</div>
 		{#if canDismiss}

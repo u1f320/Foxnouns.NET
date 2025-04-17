@@ -59,6 +59,7 @@
 	{#if reason}
 		<details>
 			<summary>Reason</summary>
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html reason}
 		</details>
 	{:else}
