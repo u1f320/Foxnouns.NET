@@ -28,7 +28,6 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
         queue.QueueAsyncTask(async () =>
         {
             await SendEmailAsync(
-                to,
                 new AccountCreationMailable(
                     config,
                     new AccountCreationMailableView
@@ -48,7 +47,6 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
         queue.QueueAsyncTask(async () =>
         {
             await SendEmailAsync(
-                to,
                 new AddEmailMailable(
                     config,
                     new AddEmailMailableView
@@ -69,7 +67,6 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
         queue.QueueAsyncTask(async () =>
         {
             await SendEmailAsync(
-                to,
                 new ResetPasswordMailable(
                     config,
                     new ResetPasswordMailableView
@@ -89,7 +86,6 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
         queue.QueueAsyncTask(async () =>
         {
             await SendEmailAsync(
-                to,
                 new PasswordChangedMailable(
                     config,
                     new PasswordChangedMailableView { BaseUrl = config.BaseUrl, To = to }
@@ -98,7 +94,7 @@ public class MailService(ILogger logger, IMailer mailer, IQueue queue, Config co
         });
     }
 
-    private async Task SendEmailAsync<T>(string to, Mailable<T> mailable)
+    private async Task SendEmailAsync<T>(Mailable<T> mailable)
     {
         try
         {

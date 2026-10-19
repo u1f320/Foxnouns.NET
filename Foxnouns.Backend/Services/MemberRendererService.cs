@@ -70,7 +70,7 @@ public class MemberRendererService(DatabaseContext db, Config config)
             user.Username,
             user.DisplayName,
             AvatarUrlFor(user),
-            user.CustomPreferences
+            UserRendererService.RenderCustomPreferences(user)
         );
 
     public PartialMember RenderPartialMember(Member member, bool renderUnlisted = false) =>

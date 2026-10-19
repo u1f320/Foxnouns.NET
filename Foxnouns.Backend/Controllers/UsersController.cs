@@ -236,7 +236,10 @@ public class UsersController(
 
         foreach (CustomPreferenceUpdateRequest r in req)
         {
-            if (r.Id != null && preferences.ContainsKey(r.Id.Value))
+            if (
+                r.Id != null
+                && preferences.TryGetValue(r.Id.Value, out User.CustomPreference? value)
+            )
             {
                 preferences[r.Id.Value] = new User.CustomPreference
                 {
@@ -245,7 +248,7 @@ public class UsersController(
                     Muted = r.Muted,
                     Size = r.Size,
                     Tooltip = r.Tooltip,
-                    LegacyId = preferences[r.Id.Value].LegacyId,
+                    LegacyId = value.LegacyId,
                 };
             }
             else

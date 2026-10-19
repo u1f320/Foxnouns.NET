@@ -74,7 +74,7 @@ public record PartialUser(
     string Username,
     string? DisplayName,
     string? AvatarUrl,
-    Dictionary<Snowflake, User.CustomPreference> CustomPreferences
+    Dictionary<Snowflake, CustomPreferenceResponse> CustomPreferences
 );
 
 public class UpdateUserSettingsRequest : PatchRequest

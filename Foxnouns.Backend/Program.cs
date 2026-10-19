@@ -18,7 +18,6 @@ using Foxnouns.Backend;
 using Foxnouns.Backend.Extensions;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
-using Foxnouns.Backend.Utils.OpenApi;
 using Hangfire;
 using Hangfire.Redis.StackExchange;
 using Microsoft.AspNetCore.Mvc;
@@ -89,16 +88,6 @@ builder
     )
     .AddHangfireServer();
 
-builder.Services.AddOpenApi(
-    "v2",
-    options =>
-    {
-        options.AddSchemaTransformer<PropertyKeySchemaTransformer>();
-        options.AddSchemaTransformer<ExampleFixingSchemaTransformer>();
-        options.AddDocumentTransformer(new DocumentTransformer(config));
-    }
-);
-
 // Set the default converter to snake case as we use it in a couple places.
 JsonConvert.DefaultSettings = () =>
     new JsonSerializerSettings
@@ -126,18 +115,6 @@ app.UseCors();
 app.UseCustomMiddleware();
 app.MapControllers();
 app.UseHangfireDashboard();
-
-// TODO: I can't figure out why this doesn't work yet
-// TODO: Manually write API docs in the meantime
-// app.MapOpenApi("/api-docs/openapi/{documentName}.json");
-// app.MapScalarApiReference(
-//     "/api-docs/",
-//     options =>
-//     {
-//         options.Title = "pronouns.cc API";
-//         options.OpenApiRoutePattern = "/api-docs/openapi/{documentName}.json";
-//     }
-// );
 
 // Make sure metrics are updated whenever Prometheus scrapes them
 Metrics.DefaultRegistry.AddBeforeCollectCallback(async ct =>

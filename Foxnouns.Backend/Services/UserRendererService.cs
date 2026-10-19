@@ -12,6 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto;
@@ -87,6 +88,7 @@ public class UserRendererService(
             : [];
 
         int? utcOffset = null;
+
         if (
             user.Timezone != null
             && TimeZoneInfo.TryFindSystemTimeZoneById(user.Timezone, out TimeZoneInfo? tz)
@@ -107,8 +109,7 @@ public class UserRendererService(
             user.Names,
             user.Pronouns,
             user.Fields,
-            user.CustomPreferences.Select(x => (x.Key, RenderCustomPreference(x.Value)))
-                .ToDictionary(),
+            RenderCustomPreferences(user),
             flags.Select(f => RenderPrideFlag(f.PrideFlag)),
             utcOffset,
             user.Role,
@@ -136,7 +137,7 @@ public class UserRendererService(
                 : a.RemoteUsername
         );
 
-    public static CustomPreferenceResponse RenderCustomPreference(User.CustomPreference pref) =>
+    private static CustomPreferenceResponse RenderCustomPreference(User.CustomPreference pref) =>
         new(pref.Icon, pref.Tooltip, pref.Muted, pref.Favourite, pref.Size);
 
     public static Dictionary<Snowflake, CustomPreferenceResponse> RenderCustomPreferences(
@@ -151,7 +152,7 @@ public class UserRendererService(
             user.Username,
             user.DisplayName,
             AvatarUrlFor(user),
-            user.CustomPreferences
+            RenderCustomPreferences(user)
         );
 
     public string? AvatarUrlFor(User user) =>

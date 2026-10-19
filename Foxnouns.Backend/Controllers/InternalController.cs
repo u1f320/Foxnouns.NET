@@ -74,7 +74,7 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
         template = GetCleanedTemplate(template);
 
         // If no token was supplied, or it isn't valid base 64, return a null user ID (limiting by IP)
-        if (!AuthUtils.TryParseToken(req.Token, out byte[]? rawToken))
+        if (!AuthUtils.TryParseToken(req.Token, out byte[] rawToken))
             return Ok(new RequestDataResponse(null, template));
 
         Snowflake? userId = await db.GetTokenUserId(rawToken);
@@ -93,7 +93,7 @@ public partial class InternalController(DatabaseContext db) : ControllerBase
             return null;
         IEnumerable<RouteEndpoint> endpoints = endpointDataSource.Endpoints.OfType<RouteEndpoint>();
 
-        foreach (RouteEndpoint? endpoint in endpoints)
+        foreach (RouteEndpoint endpoint in endpoints)
         {
             if (endpoint.RoutePattern.RawText == null)
                 continue;

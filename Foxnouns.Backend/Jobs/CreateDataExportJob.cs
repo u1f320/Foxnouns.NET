@@ -12,6 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 using System.IO.Compression;
 using System.Net;
 using Foxnouns.Backend.Database;
@@ -64,6 +65,7 @@ public class CreateDataExportJob(
             .Include(u => u.ProfileFlags)
             .AsSplitQuery()
             .FirstOrDefaultAsync(u => u.Id == userId);
+
         if (user == null)
         {
             _logger.Warning(
@@ -76,7 +78,7 @@ public class CreateDataExportJob(
         _logger.Information("Generating data export for user {UserId}", user.Id);
 
         await using var stream = new MemoryStream();
-        using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
+        await using var zip = new ZipArchive(stream, ZipArchiveMode.Create, true);
         zip.Comment =
             $"This archive for {user.Username} ({user.Id}) was generated at  {InstantPattern.General.Format(clock.GetCurrentInstant())}";
 
@@ -102,7 +104,7 @@ public class CreateDataExportJob(
         // We want to dispose the ZipArchive on an error, but we need to dispose it manually to upload to object storage.
         // Calling Dispose() multiple times is fine for this class, though.
         // ReSharper disable once DisposeOnUsingVariable
-        zip.Dispose();
+        await zip.DisposeAsync();
         stream.Seek(0, SeekOrigin.Begin);
 
         // Upload the file!
@@ -202,6 +204,7 @@ public class CreateDataExportJob(
             return;
 
         HttpResponseMessage resp = await client.GetAsync(s3Path);
+
         if (resp.StatusCode != HttpStatusCode.OK)
         {
             _logger.Warning("S3 path {S3Path} returned a non-200 status, not saving file", s3Path);
@@ -217,7 +220,7 @@ public class CreateDataExportJob(
         );
 
         ZipArchiveEntry entry = zip.CreateEntry(filename);
-        await using Stream entryStream = entry.Open();
+        await using Stream entryStream = await entry.OpenAsync();
 
         respStream.Seek(0, SeekOrigin.Begin);
         await respStream.CopyToAsync(entryStream);
