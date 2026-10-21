@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jellydator/ttlcache/v3"
 )
 
 const notFoundError = `{"status":404,"code":"NOT_FOUND","message":"Not found"}`
@@ -30,6 +32,9 @@ type Handler struct {
 	limiter *Limiter
 	proxy   *httputil.ReverseProxy
 	client  *http.Client
+
+	paths      *ttlcache.Cache[string, string]
+	tokenUsers *ttlcache.Cache[string, string]
 }
 
 func (hn *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -121,6 +126,29 @@ func (hn *Handler) requestData(r *http.Request) (data requestDataResponse, err e
 		token = &header
 	}
 
+	// Check cache
+	cachedPath := hn.paths.Get(r.URL.Path)
+	if cachedPath != nil {
+		template := cachedPath.Value()
+		if token == nil {
+			// If there is no token, we just return the template
+			return requestDataResponse{
+				UserID:   nil,
+				Template: template,
+			}, nil
+		}
+
+		// If there *is* a token, check if it's cached. If it is, we don't have to call the API server at all!
+		cachedToken := hn.tokenUsers.Get(*token)
+		if cachedToken != nil {
+			userID := cachedToken.Value()
+			return requestDataResponse{
+				UserID:   &userID,
+				Template: template,
+			}, nil
+		}
+	}
+
 	url := hn.ProxyTarget + "/api/internal/request-data"
 
 	reqData, err := json.Marshal(requestDataRequest{Token: token, Method: r.Method, Path: r.URL.Path})
@@ -171,6 +199,12 @@ func (hn *Handler) requestData(r *http.Request) (data requestDataResponse, err e
 	if err != nil {
 		return data, fmt.Errorf("unmarshaling data: %w", err)
 	}
+
+	if token != nil && data.UserID != nil {
+		hn.tokenUsers.Set(*token, *data.UserID, 30*time.Minute)
+	}
+	hn.paths.Set(r.URL.Path, data.Template, 30*time.Minute)
+
 	return data, nil
 }
 

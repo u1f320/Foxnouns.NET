@@ -8,6 +8,9 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"time"
+
+	"github.com/jellydator/ttlcache/v3"
 )
 
 func main() {
@@ -43,6 +46,8 @@ func main() {
 	}
 	hn.limiter = NewLimiter()
 	hn.client = &http.Client{}
+	hn.paths = ttlcache.New(ttlcache.WithTTL[string, string](30 * time.Minute))
+	hn.tokenUsers = ttlcache.New(ttlcache.WithTTL[string, string](30 * time.Minute))
 
 	log.Printf("serving on port %v", hn.Port)
 
