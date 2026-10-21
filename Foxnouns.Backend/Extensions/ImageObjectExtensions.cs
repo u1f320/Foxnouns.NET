@@ -17,10 +17,7 @@ using Foxnouns.Backend.Database;
 using Foxnouns.Backend.Jobs;
 using Foxnouns.Backend.Services;
 using Foxnouns.Backend.Utils;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using NetVips;
 
 namespace Foxnouns.Backend.Extensions;
 
@@ -61,27 +58,25 @@ public static class ImageObjectExtensions
         if (!AuthUtils.TryFromBase64String(encoded, out byte[]? rawImage))
             throw new ArgumentException("Invalid base64 string", nameof(uri));
 
-        var image = Image.Load(rawImage);
-
-        var processor = new ResizeProcessor(
-            new ResizeOptions
-            {
-                Size = new Size(size),
-                Mode = crop ? ResizeMode.Crop : ResizeMode.Max,
-                Position = AnchorPositionMode.Center,
-            },
-            image.Size
-        );
-
-        image.Mutate(x => x.ApplyProcessor(processor));
-
-        var stream = new MemoryStream(64 * 1024);
-        await image.SaveAsync(stream, new WebpEncoder { Quality = 95, NearLossless = false });
-
+        MemoryStream stream = await Task.Run(() => ConvertToImageInner(rawImage, size, crop));
         stream.Seek(0, SeekOrigin.Begin);
         string hash = Convert.ToHexString(await SHA256.HashDataAsync(stream)).ToLower();
         stream.Seek(0, SeekOrigin.Begin);
 
         return (hash, stream);
+    }
+
+    private static MemoryStream ConvertToImageInner(byte[] rawImage, int size, bool crop)
+    {
+        var vipsImage = Image.NewFromBuffer(rawImage);
+        vipsImage = vipsImage.ThumbnailImage(
+            width: size,
+            size: Enums.Size.Both,
+            crop: crop ? Enums.Interesting.Centre : Enums.Interesting.All
+        );
+
+        var stream = new MemoryStream(64 * 1024);
+        vipsImage.WebpsaveStream(stream, q: 95, nearLossless: false);
+        return stream;
     }
 }
