@@ -58,18 +58,21 @@ public static class HttpContextExtensions
 {
     private const string Key = "token";
 
-    public static void SetToken(this HttpContext ctx, Token token) => ctx.Items.Add(Key, token);
-
-    public static User? GetUser(this HttpContext ctx) => ctx.GetToken()?.User;
-
-    public static User GetUserOrThrow(this HttpContext ctx) =>
-        ctx.GetUser() ?? throw new ApiError.AuthenticationError("No user in HttpContext");
-
-    public static Token? GetToken(this HttpContext ctx)
+    extension(HttpContext ctx)
     {
-        if (ctx.Items.TryGetValue(Key, out object? token))
-            return token as Token;
-        return null;
+        public void SetToken(Token token) => ctx.Items.Add(Key, token);
+
+        public User? GetUser() => ctx.GetToken()?.User;
+
+        public User GetUserOrThrow() =>
+            ctx.GetUser() ?? throw new ApiError.AuthenticationError("No user in HttpContext");
+
+        public Token? GetToken()
+        {
+            if (ctx.Items.TryGetValue(Key, out object? token))
+                return token as Token;
+            return null;
+        }
     }
 }
 

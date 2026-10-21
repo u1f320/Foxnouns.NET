@@ -38,50 +38,142 @@ namespace Foxnouns.Backend.Extensions;
 
 public static class WebApplicationExtensions
 {
-    /// <summary>
-    /// Adds Serilog to this service collection. This method also initializes Serilog, so it should be called as early as possible, before any log calls.
-    /// </summary>
-    public static WebApplicationBuilder AddSerilog(this WebApplicationBuilder builder)
+    extension(WebApplicationBuilder builder)
     {
-        Config config = builder.Configuration.Get<Config>() ?? new Config();
-
-        LoggerConfiguration logCfg = new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .MinimumLevel.Is(config.Logging.LogEventLevel)
-            // ASP.NET's built in request logs are extremely verbose, so we use Serilog's instead.
-            // Serilog doesn't disable the built-in logs, so we do it here.
-            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-            .MinimumLevel.Override(
-                "Microsoft.EntityFrameworkCore.Database.Command",
-                config.Logging.LogQueries ? LogEventLevel.Information : LogEventLevel.Fatal
-            )
-            // These spam the output even on INF level
-            .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
-            .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
-            .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
-            // Hangfire's debug-level logs are extremely spammy for no reason
-            .MinimumLevel.Override("Hangfire", LogEventLevel.Information)
-            .WriteTo.Console(theme: AnsiConsoleTheme.Sixteen);
-
-        if (config.Logging.SeqLogUrl != null)
+        /// <summary>
+        /// Adds Serilog to this service collection. This method also initializes Serilog, so it should be called as early as possible, before any log calls.
+        /// </summary>
+        public WebApplicationBuilder AddSerilog()
         {
-            logCfg.WriteTo.Seq(config.Logging.SeqLogUrl);
+            Config config = builder.Configuration.Get<Config>() ?? new Config();
+
+            LoggerConfiguration logCfg = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Is(config.Logging.LogEventLevel)
+                // ASP.NET's built in request logs are extremely verbose, so we use Serilog's instead.
+                // Serilog doesn't disable the built-in logs, so we do it here.
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override(
+                    "Microsoft.EntityFrameworkCore.Database.Command",
+                    config.Logging.LogQueries ? LogEventLevel.Information : LogEventLevel.Fatal
+                )
+                // These spam the output even on INF level
+                .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+                // Hangfire's debug-level logs are extremely spammy for no reason
+                .MinimumLevel.Override("Hangfire", LogEventLevel.Information)
+                .WriteTo.Console(theme: AnsiConsoleTheme.Sixteen);
+
+            if (config.Logging.SeqLogUrl != null)
+            {
+                logCfg.WriteTo.Seq(config.Logging.SeqLogUrl);
+            }
+
+            // AddSerilog doesn't seem to add an ILogger to the service collection, so add that manually.
+            builder.Services.AddSerilog().AddSingleton(Log.Logger = logCfg.CreateLogger());
+
+            return builder;
         }
 
-        // AddSerilog doesn't seem to add an ILogger to the service collection, so add that manually.
-        builder.Services.AddSerilog().AddSingleton(Log.Logger = logCfg.CreateLogger());
+        public Config AddConfiguration()
+        {
+            builder.Configuration.Sources.Clear();
+            builder.Configuration.AddConfiguration();
 
-        return builder;
-    }
+            Config config = builder.Configuration.Get<Config>() ?? new Config();
+            builder.Services.AddSingleton(config);
+            return config;
+        }
 
-    public static Config AddConfiguration(this WebApplicationBuilder builder)
-    {
-        builder.Configuration.Sources.Clear();
-        builder.Configuration.AddConfiguration();
+        /// <summary>
+        /// Adds required services to the WebApplicationBuilder.
+        /// This should only add services that are not ASP.NET-related (i.e. no middleware).
+        /// </summary>
+        public IServiceCollection AddServices(Config config)
+        {
+            builder.Host.ConfigureServices(
+                (ctx, services) =>
+                {
+                    // create a single HTTP client for all requests.
+                    // it's also configured with a retry mechanism, so that requests aren't immediately lost to the void if they fail
+                    services.AddSingleton<HttpClient>(_ =>
+                    {
+                        // ReSharper disable once SuggestVarOrType_Elsewhere
+                        var retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+                            .AddRetry(
+                                new HttpRetryStrategyOptions
+                                {
+                                    BackoffType = DelayBackoffType.Linear,
+                                    MaxRetryAttempts = 3,
+                                }
+                            )
+                            .Build();
 
-        Config config = builder.Configuration.Get<Config>() ?? new Config();
-        builder.Services.AddSingleton(config);
-        return config;
+                        var resilienceHandler = new ResilienceHandler(retryPipeline)
+                        {
+                            InnerHandler = new SocketsHttpHandler
+                            {
+                                PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+                            },
+                        };
+
+                        var client = new HttpClient(resilienceHandler);
+                        client.DefaultRequestHeaders.Remove("User-Agent");
+                        client.DefaultRequestHeaders.Remove("Accept");
+                        client.DefaultRequestHeaders.Add(
+                            "User-Agent",
+                            $"pronouns.cc/{BuildInfo.Version}"
+                        );
+                        client.DefaultRequestHeaders.Add("Accept", "application/json");
+                        return client;
+                    });
+
+                    services
+                        .AddQueue()
+                        .AddSmtpMailer(ctx.Configuration)
+                        .AddFoxnounsDatabase(config)
+                        .AddMetricServer(o => o.Port = config.Logging.MetricsPort)
+                        .AddMinio(c =>
+                            c.WithEndpoint(config.Storage.Endpoint)
+                                .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
+                                .Build()
+                        )
+                        .AddSingleton<MetricsCollectionService>()
+                        .AddSingleton<IClock>(SystemClock.Instance)
+                        .AddSnowflakeGenerator()
+                        .AddSingleton<MailService>()
+                        .AddSingleton<EmailRateLimiter>()
+                        .AddSingleton<KeyCacheService>()
+                        .AddScoped<UserRendererService>()
+                        .AddScoped<MemberRendererService>()
+                        .AddScoped<ModerationRendererService>()
+                        .AddScoped<ModerationService>()
+                        .AddScoped<AuthService>()
+                        .AddScoped<RemoteAuthService>()
+                        .AddScoped<FediverseAuthService>()
+                        .AddScoped<ObjectStorageService>()
+                        .AddTransient<DataCleanupService>()
+                        .AddTransient<ValidationService>()
+                        .AddSingleton<NoticeCacheService>()
+                        // Background services
+                        .AddHostedService<PeriodicTasksService>()
+                        // Transient jobs
+                        .AddTransient<UserAvatarUpdateJob>()
+                        .AddTransient<MemberAvatarUpdateJob>()
+                        .AddTransient<CreateDataExportJob>()
+                        .AddTransient<CreateFlagJob>()
+                        // Legacy services
+                        .AddScoped<UsersV1Service>()
+                        .AddScoped<MembersV1Service>();
+
+                    if (!config.Logging.EnableMetrics)
+                        services.AddHostedService<BackgroundMetricsCollectionService>();
+                }
+            );
+
+            return builder.Services;
+        }
     }
 
     public static IConfigurationBuilder AddConfiguration(this IConfigurationBuilder builder)
@@ -93,95 +185,6 @@ public static class WebApplicationExtensions
             .AddJsonFile("appSettings.json", true)
             .AddIniFile(file, false, true)
             .AddEnvironmentVariables();
-    }
-
-    /// <summary>
-    /// Adds required services to the WebApplicationBuilder.
-    /// This should only add services that are not ASP.NET-related (i.e. no middleware).
-    /// </summary>
-    public static IServiceCollection AddServices(this WebApplicationBuilder builder, Config config)
-    {
-        builder.Host.ConfigureServices(
-            (ctx, services) =>
-            {
-                // create a single HTTP client for all requests.
-                // it's also configured with a retry mechanism, so that requests aren't immediately lost to the void if they fail
-                services.AddSingleton<HttpClient>(_ =>
-                {
-                    // ReSharper disable once SuggestVarOrType_Elsewhere
-                    var retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
-                        .AddRetry(
-                            new HttpRetryStrategyOptions
-                            {
-                                BackoffType = DelayBackoffType.Linear,
-                                MaxRetryAttempts = 3,
-                            }
-                        )
-                        .Build();
-
-                    var resilienceHandler = new ResilienceHandler(retryPipeline)
-                    {
-                        InnerHandler = new SocketsHttpHandler
-                        {
-                            PooledConnectionLifetime = TimeSpan.FromMinutes(15),
-                        },
-                    };
-
-                    var client = new HttpClient(resilienceHandler);
-                    client.DefaultRequestHeaders.Remove("User-Agent");
-                    client.DefaultRequestHeaders.Remove("Accept");
-                    client.DefaultRequestHeaders.Add(
-                        "User-Agent",
-                        $"pronouns.cc/{BuildInfo.Version}"
-                    );
-                    client.DefaultRequestHeaders.Add("Accept", "application/json");
-                    return client;
-                });
-
-                services
-                    .AddQueue()
-                    .AddSmtpMailer(ctx.Configuration)
-                    .AddFoxnounsDatabase(config)
-                    .AddMetricServer(o => o.Port = config.Logging.MetricsPort)
-                    .AddMinio(c =>
-                        c.WithEndpoint(config.Storage.Endpoint)
-                            .WithCredentials(config.Storage.AccessKey, config.Storage.SecretKey)
-                            .Build()
-                    )
-                    .AddSingleton<MetricsCollectionService>()
-                    .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSnowflakeGenerator()
-                    .AddSingleton<MailService>()
-                    .AddSingleton<EmailRateLimiter>()
-                    .AddSingleton<KeyCacheService>()
-                    .AddScoped<UserRendererService>()
-                    .AddScoped<MemberRendererService>()
-                    .AddScoped<ModerationRendererService>()
-                    .AddScoped<ModerationService>()
-                    .AddScoped<AuthService>()
-                    .AddScoped<RemoteAuthService>()
-                    .AddScoped<FediverseAuthService>()
-                    .AddScoped<ObjectStorageService>()
-                    .AddTransient<DataCleanupService>()
-                    .AddTransient<ValidationService>()
-                    .AddSingleton<NoticeCacheService>()
-                    // Background services
-                    .AddHostedService<PeriodicTasksService>()
-                    // Transient jobs
-                    .AddTransient<UserAvatarUpdateJob>()
-                    .AddTransient<MemberAvatarUpdateJob>()
-                    .AddTransient<CreateDataExportJob>()
-                    .AddTransient<CreateFlagJob>()
-                    // Legacy services
-                    .AddScoped<UsersV1Service>()
-                    .AddScoped<MembersV1Service>();
-
-                if (!config.Logging.EnableMetrics)
-                    services.AddHostedService<BackgroundMetricsCollectionService>();
-            }
-        );
-
-        return builder.Services;
     }
 
     public static IServiceCollection AddCustomMiddleware(this IServiceCollection services) =>

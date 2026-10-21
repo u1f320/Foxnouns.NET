@@ -28,25 +28,20 @@ public static class ImageObjectExtensions
 {
     private static readonly string[] ValidContentTypes = ["image/png", "image/webp", "image/jpeg"];
 
-    public static async Task DeleteMemberAvatarAsync(
-        this ObjectStorageService objectStorageService,
-        Snowflake id,
-        string hash,
-        CancellationToken ct = default
-    ) => await objectStorageService.RemoveObjectAsync(MemberAvatarUpdateJob.Path(id, hash), ct);
+    extension(ObjectStorageService objectStorageService)
+    {
+        public async Task DeleteMemberAvatarAsync(
+            Snowflake id,
+            string hash,
+            CancellationToken ct = default
+        ) => await objectStorageService.RemoveObjectAsync(MemberAvatarUpdateJob.Path(id, hash), ct);
 
-    public static async Task DeleteUserAvatarAsync(
-        this ObjectStorageService objectStorageService,
-        Snowflake id,
-        string hash,
-        CancellationToken ct = default
-    ) => await objectStorageService.RemoveObjectAsync(UserAvatarUpdateJob.Path(id, hash), ct);
-
-    public static async Task DeleteFlagAsync(
-        this ObjectStorageService objectStorageService,
-        string hash,
-        CancellationToken ct = default
-    ) => await objectStorageService.RemoveObjectAsync(CreateFlagJob.Path(hash), ct);
+        public async Task DeleteUserAvatarAsync(
+            Snowflake id,
+            string hash,
+            CancellationToken ct = default
+        ) => await objectStorageService.RemoveObjectAsync(UserAvatarUpdateJob.Path(id, hash), ct);
+    }
 
     public static async Task<(string Hash, Stream Image)> ConvertBase64UriToImage(
         string uri,
