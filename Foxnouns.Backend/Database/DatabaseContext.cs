@@ -186,7 +186,8 @@ public class DesignTimeDatabaseContextFactory : IDesignTimeDbContextFactory<Data
                 .AddConfiguration()
                 .Build()
                 // Get the configuration as our config class
-                .Get<Config>() ?? new Config();
+                .Get<Config>()
+            ?? new Config();
 
         NpgsqlDataSource dataSource = DatabaseContext.BuildDataSource(config);
 

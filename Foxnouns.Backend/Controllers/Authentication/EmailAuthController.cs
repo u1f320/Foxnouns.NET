@@ -265,9 +265,9 @@ public class EmailAuthController(
         }
         else
         {
-            ValidationUtils.Validate(
-                [("password", ValidationUtils.ValidatePassword(req.Password))]
-            );
+            ValidationUtils.Validate([
+                ("password", ValidationUtils.ValidatePassword(req.Password)),
+            ]);
             await authService.SetUserPasswordAsync(CurrentUser!, req.Password);
             await db.SaveChangesAsync();
         }

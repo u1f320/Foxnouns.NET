@@ -73,25 +73,23 @@ public class MembersController(
         CancellationToken ct = default
     )
     {
-        ValidationUtils.Validate(
-            [
-                ("name", validationService.ValidateMemberName(req.Name)),
-                ("display_name", validationService.ValidateDisplayName(req.DisplayName)),
-                ("bio", validationService.ValidateBio(req.Bio)),
-                ("avatar", validationService.ValidateAvatar(req.Avatar)),
-                .. validationService.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
-                .. validationService.ValidateFieldEntries(
-                    req.Names?.ToArray(),
-                    CurrentUser!.CustomPreferences,
-                    "names"
-                ),
-                .. validationService.ValidatePronouns(
-                    req.Pronouns?.ToArray(),
-                    CurrentUser!.CustomPreferences
-                ),
-                .. validationService.ValidateLinks(req.Links),
-            ]
-        );
+        ValidationUtils.Validate([
+            ("name", validationService.ValidateMemberName(req.Name)),
+            ("display_name", validationService.ValidateDisplayName(req.DisplayName)),
+            ("bio", validationService.ValidateBio(req.Bio)),
+            ("avatar", validationService.ValidateAvatar(req.Avatar)),
+            .. validationService.ValidateFields(req.Fields, CurrentUser!.CustomPreferences),
+            .. validationService.ValidateFieldEntries(
+                req.Names?.ToArray(),
+                CurrentUser!.CustomPreferences,
+                "names"
+            ),
+            .. validationService.ValidatePronouns(
+                req.Pronouns?.ToArray(),
+                CurrentUser!.CustomPreferences
+            ),
+            .. validationService.ValidateLinks(req.Links),
+        ]);
 
         int memberCount = await db.Members.CountAsync(m => m.UserId == CurrentUser.Id, ct);
         if (memberCount >= config.Limits.MaxMemberCount)

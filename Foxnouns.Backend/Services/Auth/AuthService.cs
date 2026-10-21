@@ -48,12 +48,10 @@ public class AuthService(
     )
     {
         // Validate username and whether it's not taken
-        ValidationUtils.Validate(
-            [
-                ("username", validationService.ValidateUsername(username)),
-                ("password", ValidationUtils.ValidatePassword(password)),
-            ]
-        );
+        ValidationUtils.Validate([
+            ("username", validationService.ValidateUsername(username)),
+            ("password", ValidationUtils.ValidatePassword(password)),
+        ]);
         if (await db.Users.AnyAsync(u => u.Username == username, ct))
             throw new ApiError.BadRequest("Username is already taken", "username", username);
 

@@ -34,7 +34,8 @@ internal class Program
                 .AddConfiguration()
                 .Build()
                 // Get the configuration as our config class
-                .Get<Config>() ?? new Config();
+                .Get<Config>()
+            ?? new Config();
 
         NpgsqlConnection conn = await GoDatabase.GetConnectionAsync();
         // just reuse the design time factory so we don't have to copy this
