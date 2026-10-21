@@ -20,7 +20,12 @@ public static partial class ValidationUtils
 
     public static ValidationError? ValidateReportContext(string? context) =>
         context?.Length > MaximumReportContextLength
-            ? ValidationError.GenericValidationError("Report context is too long", null)
+            ? ValidationError.LengthError(
+                "Report context is too long",
+                0,
+                MaximumReportContextLength,
+                context?.Length ?? 0
+            )
             : null;
 
     public const int MinimumPasswordLength = 12;

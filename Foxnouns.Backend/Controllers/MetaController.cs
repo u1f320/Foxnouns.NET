@@ -15,6 +15,7 @@
 using System.Text.RegularExpressions;
 using Foxnouns.Backend.Database.Models;
 using Foxnouns.Backend.Dto;
+using Foxnouns.Backend.Middleware;
 using Foxnouns.Backend.Services.Caching;
 using Foxnouns.Backend.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -74,6 +75,22 @@ public partial class MetaController(Config config, NoticeCacheService noticeCach
         {
             throw new ApiError.NotFound("Page not found", code: ErrorCode.PageNotFound);
         }
+    }
+
+    [HttpGet("scopes")]
+    public IActionResult GetTokenScopes()
+    {
+        EndpointDataSource? endpointDataSource =
+            HttpContext.RequestServices.GetService<EndpointDataSource>();
+        if (endpointDataSource == null)
+            return Ok(Array.Empty<string>());
+
+        IEnumerable<RouteEndpoint> endpoints = endpointDataSource.Endpoints.OfType<RouteEndpoint>();
+        IEnumerable<string> scopes = endpoints
+            .SelectMany(e => e.Metadata.GetMetadata<AuthorizeAttribute>()?.Scopes ?? [])
+            .Distinct()
+            .Except(["*"]);
+        return Ok(scopes);
     }
 
     [HttpGet("/api/v2/coffee")]

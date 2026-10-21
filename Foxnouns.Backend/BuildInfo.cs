@@ -17,7 +17,7 @@ namespace Foxnouns.Backend;
 public static class BuildInfo
 {
     public static string Hash { get; private set; } = "(unknown)";
-    public static string Version { get; private set; } = "(unknown)";
+    public static string Version { get; private set; } = "v0.1.0";
 
     public static async Task ReadBuildInfo()
     {
