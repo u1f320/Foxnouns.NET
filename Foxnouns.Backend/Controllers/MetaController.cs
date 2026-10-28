@@ -26,14 +26,12 @@ namespace Foxnouns.Backend.Controllers;
 public partial class MetaController(Config config, NoticeCacheService noticeCache)
     : ApiControllerBase
 {
-    private const string Repository = "https://codeberg.org/pronounscc/pronouns.cc";
-
     [HttpGet]
     [ProducesResponseType<MetaResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMeta(CancellationToken ct = default) =>
         Ok(
             new MetaResponse(
-                Repository,
+                config.Repository,
                 BuildInfo.Version,
                 BuildInfo.Hash,
                 (int)FoxnounsMetrics.MemberCount.Value,

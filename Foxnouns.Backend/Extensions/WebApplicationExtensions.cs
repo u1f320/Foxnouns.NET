@@ -121,11 +121,17 @@ public static class WebApplicationExtensions
                         var client = new HttpClient(resilienceHandler);
                         client.DefaultRequestHeaders.Remove("User-Agent");
                         client.DefaultRequestHeaders.Remove("Accept");
+                        client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+                        // the client will fail if the version in the user agent is (unknown),
+                        // so change it to v0.1.0 if it's somehow not set.
+                        string buildInfoVersion =
+                            BuildInfo.Version != "(unknown)" ? BuildInfo.Version : "v0.1.0";
                         client.DefaultRequestHeaders.Add(
                             "User-Agent",
-                            $"pronouns.cc/{BuildInfo.Version}"
+                            $"pronouns.cc/{buildInfoVersion} (+{config.BaseUrl}, {config.Repository})"
                         );
-                        client.DefaultRequestHeaders.Add("Accept", "application/json");
+
                         return client;
                     });
 
@@ -221,10 +227,10 @@ public static class WebApplicationExtensions
             BuildInfo.Hash
         );
 
-        var pendingMigrations = (await db.Database.GetPendingMigrationsAsync()).ToList();
+        int pendingMigrations = (await db.Database.GetPendingMigrationsAsync()).Count();
         if (args.Contains("--migrate") || args.Contains("--migrate-and-start"))
         {
-            if (pendingMigrations.Count == 0)
+            if (pendingMigrations == 0)
             {
                 logger.Information("Migrations requested but no migrations are required");
             }
@@ -238,11 +244,11 @@ public static class WebApplicationExtensions
             if (!args.Contains("--migrate-and-start"))
                 Environment.Exit(0);
         }
-        else if (pendingMigrations.Count > 0)
+        else if (pendingMigrations > 0)
         {
             logger.Fatal(
                 "There are {Count} pending migrations, run server with --migrate or --migrate-and-start to run migrations.",
-                pendingMigrations.Count
+                pendingMigrations
             );
             Environment.Exit(1);
         }

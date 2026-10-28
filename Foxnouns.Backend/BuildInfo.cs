@@ -16,8 +16,10 @@ namespace Foxnouns.Backend;
 
 public static class BuildInfo
 {
+    public const string Repository = "https://codeberg.org/pronounscc/pronouns.cc";
+
     public static string Hash { get; private set; } = "(unknown)";
-    public static string Version { get; private set; } = "v0.1.0";
+    public static string Version { get; private set; } = "(unknown)";
 
     public static async Task ReadBuildInfo()
     {

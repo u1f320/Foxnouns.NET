@@ -24,6 +24,7 @@ public class Config
     public int Port { get; init; } = 3000;
     public string BaseUrl { get; init; } = null!;
     public string MediaBaseUrl { get; init; } = null!;
+    public string Repository { get; init; } = BuildInfo.Repository;
 
     public string Address => $"http://{Host}:{Port}";
 
