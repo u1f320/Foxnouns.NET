@@ -85,6 +85,7 @@ export type QueriedUser = {
 	last_sid_reroll: string;
 	suspended: boolean;
 	deleted: boolean;
+	show_sensitive_data: boolean;
 	auth_methods?: AuthMethod[];
 };
 

@@ -28,15 +28,15 @@
 		<input type="hidden" name="report" value={reportId} />
 	{/if}
 	<FormStatusMarker {form} />
-	<textarea name="reason" class="form-control" style="height: 200px;"></textarea>
+	<textarea name="reason" class="form-control mb-2" style="height: 200px;"></textarea>
 	<TabContent>
 		{#if reportId}
-			<TabPane tabId="ignore" tab="Ignore">
+			<TabPane tabId="ignore" tab="Ignore" class="p-2">
 				<button type="submit" formaction="?/ignore" class="btn btn-secondary">Ignore report</button>
 			</TabPane>
 		{/if}
-		<TabPane tabId="warn" tab="Warn" active>
-			<div class="row row-cols-1 row-cols-lg-2">
+		<TabPane tabId="warn" tab="Warn" active class="p-2">
+			<div class="row row-cols-1 row-cols-lg-2 mb-2">
 				{#each fields as field}
 					<div class="form-check">
 						<input
@@ -56,8 +56,8 @@
 				<button type="submit" formaction="?/warn" class="btn btn-danger">Warn user</button>
 			</div>
 		</TabPane>
-		<TabPane tabId="suspend" tab="Suspend">
-			<div class="form-check">
+		<TabPane tabId="suspend" tab="Suspend" class="p-2">
+			<div class="form-check mb-2">
 				<input
 					class="form-check-input"
 					type="checkbox"

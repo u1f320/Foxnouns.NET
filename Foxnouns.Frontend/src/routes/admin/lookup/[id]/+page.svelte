@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { idTimestamp } from "$lib";
 	import { DateTime } from "luxon";
-	import type { PageData } from "./$types";
+	import type { ActionData, PageData } from "./$types";
 	import ProfileHeader from "$components/profile/ProfileHeader.svelte";
 	import ProfileFields from "$components/profile/ProfileFields.svelte";
 	import { mergePreferences } from "$api/models";
 	import AuthMethodRow from "$components/settings/AuthMethodRow.svelte";
+	import { enhance } from "$app/forms";
+	import ActionForm from "$components/admin/ActionForm.svelte";
 
-	type Props = { data: PageData };
-	let { data }: Props = $props();
+	type Props = { data: PageData; form: ActionData };
+	let { data, form }: Props = $props();
 
 	let createdAt = $derived(idTimestamp(data.user.user.id));
 	let lastActive = $derived(DateTime.fromISO(data.user.last_active));
@@ -52,6 +54,32 @@
 		</tr>
 	</tbody>
 </table>
+
+<div class="row">
+	<h3>Take action on user</h3>
+	<ActionForm userId={data.user.user.id} {form} />
+</div>
+
+{#if !data.user.show_sensitive_data}
+	<h2>Query sensitive data</h2>
+	<p>Only use this if required. Requests will be logged to the audit log.</p>
+	<div class="list-group">
+		<form method="POST" action="?/requestData" use:enhance>
+			<div class="form-field mb-3">
+				<textarea
+					name="reason"
+					class="form-control"
+					style="height: 200px;"
+					required
+					placeholder="Reason"
+				></textarea>
+			</div>
+			<div class="form-field">
+				<button type="submit" class="btn btn-secondary"> Query sensitive data </button>
+			</div>
+		</form>
+	</div>
+{/if}
 
 {#if authMethods}
 	<h2>Authentication methods</h2>
